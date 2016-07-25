@@ -22,8 +22,8 @@ estPi0Reg <- function(p, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3)
   ##number of lambdas
   nLambda <- length(lambda)
   
-  ##sort lambdas from smallest to largest
-  lambda <- sort(lambda)
+  ##sort lambdas from smallest to largest and take only unique values
+  lambda <- sort(unique(lambda))
   
   ##make a design matrix with the intercept
   Xint <- cbind(1, X)
@@ -48,11 +48,18 @@ estPi0Reg <- function(p, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3)
   pi0 <- rep(NA, length=n)
   for(i in 1:n)
   {
+    if(i %% 10000==0)
+    {
+      print(i)
+    }
     spi0 <- smooth.spline(lambda, pi0.lambda[i,], df=smooth.df)
-    pi0.smooth[i, ] <- predict(spi0, x=lambda)$y
-    pi0[i] <- max(0,min(1, pi0.smooth[i,nLambda]))
+    pi0.smooth[i, ] <- spi0$y
+    pi0[i] <- pi0.smooth[i,nLambda]
   }
    
+  pi0 <- ifelse(pi0 > 1, 1, pi0)
+  pi0 <- ifelse(pi0 < 0, 0, pi0)
+  
   return(list(pi0=pi0, pi0.lambda=pi0.lambda, lambda=lambda, pi0.smooth=pi0.smooth))
 }
 
