@@ -45,7 +45,7 @@ estPi0Reg <- function(p, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3)
   ##smooth over values of lambda (do this for each test in part)
   pi0.smooth <- matrix(NA, nrow=n, ncol=nLambda)
   ##also save final estimate (maximum of 0 and minimum of 1 and smoothed value at largest lambda)
-  pi <- rep(NA, length=n)
+  pi0 <- rep(NA, length=n)
   for(i in 1:n)
   {
     spi0 <- smooth.spline(lambda, pi0.lambda[i,], df=smooth.df)
