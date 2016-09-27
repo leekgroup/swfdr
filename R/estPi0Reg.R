@@ -4,12 +4,13 @@
 #' @param lambda Numerical vector of thresholds. Must be in [0,1).
 #' @param X Design matrix (one test per row, one variable per column). Do not include the intercept.
 #' @param smooth.df Number of degrees of freedom when estimating pi0(x) with a smoother.
+#' @param truncate If TRUE (default), all estimates are truncated at 0 and 1, if FALSE, none of them are.
 #' 
 #' @return pi0 Numerical vector of smoothed estimate of pi0(x). The length is the number of rows in X.
 #' @return pi0.lambda Numerical matrix of estimated pi0 for each value of lambda. The number of columns is the number of tests, the number of rows is the length of lambda.
 #' @return lambda Vector of the values of lambda used in calculating pi0.lambda
 #' @return pi0.smooth Matrix of fitted values from the smoother fit to the pi0(x) estimates at each value of lambda (same number of rows and columns as pi0.lambda)
-estPi0Reg <- function(p, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3)
+estPi0Reg <- function(p, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3, truncate=TRUE)
 {
   ##if X is a vector, change it into a matrix
   if(is.null(dim(X)))
@@ -40,6 +41,11 @@ estPi0Reg <- function(p, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3)
     
     ##get the estimated values of pi0
     pi0.lambda[,i] <- (Xint %*% matrix(regFit$coefficients, ncol=1))[,1]/(1-lambda.i)
+    
+    if(truncate){
+      pi0.lambda[,i] <- ifelse(pi0.lambda[,i] > 1, 1, pi0.lambda[,i])
+      pi0.lambda[,i] <- ifelse(pi0.lambda[,i] < 0, 0, pi0.lambda[,i])
+    }
   }
   
   ##smooth over values of lambda (do this for each test in part)
@@ -56,9 +62,11 @@ estPi0Reg <- function(p, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3)
     pi0.smooth[i, ] <- spi0$y
     pi0[i] <- pi0.smooth[i,nLambda]
   }
-   
-  pi0 <- ifelse(pi0 > 1, 1, pi0)
-  pi0 <- ifelse(pi0 < 0, 0, pi0)
+  
+  if(truncate){ 
+    pi0 <- ifelse(pi0 > 1, 1, pi0)
+    pi0 <- ifelse(pi0 < 0, 0, pi0)
+  }
   
   return(list(pi0=pi0, pi0.lambda=pi0.lambda, lambda=lambda, pi0.smooth=pi0.smooth))
 }
