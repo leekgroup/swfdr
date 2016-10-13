@@ -4,7 +4,8 @@
 \alias{estPi0Reg}
 \title{Estimate pi0(x)}
 \usage{
-estPi0Reg(p, lambda = seq(0.05, 0.95, 0.05), X, smooth.df = 3)
+estPi0Reg(p, lambda = seq(0.05, 0.95, 0.05), X, smooth.df = 3,
+  truncate = TRUE)
 }
 \arguments{
 \item{p}{Numerical vector of p-values}
@@ -14,6 +15,8 @@ estPi0Reg(p, lambda = seq(0.05, 0.95, 0.05), X, smooth.df = 3)
 \item{X}{Design matrix (one test per row, one variable per column). Do not include the intercept.}
 
 \item{smooth.df}{Number of degrees of freedom when estimating pi0(x) with a smoother.}
+
+\item{truncate}{If TRUE (default), all estimates are truncated at 0 and 1, if FALSE, none of them are.}
 }
 \value{
 pi0 Numerical vector of smoothed estimate of pi0(x). The length is the number of rows in X.
