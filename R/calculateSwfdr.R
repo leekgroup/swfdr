@@ -1,26 +1,19 @@
-########################################################################################
-# Function for calculating the science-wise FDR 
-# Date: 7-1-12
-# Copyright (C) 2011 Jeffrey T. Leek (http://www.biostat.jhsph.edu/~jleek/contact.html) and Leah R. Jager
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details, see <http://www.gnu.org/licenses/>.
-#
-#
-#    Note: These functions were written on a Mac and may have difficulties when
-#          read on Windows machines. They depend on the functions in "journalAnalysisHelp.R" 
-#           all code is available from: https://github.com/jtleek/swfdr
-#          It also depends on the R libraries: stat4, genefilter, lme4
-#
-########################################################################################
-
+#' Calculate the science-wise FDR
+#' 
+#' @param pValues Numerical vector of p-values
+#' @param truncated Vector of 0s and 1s with indices corresponding to those in pValues; 1 indicates that the p-values is truncated, 0 that it is not truncated
+#' @param rounded Vector of 0s and 1s with indices corresponding to those in pValues; 1 indicates that the p-values is rounded, 0 that it is not rounded
+#' @param pi0 Initial prior probability that a hypothesis is null
+#' @param alpha Initial value of parameter alpha from Beta(alpha, beta) true positive distribution
+#' @param beta Initial value of parameter beta from Beta(alpha, beta) true positive distribution
+#' @param numEmIterations The number of EM iterations (default is 100)
+#' 
+#' @return pi0 Final value of prior probability - estimated from EM - that a hypothesis is null
+#' @return alpha Final value of parameter alpha - estimated from EM - from Beta(alpha, beta) true positive distribution
+#' @return beta Final value of parameter beta - estimated from EM - from Beta(alpha, beta) true positive distribution
+#' @return z Indicator vector of 0s and 1s - estimated from EM - with 1s indicating p-values from the null distribution
+#' @return n0 Expected number of null p-values - estimated from EM - between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
+#' @return n Number of p-values between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
 calculateSwfdr = function(pValues,truncated,rounded,pi0 = 0.5,alpha=1,beta=50,numEmIterations=100){
   pp = pValues
   tt = truncated
