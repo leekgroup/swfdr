@@ -1,13 +1,19 @@
 Package: swfdr
-Title: What the Package Does (one line, title case)
+Title: Science-wise false discovery rate estimation
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Authors@R: c(
+    person("Jeff", "Leek", email = "jtleek@gmail.com", role = c("cre","aut")),
+    person("Simina", "Boca", email = "winston@rstudio.com", role = c("cred","aut")))
+Description: This package allows users to estimate the science-wise false discovery rate from Jager and Leek, 
+"Empirical estimates suggest most published medical research is true," 2013, Biostatistics, using an EM approach
+due to the presence of rounding and censoring. It also allows users to estimate the proportion of true null
+hypotheses in the presence of covariates, using a regression framework, as per Boca and Leek, "A regression
+framework for the proportion of true null hypotheses," 2015, bioRxiv preprint.
 Depends:
     R (>= 3.3.0)
 Imports:
     MASS, splines, stats4, genefilter, lme4
-License: What license is it under?
+License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 5.0.1
