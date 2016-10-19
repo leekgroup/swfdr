@@ -1,6 +1,6 @@
 #' Estimate pi0(x)
 #' 
-#' @param p Numerical vector of p-values
+#' @param pValues Numerical vector of p-values
 #' @param lambda Numerical vector of thresholds. Must be in [0,1).
 #' @param X Design matrix (one test per row, one variable per column). Do not include the intercept.
 #' @param smooth.df Number of degrees of freedom when estimating pi0(x) with a smoother.
@@ -10,7 +10,7 @@
 #' @return pi0.lambda Numerical matrix of estimated pi0 for each value of lambda. The number of columns is the number of tests, the number of rows is the length of lambda.
 #' @return lambda Vector of the values of lambda used in calculating pi0.lambda
 #' @return pi0.smooth Matrix of fitted values from the smoother fit to the pi0(x) estimates at each value of lambda (same number of rows and columns as pi0.lambda)
-estPi0Reg <- function(p, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3, truncate=TRUE)
+lm_pi0 <- function(pValues, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3, truncate=TRUE)
 {
   ##if X is a vector, change it into a matrix
   if(is.null(dim(X)))
@@ -34,7 +34,7 @@ estPi0Reg <- function(p, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3, truncat
   for(i in 1:nLambda)
   {
     lambda.i <- lambda[i]
-    y <- p > lambda.i
+    y <- pValues > lambda.i
     
     ##fit regression
     regFit <- lsfit(X, y)
