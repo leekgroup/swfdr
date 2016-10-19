@@ -5,7 +5,7 @@
 \title{Estimate pi0(x)}
 \usage{
 lm_pi0(pValues, lambda = seq(0.05, 0.95, 0.05), X, smooth.df = 3,
-  truncate = TRUE)
+  threshold = TRUE)
 }
 \arguments{
 \item{pValues}{Numerical vector of p-values}
@@ -16,7 +16,7 @@ lm_pi0(pValues, lambda = seq(0.05, 0.95, 0.05), X, smooth.df = 3,
 
 \item{smooth.df}{Number of degrees of freedom when estimating pi0(x) with a smoother.}
 
-\item{truncate}{If TRUE (default), all estimates are truncated at 0 and 1, if FALSE, none of them are.}
+\item{threshold}{If TRUE (default), all estimates are thresholded at 0 and 1, if FALSE, none of them are.}
 }
 \value{
 pi0 Numerical vector of smoothed estimate of pi0(x). The length is the number of rows in X.

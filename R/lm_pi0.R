@@ -4,13 +4,13 @@
 #' @param lambda Numerical vector of thresholds. Must be in [0,1).
 #' @param X Design matrix (one test per row, one variable per column). Do not include the intercept.
 #' @param smooth.df Number of degrees of freedom when estimating pi0(x) with a smoother.
-#' @param truncate If TRUE (default), all estimates are truncated at 0 and 1, if FALSE, none of them are.
+#' @param threshold If TRUE (default), all estimates are thresholded at 0 and 1, if FALSE, none of them are.
 #' 
 #' @return pi0 Numerical vector of smoothed estimate of pi0(x). The length is the number of rows in X.
 #' @return pi0.lambda Numerical matrix of estimated pi0 for each value of lambda. The number of columns is the number of tests, the number of rows is the length of lambda.
 #' @return lambda Vector of the values of lambda used in calculating pi0.lambda
 #' @return pi0.smooth Matrix of fitted values from the smoother fit to the pi0(x) estimates at each value of lambda (same number of rows and columns as pi0.lambda)
-lm_pi0 <- function(pValues, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3, truncate=TRUE)
+lm_pi0 <- function(pValues, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3, threshold=TRUE)
 {
   ##if X is a vector, change it into a matrix
   if(is.null(dim(X)))
@@ -42,7 +42,7 @@ lm_pi0 <- function(pValues, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3, trun
     ##get the estimated values of pi0
     pi0.lambda[,i] <- (Xint %*% matrix(regFit$coefficients, ncol=1))[,1]/(1-lambda.i)
     
-    if(truncate){
+    if(threshold){
       pi0.lambda[,i] <- ifelse(pi0.lambda[,i] > 1, 1, pi0.lambda[,i])
       pi0.lambda[,i] <- ifelse(pi0.lambda[,i] < 0, 0, pi0.lambda[,i])
     }
@@ -63,7 +63,7 @@ lm_pi0 <- function(pValues, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3, trun
     pi0[i] <- pi0.smooth[i,nLambda]
   }
   
-  if(truncate){ 
+  if(threshold){ 
     pi0 <- ifelse(pi0 > 1, 1, pi0)
     pi0 <- ifelse(pi0 < 0, 0, pi0)
   }
