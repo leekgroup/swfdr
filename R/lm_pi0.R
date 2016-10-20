@@ -7,7 +7,7 @@
 #' @param threshold If TRUE (default), all estimates are thresholded at 0 and 1, if FALSE, none of them are.
 #' 
 #' @return pi0 Numerical vector of smoothed estimate of pi0(x). The length is the number of rows in X.
-#' @return pi0.lambda Numerical matrix of estimated pi0 for each value of lambda. The number of columns is the number of tests, the number of rows is the length of lambda.
+#' @return pi0.lambda Numerical matrix of estimated pi0(x) for each value of lambda. The number of columns is the number of tests, the number of rows is the length of lambda.
 #' @return lambda Vector of the values of lambda used in calculating pi0.lambda
 #' @return pi0.smooth Matrix of fitted values from the smoother fit to the pi0(x) estimates at each value of lambda (same number of rows and columns as pi0.lambda)
 lm_pi0 <- function(pValues, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3, threshold=TRUE)
@@ -56,7 +56,7 @@ lm_pi0 <- function(pValues, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3, thre
   {
     if(i %% 10000==0)
     {
-      print(i)
+      print(paste("At test #:",i))
     }
     spi0 <- smooth.spline(lambda, pi0.lambda[i,], df=smooth.df)
     pi0.smooth[i, ] <- spi0$y
