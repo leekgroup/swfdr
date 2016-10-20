@@ -21,7 +21,7 @@ lm_pi0(pValues, lambda = seq(0.05, 0.95, 0.05), X, smooth.df = 3,
 \value{
 pi0 Numerical vector of smoothed estimate of pi0(x). The length is the number of rows in X.
 
-pi0.lambda Numerical matrix of estimated pi0 for each value of lambda. The number of columns is the number of tests, the number of rows is the length of lambda.
+pi0.lambda Numerical matrix of estimated pi0(x) for each value of lambda. The number of columns is the number of tests, the number of rows is the length of lambda.
 
 lambda Vector of the values of lambda used in calculating pi0.lambda
 
