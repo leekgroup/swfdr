@@ -10,6 +10,8 @@
 #' @return pi0.lambda Numerical matrix of estimated pi0(x) for each value of lambda. The number of columns is the number of tests, the number of rows is the length of lambda.
 #' @return lambda Vector of the values of lambda used in calculating pi0.lambda
 #' @return pi0.smooth Matrix of fitted values from the smoother fit to the pi0(x) estimates at each value of lambda (same number of rows and columns as pi0.lambda)
+#'
+#' @export
 lm_pi0 <- function(pValues, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3, threshold=TRUE)
 {
   ##if X is a vector, change it into a matrix

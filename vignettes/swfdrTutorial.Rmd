@@ -2,6 +2,7 @@
 title: "Tutorial for `swfdr` package"
 author: "Jeff Leek, Simina Boca"
 date: "`r Sys.Date()`"
+bibliography: myRefs.bib
 output: rmarkdown::pdf_document
 vignette: >
   %\VignetteIndexEntry{swfdr}
@@ -9,26 +10,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-## Package description
+## Package overview
 
+This package allows users to estimate the science-wise false discovery rate from @JagerEtAl2013, using an EM approach due to the presence of rounding and censoring. It also allows users to estimate the proportion of true null hypotheses in the presence of covariates, using a regression framework, as per @BocaEtAl2015.
+
+The package is loaded using:
 ```{r}
-library(readr)
-library(dplyr)
-library(fdrtool)
-library(betareg)
-library(splines)
-library(Hmisc)
-library(ggplot2)
-library(reshape2)
-source("../R/lm_pi0.R")
+library(swfdr)
 ```
-
-This package allows users to estimate the science-wise false discovery rate from Jager and Leek, 
-"Empirical estimates suggest most published medical research is true," 2013, Biostatistics, using an EM approach due to the presence of rounding and censoring. It also allows users to estimate the proportion of true null hypotheses in the presence of covariates, using a regression framework, as per Boca and Leek, "A regression framework for the proportion of true null hypotheses," 2015, bioRxiv preprint.
 
 ## Estimating the proportion of true null hypothesis in the presence of covariates
 
-As in Boca and Leek, we denote by $\pi_0(x)$ the proportion of true null hypotheses as a function of a covariate $x$. This is estimated based on a list of p-values $p_1,\ldots,p_m$ corresponding to a set
+As in @BocaEtAl2015, we denote by $\pi_0(x)$ the proportion of true null hypotheses as a function of a covariate $x$. This is estimated based on a list of p-values $p_1,\ldots,p_m$ corresponding to a set
 of null hypotheses, $H_{01},\ldots,H_{0m}$, and a design matrix $X$.
 The design matrix considers relevant meta-data, which could be valuable for improving estimatong of the 
 prior probability that a hypothesis is true or false.
@@ -36,11 +29,10 @@ prior probability that a hypothesis is true or false.
 ### Example: Adjust for sample size and allele frequency in BMI GWAS meta-analysis
 
 We consider an example from the meta-analysis of data from a genome-wide association study (GWAS) for
-body mass index (BMI) (Locke et al, 2015, Nature). A subset of this data, corresponding to 50,000 
+body mass index (BMI) from @LockeEtAl2015. A subset of this data, corresponding to 50,000 
 single nucleotide polymorphisms (SNPs), can be loaded using:
 ```{r}
 data(BMI_GIANT_GWAS_sample)
-load("../data/BMI_GIANT_GWAS_sample.RData")
 head(BMI_GIANT_GWAS_sample)
 dim(BMI_GIANT_GWAS_sample)
 ```
@@ -61,7 +53,7 @@ This function estimates $\pi_0(x)$. It inputs the following parameters:
 
 To apply it to the BMI GWAS dataset, we first create the design matrix, using natural cubic splines with 5 degrees of freedom to model `N` and 3 discrete categories for the MAFs:
 ```{r}
-X <- model.matrix(~ ns(N,5) + Freq_MAF_Int_Hapmap, data = BMI_GIANT_GWAS_sample)[,-1]
+X <- model.matrix(~ splines::ns(N,5) + Freq_MAF_Int_Hapmap, data = BMI_GIANT_GWAS_sample)[,-1]
 head(X)
 ```
 
@@ -91,9 +83,9 @@ BMI_GIANT_GWAS_sample$fitted.final.smooth <- pi0x$pi0
 
 We next create a long data frame so that we can use the plotting tools in `ggplot2`:
 ```{r}
-ldf <- melt(BMI_GIANT_GWAS_sample,
-            id.vars=colnames(BMI_GIANT_GWAS_sample)[-grep("fitted",colnames(BMI_GIANT_GWAS_sample))],
-            value.name = "pi0",variable.name = "lambda")
+ldf <- reshape2::melt(BMI_GIANT_GWAS_sample,
+                      id.vars=colnames(BMI_GIANT_GWAS_sample)[-grep("fitted",colnames(BMI_GIANT_GWAS_sample))],
+                      value.name = "pi0",variable.name = "lambda")
 ldf$lambda <- as.character(ldf$lambda)
 ldf$lambda[ldf$lambda=="fitted0.8"] <- "lambda=0.8"
 ldf$lambda[ldf$lambda=="fitted0.9"] <- "lambda=0.9"
@@ -104,7 +96,7 @@ head(ldf)
 
 The plot of the estimates of $\pi_0(x)$ against the sample size $N$, stratified by the MAF categories can thus be obtained:
 ```{r, BMI_GWAS_plot}
-ggplot(ldf, aes(x=N, y=pi0))+
+ggplot2::ggplot(ldf, aes(x=N, y=pi0))+
   geom_line(aes(col=Freq_MAF_Int_Hapmap, linetype=lambda)) +
   ylab("Estimated proportion of nulls") +
   guides(color=guide_legend(title="MAF in HapMap CEU population"),
@@ -112,3 +104,4 @@ ggplot(ldf, aes(x=N, y=pi0))+
 
 ```
 
+## References
