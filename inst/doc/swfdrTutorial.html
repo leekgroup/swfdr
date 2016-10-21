@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Jeff Leek, Simina Boca" />
+
+<meta name="date" content="2016-10-20" />
+
+<title>Tutorial for swfdr package</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+</style>
+
+
+
+<link href="data:text/css,body%20%7B%0A%20%20background%2Dcolor%3A%20%23fff%3B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20max%2Dwidth%3A%20700px%3B%0A%20%20overflow%3A%20visible%3B%0A%20%20padding%2Dleft%3A%202em%3B%0A%20%20padding%2Dright%3A%202em%3B%0A%20%20font%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0A%20%20font%2Dsize%3A%2014px%3B%0A%20%20line%2Dheight%3A%201%2E35%3B%0A%7D%0A%0A%23header%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0A%0A%23TOC%20%7B%0A%20%20clear%3A%20both%3B%0A%20%20margin%3A%200%200%2010px%2010px%3B%0A%20%20padding%3A%204px%3B%0A%20%20width%3A%20400px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20border%2Dradius%3A%205px%3B%0A%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20font%2Dsize%3A%2013px%3B%0A%20%20line%2Dheight%3A%201%2E3%3B%0A%7D%0A%20%20%23TOC%20%2Etoctitle%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%20%20font%2Dsize%3A%2015px%3B%0A%20%20%20%20margin%2Dleft%3A%205px%3B%0A%20%20%7D%0A%0A%20%20%23TOC%20ul%20%7B%0A%20%20%20%20padding%2Dleft%3A%2040px%3B%0A%20%20%20%20margin%2Dleft%3A%20%2D1%2E5em%3B%0A%20%20%20%20margin%2Dtop%3A%205px%3B%0A%20%20%20%20margin%2Dbottom%3A%205px%3B%0A%20%20%7D%0A%20%20%23TOC%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dleft%3A%20%2D2em%3B%0A%20%20%7D%0A%20%20%23TOC%20li%20%7B%0A%20%20%20%20line%2Dheight%3A%2016px%3B%0A%20%20%7D%0A%0Atable%20%7B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dcolor%3A%20%23DDDDDD%3B%0A%20%20border%2Dstyle%3A%20outset%3B%0A%20%20border%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0A%20%20border%2Dwidth%3A%202px%3B%0A%20%20padding%3A%205px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%20%20line%2Dheight%3A%2018px%3B%0A%20%20padding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0A%20%20border%2Dleft%2Dstyle%3A%20none%3B%0A%20%20border%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Ap%20%7B%0A%20%20margin%3A%200%2E5em%200%3B%0A%7D%0A%0Ablockquote%20%7B%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20padding%3A%200%2E25em%200%2E75em%3B%0A%7D%0A%0Ahr%20%7B%0A%20%20border%2Dstyle%3A%20solid%3B%0A%20%20border%3A%20none%3B%0A%20%20border%2Dtop%3A%201px%20solid%20%23777%3B%0A%20%20margin%3A%2028px%200%3B%0A%7D%0A%0Adl%20%7B%0A%20%20margin%2Dleft%3A%200%3B%0A%7D%0A%20%20dl%20dd%20%7B%0A%20%20%20%20margin%2Dbottom%3A%2013px%3B%0A%20%20%20%20margin%2Dleft%3A%2013px%3B%0A%20%20%7D%0A%20%20dl%20dt%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%7D%0A%0Aul%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%7D%0A%20%20ul%20li%20%7B%0A%20%20%20%20list%2Dstyle%3A%20circle%20outside%3B%0A%20%20%7D%0A%20%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dbottom%3A%200%3B%0A%20%20%7D%0A%0Apre%2C%20code%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20color%3A%20%23333%3B%0A%20%20white%2Dspace%3A%20pre%2Dwrap%3B%20%20%20%20%2F%2A%20Wrap%20long%20lines%20%2A%2F%0A%7D%0Apre%20%7B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20margin%3A%205px%200px%2010px%200px%3B%0A%20%20padding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Acode%20%7B%0A%20%20font%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0A%20%20font%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0A%20%20padding%3A%202px%200px%3B%0A%7D%0A%0Adiv%2Efigure%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0A%20%20background%2Dcolor%3A%20%23FFFFFF%3B%0A%20%20padding%3A%202px%3B%0A%20%20border%3A%201px%20solid%20%23DDDDDD%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20margin%3A%200%205px%3B%0A%7D%0A%0Ah1%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%20%20font%2Dsize%3A%2035px%3B%0A%20%20line%2Dheight%3A%2040px%3B%0A%7D%0A%0Ah2%20%7B%0A%20%20border%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20padding%2Dbottom%3A%202px%3B%0A%20%20font%2Dsize%3A%20145%25%3B%0A%7D%0A%0Ah3%20%7B%0A%20%20border%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20font%2Dsize%3A%20120%25%3B%0A%7D%0A%0Ah4%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0A%20%20margin%2Dleft%3A%208px%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Ah5%2C%20h6%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23ccc%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Aa%20%7B%0A%20%20color%3A%20%230033dd%3B%0A%20%20text%2Ddecoration%3A%20none%3B%0A%7D%0A%20%20a%3Ahover%20%7B%0A%20%20%20%20color%3A%20%236666ff%3B%20%7D%0A%20%20a%3Avisited%20%7B%0A%20%20%20%20color%3A%20%23800080%3B%20%7D%0A%20%20a%3Avisited%3Ahover%20%7B%0A%20%20%20%20color%3A%20%23BB00BB%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%0A%2F%2A%20Class%20described%20in%20https%3A%2F%2Fbenjeffrey%2Ecom%2Fposts%2Fpandoc%2Dsyntax%2Dhighlighting%2Dcss%0A%20%20%20Colours%20from%20https%3A%2F%2Fgist%2Egithub%2Ecom%2Frobsimmons%2F1172277%20%2A%2F%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Keyword%20%2A%2F%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%2F%2A%20DataType%20%2A%2F%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%2F%2A%20DecVal%20%28decimal%20values%29%20%2A%2F%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20BaseN%20%2A%2F%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Float%20%2A%2F%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Char%20%2A%2F%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20String%20%2A%2F%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%2F%2A%20Comment%20%2A%2F%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%2F%2A%20OtherToken%20%2A%2F%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20AlertToken%20%2A%2F%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Function%20calls%20%2A%2F%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%2F%2A%20ErrorTok%20%2A%2F%0A%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Tutorial for <code>swfdr</code> package</h1>
+<h4 class="author"><em>Jeff Leek, Simina Boca</em></h4>
+<h4 class="date"><em>2016-10-20</em></h4>
+
+
+
+<div id="package-description" class="section level2">
+<h2>Package description</h2>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(readr)
+<span class="kw">library</span>(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following object is masked from 'package:MASS':
+## 
+##     select</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(fdrtool)
+<span class="kw">library</span>(betareg)
+<span class="kw">library</span>(splines)
+<span class="kw">library</span>(Hmisc)</code></pre>
+<pre><code>## Loading required package: lattice</code></pre>
+<pre><code>## Loading required package: survival</code></pre>
+<pre><code>## Loading required package: Formula</code></pre>
+<pre><code>## Loading required package: ggplot2</code></pre>
+<pre><code>## 
+## Attaching package: 'Hmisc'</code></pre>
+<pre><code>## The following objects are masked from 'package:dplyr':
+## 
+##     combine, src, summarize</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     format.pval, round.POSIXt, trunc.POSIXt, units</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(ggplot2)
+<span class="kw">library</span>(reshape2)
+<span class="kw">source</span>(<span class="st">&quot;../R/lm_pi0.R&quot;</span>)</code></pre>
+<p>This package allows users to estimate the science-wise false discovery rate from Jager and Leek, “Empirical estimates suggest most published medical research is true,” 2013, Biostatistics, using an EM approach due to the presence of rounding and censoring. It also allows users to estimate the proportion of true null hypotheses in the presence of covariates, using a regression framework, as per Boca and Leek, “A regression framework for the proportion of true null hypotheses,” 2015, bioRxiv preprint.</p>
+</div>
+<div id="estimating-the-proportion-of-true-null-hypothesis-in-the-presence-of-covariates" class="section level2">
+<h2>Estimating the proportion of true null hypothesis in the presence of covariates</h2>
+<p>As in Boca and Leek, we denote by <span class="math">\(\pi_0(x)\)</span> the proportion of true null hypotheses as a function of a covariate <span class="math">\(x\)</span>. This is estimated based on a list of p-values <span class="math">\(p_1,\ldots,p_m\)</span> corresponding to a set of null hypotheses, <span class="math">\(H_{01},\ldots,H_{0m}\)</span>, and a design matrix <span class="math">\(X\)</span>. The design matrix considers relevant meta-data, which could be valuable for improving estimatong of the prior probability that a hypothesis is true or false.</p>
+<div id="example-adjust-for-sample-size-and-allele-frequency-in-bmi-gwas-meta-analysis" class="section level3">
+<h3>Example: Adjust for sample size and allele frequency in BMI GWAS meta-analysis</h3>
+<p>We consider an example from the meta-analysis of data from a genome-wide association study (GWAS) for body mass index (BMI) (Locke et al, 2015, Nature). A subset of this data, corresponding to 50,000 single nucleotide polymorphisms (SNPs), can be loaded using:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">data</span>(BMI_GIANT_GWAS_sample)</code></pre>
+<pre><code>## Warning in data(BMI_GIANT_GWAS_sample): data set 'BMI_GIANT_GWAS_sample'
+## not found</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">load</span>(<span class="st">&quot;../data/BMI_GIANT_GWAS_sample.RData&quot;</span>)
+<span class="kw">head</span>(BMI_GIANT_GWAS_sample)</code></pre>
+<pre><code>## # A tibble: 6 x 9
+##          SNP    A1    A2 Freq_MAF_Hapmap       b     se      p      N
+##        &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;           &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+## 1 rs10510371     T     C          0.0250  0.0147 0.0152 0.3335 212965
+## 2   rs918232     A     G          0.3417 -0.0034 0.0037 0.3581 236084
+## 3  rs4816764     A     C          0.0083  0.0163 0.0131 0.2134 221771
+## 4 rs17630047     A     G          0.1667  0.0004 0.0048 0.9336 236177
+## 5  rs4609437     C     G          0.2500  0.0011 0.0042 0.7934 236028
+## 6 rs11130746     G     A          0.2333 -0.0006 0.0042 0.8864 235634
+## # ... with 1 more variables: Freq_MAF_Int_Hapmap &lt;fctr&gt;</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dim</span>(BMI_GIANT_GWAS_sample)</code></pre>
+<pre><code>## [1] 50000     9</code></pre>
+<p>A description of the variables in <code>BMI_GIANT_GWAS_sample</code> can be found on its help page. In particular, <code>p</code> gives the p-values for the association between the SNPs and BMI; <code>N</code> gives the total sample size considered in the study of a particular SNP; and <code>Freq_MAF_Hapmap</code> gives the frequency of the minor (less frequent allele) for a particular SNP in Hapmap. The column <code>Freq_MAF_Int_Hapmap</code> provides 3 approximately equal intervals for the Hapmap MAFs:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(BMI_GIANT_GWAS_sample$Freq_MAF_Int_Hapmap)</code></pre>
+<pre><code>## 
+## [0.000,0.127) [0.127,0.302) [0.302,0.500] 
+##         16813         16887         16300</code></pre>
+</div>
+<div id="the-lm_pi0-function" class="section level3">
+<h3>The <code>lm_pi0</code> function</h3>
+<p>This function estimates <span class="math">\(\pi_0(x)\)</span>. It inputs the following parameters:</p>
+<ul>
+<li><code>pValues</code> Numerical vector of p-values</li>
+<li><code>lambda</code> Numerical vector of thresholds in <span class="math">\([0,1)\)</span> at which <span class="math">\(\pi_0(x)\)</span> is estimated. Default thresholds are <span class="math">\((0.05, 0.10, \ldots, 0.95)\)</span>.</li>
+<li><code>X</code> Design matrix (one test per row, one variable per column). Do not include the intercept.</li>
+<li><code>smooth.df</code> Number of degrees of freedom when estimating <span class="math">\(\pi_0(x)\)</span> by smoothing. Default is <span class="math">\(3\)</span>.</li>
+<li><code>threshold</code> If <code>TRUE</code> (default), all estimates are thresholded at 0 and 1, if <code>FALSE</code>, none of them are.</li>
+</ul>
+<p>To apply it to the BMI GWAS dataset, we first create the design matrix, using natural cubic splines with 5 degrees of freedom to model <code>N</code> and 3 discrete categories for the MAFs:</p>
+<pre class="sourceCode r"><code class="sourceCode r">X &lt;-<span class="st"> </span><span class="kw">lm</span>(p ~<span class="st"> </span><span class="kw">ns</span>(N,<span class="dv">5</span>) +<span class="st"> </span>Freq_MAF_Int_Hapmap, <span class="dt">data =</span> BMI_GIANT_GWAS_sample, <span class="dt">x=</span><span class="ot">TRUE</span>)$x[,-<span class="dv">1</span>]
+<span class="kw">head</span>(X)</code></pre>
+<pre><code>##      ns(N, 5)1 ns(N, 5)2    ns(N, 5)3   ns(N, 5)4     ns(N, 5)5
+## 1 7.242962e-01 0.0000000 -0.096623916 0.193411872 -0.0967879566
+## 2 6.214473e-05 0.9873057  0.010529926 0.004207151 -0.0021049077
+## 3 8.482281e-01 0.0000000 -0.054593655 0.109279996 -0.0546863405
+## 4 0.000000e+00 0.9847066  0.012746260 0.005093468 -0.0025463522
+## 5 4.971578e-04 0.9884279  0.009232155 0.003688505 -0.0018457495
+## 6 3.080761e-02 0.9658228  0.002791946 0.001127918 -0.0005644374
+##   Freq_MAF_Int_Hapmap[0.127,0.302) Freq_MAF_Int_Hapmap[0.302,0.500]
+## 1                                0                                0
+## 2                                0                                1
+## 3                                0                                0
+## 4                                1                                0
+## 5                                1                                0
+## 6                                1                                0</code></pre>
+<p>We then run the <code>lm_pi0</code> function:</p>
+<pre class="sourceCode r"><code class="sourceCode r">pi0x &lt;-<span class="st"> </span><span class="kw">lm_pi0</span>(<span class="dt">pValues=</span>BMI_GIANT_GWAS_sample$p, <span class="dt">X=</span>X, <span class="dt">smooth.df=</span><span class="dv">3</span>)</code></pre>
+<pre><code>## [1] &quot;At test #:&quot; &quot;10000&quot;     
+## [1] &quot;At test #:&quot; &quot;20000&quot;     
+## [1] &quot;At test #:&quot; &quot;30000&quot;     
+## [1] &quot;At test #:&quot; &quot;40000&quot;     
+## [1] &quot;At test #:&quot; &quot;50000&quot;</code></pre>
+<p>The following values are returned:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">names</span>(pi0x)</code></pre>
+<pre><code>## [1] &quot;pi0&quot;        &quot;pi0.lambda&quot; &quot;lambda&quot;     &quot;pi0.smooth&quot;</code></pre>
+<ul>
+<li><code>pi0</code> Numerical vector of smoothed estimate of <span class="math">\(\pi_0(x)\)</span>. The length is the number of rows in <span class="math">\(X\)</span>.</li>
+<li><code>pi0.lambda</code> Numerical matrix of estimated <span class="math">\(\pi_0(x)\)</span> for each value of lambda. The number of columns is the number of tests, the number of rows is the length of lambda.</li>
+<li><code>lambda</code> Vector of the values of <code>lambda</code> used in calculating <code>pi0.lambda</code>.</li>
+<li><code>pi0.smooth</code> Matrix of fitted values from the smoother fit to the <span class="math">\(\pi_0(x)\)</span> estimates at each value of lambda (same number of rows and columns as <code>pi0.lambda</code>).</li>
+</ul>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(pi0x$pi0)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##  0.6910  0.8660  0.9402  0.9369  1.0000  1.0000</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(pi0x$pi0.lambda)</code></pre>
+<pre><code>##        V1               V2               V3               V4        
+##  Min.   :0.8045   Min.   :0.7686   Min.   :0.7544   Min.   :0.7439  
+##  1st Qu.:0.9445   1st Qu.:0.9298   1st Qu.:0.9217   1st Qu.:0.9138  
+##  Median :0.9665   Median :0.9565   Median :0.9511   Median :0.9476  
+##  Mean   :0.9691   Mean   :0.9611   Mean   :0.9569   Mean   :0.9531  
+##  3rd Qu.:0.9940   3rd Qu.:0.9969   3rd Qu.:1.0000   3rd Qu.:1.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+##        V5               V6               V7               V8        
+##  Min.   :0.7496   Min.   :0.7487   Min.   :0.7525   Min.   :0.7607  
+##  1st Qu.:0.9094   1st Qu.:0.9075   1st Qu.:0.9011   1st Qu.:0.8965  
+##  Median :0.9448   Median :0.9434   Median :0.9395   Median :0.9372  
+##  Mean   :0.9511   Mean   :0.9497   Mean   :0.9465   Mean   :0.9445  
+##  3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+##        V9              V10              V11              V12        
+##  Min.   :0.7571   Min.   :0.7584   Min.   :0.7641   Min.   :0.7536  
+##  1st Qu.:0.8897   1st Qu.:0.8855   1st Qu.:0.8902   1st Qu.:0.8797  
+##  Median :0.9318   Median :0.9294   Median :0.9328   Median :0.9287  
+##  Mean   :0.9403   Mean   :0.9381   Mean   :0.9398   Mean   :0.9350  
+##  3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+##       V13              V14              V15              V16        
+##  Min.   :0.7539   Min.   :0.7204   Min.   :0.7173   Min.   :0.7195  
+##  1st Qu.:0.8760   1st Qu.:0.8791   1st Qu.:0.8762   1st Qu.:0.8840  
+##  Median :0.9336   Median :0.9387   Median :0.9365   Median :0.9330  
+##  Mean   :0.9369   Mean   :0.9394   Mean   :0.9383   Mean   :0.9380  
+##  3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000   Max.   :1.0000  
+##       V17              V18              V19        
+##  Min.   :0.6927   Min.   :0.7200   Min.   :0.6669  
+##  1st Qu.:0.8421   1st Qu.:0.8564   1st Qu.:0.8922  
+##  Median :0.9260   Median :0.9505   Median :0.9466  
+##  Mean   :0.9242   Mean   :0.9369   Mean   :0.9483  
+##  3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000  
+##  Max.   :1.0000   Max.   :1.0000   Max.   :1.0000</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(pi0x$lambda)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   0.050   0.275   0.500   0.500   0.725   0.950</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">summary</span>(pi0x$pi0.smooth)</code></pre>
+<pre><code>##        V1               V2               V3               V4        
+##  Min.   :0.7759   Min.   :0.7719   Min.   :0.7682   Min.   :0.7648  
+##  1st Qu.:0.9351   1st Qu.:0.9292   1st Qu.:0.9233   1st Qu.:0.9176  
+##  Median :0.9588   Median :0.9553   Median :0.9518   Median :0.9485  
+##  Mean   :0.9636   Mean   :0.9605   Mean   :0.9575   Mean   :0.9546  
+##  3rd Qu.:0.9971   3rd Qu.:0.9976   3rd Qu.:0.9981   3rd Qu.:0.9986  
+##  Max.   :1.0022   Max.   :1.0010   Max.   :1.0002   Max.   :1.0001  
+##        V5               V6               V7               V8        
+##  Min.   :0.7620   Min.   :0.7596   Min.   :0.7574   Min.   :0.7553  
+##  1st Qu.:0.9121   1st Qu.:0.9069   1st Qu.:0.9019   1st Qu.:0.8972  
+##  Median :0.9454   Median :0.9425   Median :0.9399   Median :0.9377  
+##  Mean   :0.9518   Mean   :0.9491   Mean   :0.9467   Mean   :0.9445  
+##  3rd Qu.:0.9991   3rd Qu.:0.9994   3rd Qu.:0.9996   3rd Qu.:0.9998  
+##  Max.   :1.0001   Max.   :1.0001   Max.   :1.0006   Max.   :1.0012  
+##        V9              V10              V11              V12        
+##  Min.   :0.7528   Min.   :0.7499   Min.   :0.7462   Min.   :0.7415  
+##  1st Qu.:0.8928   1st Qu.:0.8888   1st Qu.:0.8851   1st Qu.:0.8817  
+##  Median :0.9359   Median :0.9347   Median :0.9339   Median :0.9337  
+##  Mean   :0.9425   Mean   :0.9408   Mean   :0.9395   Mean   :0.9384  
+##  3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000  
+##  Max.   :1.0015   Max.   :1.0015   Max.   :1.0010   Max.   :1.0002  
+##       V13              V14              V15              V16        
+##  Min.   :0.7360   Min.   :0.7297   Min.   :0.7227   Min.   :0.7152  
+##  1st Qu.:0.8786   1st Qu.:0.8759   1st Qu.:0.8736   1st Qu.:0.8713  
+##  Median :0.9339   Median :0.9345   Median :0.9355   Median :0.9364  
+##  Mean   :0.9376   Mean   :0.9370   Mean   :0.9366   Mean   :0.9365  
+##  3rd Qu.:0.9999   3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000  
+##  Max.   :1.0002   Max.   :1.0002   Max.   :1.0002   Max.   :1.0002  
+##       V17              V18              V19        
+##  Min.   :0.7073   Min.   :0.6993   Min.   :0.6910  
+##  1st Qu.:0.8695   1st Qu.:0.8676   1st Qu.:0.8660  
+##  Median :0.9372   Median :0.9386   Median :0.9402  
+##  Mean   :0.9365   Mean   :0.9366   Mean   :0.9369  
+##  3rd Qu.:1.0000   3rd Qu.:1.0000   3rd Qu.:1.0000  
+##  Max.   :1.0002   Max.   :1.0002   Max.   :1.0037</code></pre>
+</div>
+<div id="results-from-bmi-gwas-meta-analysis" class="section level3">
+<h3>Results from BMI GWAS meta-analysis</h3>
+<p>We first add the estimates of <span class="math">\(\pi_0(x)\)</span> for <span class="math">\(\lambda=0.8\)</span>, <span class="math">\(\lambda=0.9\)</span>, and the final smoothed value to the <code>BMI_GIANT_GWAS_sample</code> object:</p>
+<pre class="sourceCode r"><code class="sourceCode r">BMI_GIANT_GWAS_sample$fitted0<span class="fl">.8</span> &lt;-<span class="st"> </span>pi0x$pi0.lambda[,<span class="kw">round</span>(pi0x$lambda,<span class="dv">2</span>)==<span class="fl">0.8</span>]
+BMI_GIANT_GWAS_sample$fitted0<span class="fl">.9</span> &lt;-<span class="st"> </span>pi0x$pi0.lambda[,<span class="kw">round</span>(pi0x$lambda,<span class="dv">2</span>)==<span class="fl">0.9</span>]
+BMI_GIANT_GWAS_sample$fitted.final.smooth &lt;-<span class="st"> </span>pi0x$pi0
+
+<span class="kw">head</span>(BMI_GIANT_GWAS_sample)</code></pre>
+<pre><code>## # A tibble: 6 x 12
+##          SNP    A1    A2 Freq_MAF_Hapmap       b     se      p      N
+##        &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;           &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;
+## 1 rs10510371     T     C          0.0250  0.0147 0.0152 0.3335 212965
+## 2   rs918232     A     G          0.3417 -0.0034 0.0037 0.3581 236084
+## 3  rs4816764     A     C          0.0083  0.0163 0.0131 0.2134 221771
+## 4 rs17630047     A     G          0.1667  0.0004 0.0048 0.9336 236177
+## 5  rs4609437     C     G          0.2500  0.0011 0.0042 0.7934 236028
+## 6 rs11130746     G     A          0.2333 -0.0006 0.0042 0.8864 235634
+## # ... with 4 more variables: Freq_MAF_Int_Hapmap &lt;fctr&gt;, fitted0.8 &lt;dbl&gt;,
+## #   fitted0.9 &lt;dbl&gt;, fitted.final.smooth &lt;dbl&gt;</code></pre>
+<p>We next create a long data frame so that we can use the plotting tools in <code>ggplot2</code>:</p>
+<pre class="sourceCode r"><code class="sourceCode r">ldf &lt;-<span class="st"> </span><span class="kw">melt</span>(BMI_GIANT_GWAS_sample,
+            <span class="dt">id.vars=</span><span class="kw">colnames</span>(BMI_GIANT_GWAS_sample)[-<span class="kw">grep</span>(<span class="st">&quot;fitted&quot;</span>,<span class="kw">colnames</span>(BMI_GIANT_GWAS_sample))],
+            <span class="dt">value.name =</span> <span class="st">&quot;pi0&quot;</span>,<span class="dt">variable.name =</span> <span class="st">&quot;lambda&quot;</span>)
+ldf$lambda &lt;-<span class="st"> </span><span class="kw">as.character</span>(ldf$lambda)
+ldf$lambda[ldf$lambda==<span class="st">&quot;fitted0.8&quot;</span>] &lt;-<span class="st"> &quot;lambda=0.8&quot;</span>
+ldf$lambda[ldf$lambda==<span class="st">&quot;fitted0.9&quot;</span>] &lt;-<span class="st"> &quot;lambda=0.9&quot;</span>
+ldf$lambda[ldf$lambda==<span class="st">&quot;fitted.final.smooth&quot;</span>] &lt;-<span class="st"> &quot;final smoothed pi0(x)&quot;</span>
+
+<span class="kw">head</span>(ldf)</code></pre>
+<pre><code>##          SNP A1 A2 Freq_MAF_Hapmap       b     se      p      N
+## 1 rs10510371  T  C          0.0250  0.0147 0.0152 0.3335 212965
+## 2   rs918232  A  G          0.3417 -0.0034 0.0037 0.3581 236084
+## 3  rs4816764  A  C          0.0083  0.0163 0.0131 0.2134 221771
+## 4 rs17630047  A  G          0.1667  0.0004 0.0048 0.9336 236177
+## 5  rs4609437  C  G          0.2500  0.0011 0.0042 0.7934 236028
+## 6 rs11130746  G  A          0.2333 -0.0006 0.0042 0.8864 235634
+##   Freq_MAF_Int_Hapmap     lambda       pi0
+## 1       [0.000,0.127) lambda=0.8 1.0000000
+## 2       [0.302,0.500] lambda=0.8 0.8776054
+## 3       [0.000,0.127) lambda=0.8 1.0000000
+## 4       [0.127,0.302) lambda=0.8 0.9301394
+## 5       [0.127,0.302) lambda=0.8 0.9298095
+## 6       [0.127,0.302) lambda=0.8 0.9313944</code></pre>
+<p>The plot of the estimates of <span class="math">\(\pi_0(x)\)</span> against the sample size <span class="math">\(N\)</span>, stratified by the MAF categories can thus be obtained:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(ldf, <span class="kw">aes</span>(<span class="dt">x=</span>N, <span class="dt">y=</span>pi0))+
+<span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">col=</span>Freq_MAF_Int_Hapmap, <span class="dt">linetype=</span>lambda)) +
+<span class="st">  </span><span class="kw">ylab</span>(<span class="st">&quot;Estimated proportion of nulls&quot;</span>) +
+<span class="st">  </span><span class="kw">guides</span>(<span class="dt">color=</span><span class="kw">guide_legend</span>(<span class="dt">title=</span><span class="st">&quot;MAF in HapMap CEU population&quot;</span>),
+         <span class="dt">linetype=</span><span class="kw">guide_legend</span>(<span class="dt">title=</span><span class="st">&quot;Estimate&quot;</span>))</code></pre>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+---
+title: "Tutorial for `swfdr` package"
+author: "Jeff Leek, Simina Boca"
+date: "`r Sys.Date()`"
+bibliography: myRefs.bib
+output: rmarkdown::pdf_document
+vignette: >
+  %\VignetteIndexEntry{swfdr}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Package overview
+
+This package allows users to estimate the science-wise false discovery rate from @JagerEtAl2013, using an EM approach due to the presence of rounding and censoring. It also allows users to estimate the proportion of true null hypotheses in the presence of covariates, using a regression framework, as per @BocaEtAl2015.
+
+The package is loaded using:
+```{r}
+library(swfdr)
+```
+
+## Estimating the proportion of true null hypothesis in the presence of covariates
+
+As in @BocaEtAl2015, we denote by $\pi_0(x)$ the proportion of true null hypotheses as a function of a covariate $x$. This is estimated based on a list of p-values $p_1,\ldots,p_m$ corresponding to a set
+of null hypotheses, $H_{01},\ldots,H_{0m}$, and a design matrix $X$.
+The design matrix considers relevant meta-data, which could be valuable for improving estimatong of the 
+prior probability that a hypothesis is true or false.
+
+### Example: Adjust for sample size and allele frequency in BMI GWAS meta-analysis
+
+We consider an example from the meta-analysis of data from a genome-wide association study (GWAS) for
+body mass index (BMI) from @LockeEtAl2015. A subset of this data, corresponding to 50,000 
+single nucleotide polymorphisms (SNPs), can be loaded using:
+```{r}
+data(BMI_GIANT_GWAS_sample)
+head(BMI_GIANT_GWAS_sample)
+dim(BMI_GIANT_GWAS_sample)
+```
+A description of the variables in `BMI_GIANT_GWAS_sample` can be found on its help page.  In particular, `p` gives the p-values for the association between the SNPs and BMI; `N` gives the total sample size considered in the study of a particular SNP; and `Freq_MAF_Hapmap` gives the frequency of the minor (less frequent allele) for a particular SNP in Hapmap. The column `Freq_MAF_Int_Hapmap` provides 3 approximately equal intervals for the Hapmap MAFs:
+```{r}
+table(BMI_GIANT_GWAS_sample$Freq_MAF_Int_Hapmap)
+```
+
+### The `lm_pi0` function
+    
+This function estimates $\pi_0(x)$. It inputs the following parameters:    
+
+* `pValues` Numerical vector of p-values
+* `lambda` Numerical vector of thresholds in $[0,1)$ at which $\pi_0(x)$ is estimated. Default thresholds are $(0.05, 0.10, \ldots, 0.95)$.
+* `X` Design matrix (one test per row, one variable per column). Do not include the intercept.
+* `smooth.df` Number of degrees of freedom when estimating $\pi_0(x)$ by smoothing. Default is $3$.
+* `threshold` If `TRUE` (default), all estimates are thresholded at 0 and 1, if `FALSE`, none of them are. 
+
+To apply it to the BMI GWAS dataset, we first create the design matrix, using natural cubic splines with 5 degrees of freedom to model `N` and 3 discrete categories for the MAFs:
+```{r}
+X <- model.matrix(~ splines::ns(N,5) + Freq_MAF_Int_Hapmap, data = BMI_GIANT_GWAS_sample)[,-1]
+head(X)
+```
+
+We then run the `lm_pi0` function:
+```{r}
+pi0x <- lm_pi0(pValues=BMI_GIANT_GWAS_sample$p, 
+               X=X, smooth.df=3)
+names(pi0x)
+```
+
+The following values are returned:
+
+* `pi0` Numerical vector of smoothed estimate of $\pi_0(x)$. The length is the number of rows in $X$.
+* `pi0.lambda` Numerical matrix of estimated $\pi_0(x)$ for each value of lambda. The number of columns is the number of tests, the number of rows is the length of lambda.
+* `lambda` Vector of the values of `lambda` used in calculating `pi0.lambda`.
+* `pi0.smooth` Matrix of fitted values from the smoother fit to the $\pi_0(x)$ estimates at each value of lambda (same number of rows and columns as `pi0.lambda`).
+
+### Results from BMI GWAS meta-analysis example
+
+We first add the estimates of $\pi_0(x)$ for $\lambda=0.8$, $\lambda=0.9$, and the final smoothed value
+to the `BMI_GIANT_GWAS_sample` object:
+```{r}
+BMI_GIANT_GWAS_sample$fitted0.8 <- pi0x$pi0.lambda[,round(pi0x$lambda,2)==0.8]
+BMI_GIANT_GWAS_sample$fitted0.9 <- pi0x$pi0.lambda[,round(pi0x$lambda,2)==0.9]
+BMI_GIANT_GWAS_sample$fitted.final.smooth <- pi0x$pi0
+```
+
+We next create a long data frame so that we can use the plotting tools in `ggplot2`:
+```{r}
+ldf <- reshape2::melt(BMI_GIANT_GWAS_sample,
+                      id.vars=colnames(BMI_GIANT_GWAS_sample)[-grep("fitted",colnames(BMI_GIANT_GWAS_sample))],
+                      value.name = "pi0",variable.name = "lambda")
+ldf$lambda <- as.character(ldf$lambda)
+ldf$lambda[ldf$lambda=="fitted0.8"] <- "lambda=0.8"
+ldf$lambda[ldf$lambda=="fitted0.9"] <- "lambda=0.9"
+ldf$lambda[ldf$lambda=="fitted.final.smooth"] <- "final smoothed pi0(x)"
+
+head(ldf)
+```
+
+The plot of the estimates of $\pi_0(x)$ against the sample size $N$, stratified by the MAF categories can thus be obtained:
+```{r, BMI_GWAS_plot}
+library(ggplot2)
+
+ggplot(ldf, aes(x=N, y=pi0))+
+  geom_line(aes(col=Freq_MAF_Int_Hapmap, linetype=lambda)) +
+  ylab("Estimated proportion of nulls") +
+  guides(color=guide_legend(title="MAF in HapMap CEU population"),
+         linetype=guide_legend(title="Estimate"))
+
+```
+
+## References
