@@ -12,7 +12,7 @@ Description: This package allows users to estimate the science-wise false discov
 Depends:
     R (>= 3.3.0)
 Imports:
-    MASS, splines, stats4, genefilter, lme4, reshape2, ggplot2
+    MASS, splines, stats4, genefilter, lme4, reshape2
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
