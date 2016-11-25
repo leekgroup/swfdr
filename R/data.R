@@ -33,4 +33,4 @@
 #'   \item{journal}{Journal}
 #' }
 #' @source Code for extracting p-values at: \url{https://github.com/jtleek/swfdr/blob/master/getPvalues.R}
-
+"journals_pVals"
