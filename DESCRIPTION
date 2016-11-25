@@ -1,9 +1,8 @@
 Package: swfdr
 Title: Science-wise false discovery rate estimation
 Version: 0.0.0.9000
-Authors@R: c(
-    person("Jeff", "Leek", email = "jtleek@gmail.com", role = c("cre","aut")),
-    person("Simina", "Boca", email = "winston@rstudio.com", role = c("aut")))
+Author: Jeffrey T. Leek, Simina M. Boca
+Maintainer: Simina M. Boca <smb310@georgetown.edu>, Jeffrey T. Leek <jtleek@gmail.com>
 Description: This package allows users to estimate the science-wise false discovery rate from Jager and Leek, 
     "Empirical estimates suggest most published medical research is true," 2013, Biostatistics, using an EM approach
     due to the presence of rounding and censoring. It also allows users to estimate the proportion of true null
