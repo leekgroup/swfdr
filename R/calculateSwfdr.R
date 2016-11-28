@@ -15,6 +15,8 @@
 #' @return n0 Expected number of null p-values - estimated from EM - between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
 #' @return n Number of p-values between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
 #' 
+#' @import stats4
+#' 
 #' @export
 calculateSwfdr = function(pValues,truncated,rounded,pi0 = 0.5,alpha=1,beta=50,numEmIterations=100){
   pp = pValues

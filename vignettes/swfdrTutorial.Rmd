@@ -17,7 +17,6 @@ This package allows users to estimate the science-wise false discovery rate from
 The package is loaded using:
 ```{r}
 library(swfdr)
-library(stats4)
 ```
 
 ## Estimating the science-wise false discovery rate

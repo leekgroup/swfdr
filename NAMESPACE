@@ -2,3 +2,4 @@
 
 export(calculateSwfdr)
 export(lm_pi0)
+import(stats4)
