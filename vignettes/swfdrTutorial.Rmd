@@ -17,6 +17,7 @@ This package allows users to estimate the science-wise false discovery rate from
 The package is loaded using:
 ```{r}
 library(swfdr)
+library(stats4)
 ```
 
 ## Estimating the science-wise false discovery rate
@@ -31,6 +32,60 @@ This is obtained from web-scraping, using the code at \url{https://github.com/jt
 data(journals_pVals)
 colnames(journals_pVals)
 ```
+
+A description of the variables in `journals_pVals`can be found on its help page. In particular, `pvalue` gives the p-value, `pvalueTruncated` is a flag for whether it is truncated, `year`  is the year of publication, and `journal` the journal. The abstract - stored in the `abstract` field - may be quite long.
+```{r}
+table(journals_pVals$year)
+table(journals_pVals$journal)
+```
+
+### The `calculateSwfdr` function
+    
+This function estimates the swfdr. It inputs the following parameters:    
+
+* `pValues` Numerical vector of p-values
+* `truncated` Vector of 0s and 1s with indices corresponding to those in pValues; 1 indicates that the p-values is truncated, 0 that it is not truncated
+* `rounded` Vector of 0s and 1s with indices corresponding to those in pValues; 1 indicates that the p-values is rounded, 0 that it is not rounded
+* `pi0` Initial prior probability that a hypothesis is null (default is 0.5)
+* `alpha` Initial value of parameter alpha from Beta(alpha, beta) true positive distribution (default is 1)
+* `beta` Initial value of parameter beta from Beta(alpha, beta) true positive distribution (default is 50)
+* `numEmIterations` The number of EM iterations (default is 100)
+
+Given that it runs an EM algorithm, it is somewhat computationally intensive. We show an example of applying it to all the p-values from the abstracts for articles published in the American Journal of Epidemiology in 2015. First, we subset the `journals_pVals` and only consider the p-values below $0.05$, as in @JagerEtAl2013:
+```{r}
+journals_pVals1 <- journals_pVals[journals_pVals$year==2005 & 
+                                    journals_pVals$journal == "American Journal of Epidemiology" &
+                                    journals_pVals$pvalue < 0.05,]
+dim(journals_pVals1)
+```
+
+Next, we define vectors corresponding to the truncation status and the rouding status (defined as rounding to 2 significant digits) and use these vectors, along with the vector of p-values, and the number of EM iterations, as inputs to the `calculateSwfdr` function:
+```{r}
+tt <- journals_pVals1[,2]
+rr <- rep(0,length(tt))
+rr[tt == 0] <- (journals_pVals1[tt==0,1] == round(journals_pVals1[tt==0,1],2))
+pVals <- journals_pVals1[,1]
+resSwfdr <- calculateSwfdr(pValues = pVals, truncated = tt, rounded = rr, numEmIterations=100)
+names(resSwfdr)
+```
+
+The following values are returned:
+
+* `pi0` Final value of prior probability - estimated from EM - that a hypothesis is null, i.e. estimated swfdr
+* `alpha` Final value of parameter alpha - estimated from EM - from Beta(alpha, beta) true positive distribution
+* `beta` Final value of parameter beta - estimated from EM - from Beta(alpha, beta) true positive distribution
+* `z` Indicator vector of 0s and 1s - estimated from EM - with 1s indicating p-values from the null distribution
+* `n0` Expected number of null p-values - estimated from EM - between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
+* `n` Number of p-values between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
+
+### Results from example dataset
+
+For the example dataset we considered, the results are as follows:
+```{r}
+resSwfdr
+```
+
+Thus, the estimated swfdr for papers published in American Journal of Epidemiology in 2005 is `r round(resSwfdr$pi0,3)` i.e. `r round(resSwfdr$pi0 * 100,1)`\% of the discoveries - defined as associations with p < 0.05 - are expected to be false discoveries.
 
 ## Estimating the proportion of true null hypothesis in the presence of covariates
 
@@ -97,7 +152,8 @@ BMI_GIANT_GWAS_sample$fitted.final.smooth <- pi0x$pi0
 We next create a long data frame so that we can use the plotting tools in `ggplot2`:
 ```{r}
 ldf <- reshape2::melt(BMI_GIANT_GWAS_sample,
-                      id.vars=colnames(BMI_GIANT_GWAS_sample)[-grep("fitted",colnames(BMI_GIANT_GWAS_sample))],
+                      id.vars=colnames(BMI_GIANT_GWAS_sample)[-grep("fitted",
+                                                                    colnames(BMI_GIANT_GWAS_sample))],
                       value.name = "pi0",variable.name = "lambda")
 ldf$lambda <- as.character(ldf$lambda)
 ldf$lambda[ldf$lambda=="fitted0.8"] <- "lambda=0.8"

@@ -3,7 +3,7 @@
 \docType{data}
 \name{journals_pVals}
 \alias{journals_pVals}
-\title{P-values from abstracts from articles in 5 biomedical journals (American Journal of Epidemiology, BMJ, Jama, Lancet, New England Journal of Medicine), over 11 years (2000-2010).}
+\title{P-values from abstracts from articles in 5 biomedical journals (American Journal of Epidemiology, BMJ, JAMA, Lancet, New England Journal of Medicine), over 11 years (2000-2010).}
 \format{A data frame with 15,653 rows and 7 variables:
 \describe{
   \item{pvalue}{P-value}

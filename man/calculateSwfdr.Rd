@@ -2,7 +2,7 @@
 % Please edit documentation in R/calculateSwfdr.R
 \name{calculateSwfdr}
 \alias{calculateSwfdr}
-\title{Calculate the science-wise FDR}
+\title{Calculate the science-wise FDR (swfdr)}
 \usage{
 calculateSwfdr(pValues, truncated, rounded, pi0 = 0.5, alpha = 1,
   beta = 50, numEmIterations = 100)
@@ -14,16 +14,16 @@ calculateSwfdr(pValues, truncated, rounded, pi0 = 0.5, alpha = 1,
 
 \item{rounded}{Vector of 0s and 1s with indices corresponding to those in pValues; 1 indicates that the p-values is rounded, 0 that it is not rounded}
 
-\item{pi0}{Initial prior probability that a hypothesis is null}
+\item{pi0}{Initial prior probability that a hypothesis is null (default is 0.5)}
 
-\item{alpha}{Initial value of parameter alpha from Beta(alpha, beta) true positive distribution}
+\item{alpha}{Initial value of parameter alpha from Beta(alpha, beta) true positive distribution (default is 1)}
 
-\item{beta}{Initial value of parameter beta from Beta(alpha, beta) true positive distribution}
+\item{beta}{Initial value of parameter beta from Beta(alpha, beta) true positive distribution (default is 50)}
 
 \item{numEmIterations}{The number of EM iterations (default is 100)}
 }
 \value{
-pi0 Final value of prior probability - estimated from EM - that a hypothesis is null
+pi0 Final value of prior probability - estimated from EM - that a hypothesis is null, i.e. estimated swfdr
 
 alpha Final value of parameter alpha - estimated from EM - from Beta(alpha, beta) true positive distribution
 
@@ -36,6 +36,6 @@ n0 Expected number of null p-values - estimated from EM - between certain cutpoi
 n Number of p-values between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
 }
 \description{
-Calculate the science-wise FDR
+Calculate the science-wise FDR (swfdr)
 }
 

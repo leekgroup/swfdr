@@ -1,14 +1,14 @@
-#' Calculate the science-wise FDR
+#' Calculate the science-wise FDR (swfdr)
 #' 
 #' @param pValues Numerical vector of p-values
 #' @param truncated Vector of 0s and 1s with indices corresponding to those in pValues; 1 indicates that the p-values is truncated, 0 that it is not truncated
 #' @param rounded Vector of 0s and 1s with indices corresponding to those in pValues; 1 indicates that the p-values is rounded, 0 that it is not rounded
-#' @param pi0 Initial prior probability that a hypothesis is null
-#' @param alpha Initial value of parameter alpha from Beta(alpha, beta) true positive distribution
-#' @param beta Initial value of parameter beta from Beta(alpha, beta) true positive distribution
+#' @param pi0 Initial prior probability that a hypothesis is null (default is 0.5)
+#' @param alpha Initial value of parameter alpha from Beta(alpha, beta) true positive distribution (default is 1)
+#' @param beta Initial value of parameter beta from Beta(alpha, beta) true positive distribution (default is 50)
 #' @param numEmIterations The number of EM iterations (default is 100)
 #' 
-#' @return pi0 Final value of prior probability - estimated from EM - that a hypothesis is null
+#' @return pi0 Final value of prior probability - estimated from EM - that a hypothesis is null, i.e. estimated swfdr
 #' @return alpha Final value of parameter alpha - estimated from EM - from Beta(alpha, beta) true positive distribution
 #' @return beta Final value of parameter beta - estimated from EM - from Beta(alpha, beta) true positive distribution
 #' @return z Indicator vector of 0s and 1s - estimated from EM - with 1s indicating p-values from the null distribution
@@ -59,7 +59,7 @@ calculateSwfdr = function(pValues,truncated,rounded,pi0 = 0.5,alpha=1,beta=50,nu
     
     pi0 = (sum(n0) + sum(z))/(sum(n) + sum(rr == 0))
     tmp = mle(ll,start=list(a=0.05,b=100),lower=c(0.001,1),upper=c(1,500),method="L-BFGS-B")
-    alpha =coef(tmp)[1]
+    alpha = coef(tmp)[1]
     beta = coef(tmp)[2]
   }
   return(list(pi0 = pi0, alpha=alpha, beta = beta, z=z,n0=n0,n=n))
