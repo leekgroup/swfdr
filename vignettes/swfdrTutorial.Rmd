@@ -19,6 +19,19 @@ The package is loaded using:
 library(swfdr)
 ```
 
+## Estimating the science-wise false discovery rate
+
+The science-wise false discovery rate (swfdr) is defined in @JagerEtAl2013 as the rate that published research results are false positives. It is based on using reported p-values reported in biomedical journals and assuming that, for the p-values below 0.05, those corresponding to false positives are distributed as U$(0, 0.05)$, while those corresponding to true positives are distributed as tBeta$(\alpha, \beta; 0.05)$, where $\alpha$ and $\beta$ are unknown and tBeta is a Beta distribution truncated at $0.05$. The estimation of the swfdr is complicated by  truncation (e.g. reporting ``$p \le 0.01$") and rounding (e.g. p-values are often rounded to two significant digits). An EM algorithm is used to estimate $\alpha, \beta$, as well as the swfdr.
+
+### Example: Estimate the swfdr based on p-values from biomedical journals
+
+We include a dataset containing 15,653 p-values from articles in 5 biomedical journals (American Journal of Epidemiology, BMJ, Jama, Lancet, New England Journal of Medicine), over 11 years (2000-2010).
+This is obtained from web-scraping, using the code at \url{https://github.com/jtleek/swfdr/blob/master/getPvalues.R} and can be loaded via:
+```{r}
+data(journals_pVals)
+colnames(journals_pVals)
+```
+
 ## Estimating the proportion of true null hypothesis in the presence of covariates
 
 As in @BocaEtAl2015, we denote by $\pi_0(x)$ the proportion of true null hypotheses as a function of a covariate $x$. This is estimated based on a list of p-values $p_1,\ldots,p_m$ corresponding to a set

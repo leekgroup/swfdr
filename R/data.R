@@ -2,7 +2,6 @@
 #'
 #' A dataset containing 50,000 SNPs and results for their associations with BMI.
 #' 
-#'
 #' @format A data frame with 50,000 rows and 9 variables:
 #' \describe{
 #'   \item{SNP}{ID for SNP (single nucleotide polymorphism)}
@@ -17,11 +16,10 @@
 #' @source \url{https://www.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium_data_files#GWAS_Anthropometric_2015_BMI}
 "BMI_GIANT_GWAS_sample"
 
-#' P-values from abstracts from articles in 5 biomedical journals (American Journal of Epidemiology, BMJ, Jama, Lancet, New England Journal of Medicine), over 11 years (2000-2010).
+#' P-values from abstracts from articles in 5 biomedical journals (American Journal of Epidemiology, BMJ, JAMA, Lancet, New England Journal of Medicine), over 11 years (2000-2010).
 #'
 #' A dataset containing 15,653 p-values.
 #' 
-#'
 #' @format A data frame with 15,653 rows and 7 variables:
 #' \describe{
 #'   \item{pvalue}{P-value}

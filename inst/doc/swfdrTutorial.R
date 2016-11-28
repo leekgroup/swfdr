@@ -2,6 +2,10 @@
 library(swfdr)
 
 ## ------------------------------------------------------------------------
+data(journals_pVals)
+colnames(journals_pVals)
+
+## ------------------------------------------------------------------------
 data(BMI_GIANT_GWAS_sample)
 head(BMI_GIANT_GWAS_sample)
 dim(BMI_GIANT_GWAS_sample)
