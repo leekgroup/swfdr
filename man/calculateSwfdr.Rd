@@ -29,11 +29,11 @@ alpha Final value of parameter alpha - estimated from EM - from Beta(alpha, beta
 
 beta Final value of parameter beta - estimated from EM - from Beta(alpha, beta) true positive distribution
 
-z Indicator vector of 0s and 1s - estimated from EM - with 1s indicating p-values from the null distribution
+z Vector of expected values of the indicator of whether the p-value is null or not - estimated from EM - for the non-rounded p-values (values of NA represent the rounded p-values)
 
-n0 Expected number of null p-values - estimated from EM - between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
+n0 Expected number of rounded null p-values - estimated from EM - between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
 
-n Number of p-values between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
+n Number of rounded p-values between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
 }
 \description{
 Calculate the science-wise FDR (swfdr)

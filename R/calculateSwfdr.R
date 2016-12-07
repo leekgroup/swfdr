@@ -11,9 +11,9 @@
 #' @return pi0 Final value of prior probability - estimated from EM - that a hypothesis is null, i.e. estimated swfdr
 #' @return alpha Final value of parameter alpha - estimated from EM - from Beta(alpha, beta) true positive distribution
 #' @return beta Final value of parameter beta - estimated from EM - from Beta(alpha, beta) true positive distribution
-#' @return z Indicator vector of 0s and 1s - estimated from EM - with 1s indicating p-values from the null distribution
-#' @return n0 Expected number of null p-values - estimated from EM - between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
-#' @return n Number of p-values between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
+#' @return z Vector of expected values of the indicator of whether the p-value is null or not - estimated from EM - for the non-rounded p-values (values of NA represent the rounded p-values)
+#' @return n0 Expected number of rounded null p-values - estimated from EM - between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
+#' @return n Number of rounded p-values between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
 #' 
 #' @import stats4
 #' 
@@ -28,7 +28,7 @@ calculateSwfdr = function(pValues,truncated,rounded,pi0 = 0.5,alpha=1,beta=50,nu
     tmp1 = rep(0,length(pp))
     tmp1[tt==0 & rr==0] = log(dbeta(pp[tt==0 & rr==0],a,b)/pbeta(0.05,a,b))
     tmp1[tt > 0 & rr==0] = log(pbeta(pp[tt > 0 & rr==0],a,b)/pbeta(0.05,a,b))
-    tmp1 = -sum((1-z)*tmp1)
+    tmp1 = -sum((1-z)*tmp1, na.rm=TRUE)
     
     probvec = (pbeta(c(0.05,0.045,0.035,0.025,0.015,0.005),a,b) - pbeta(c(0.045,0.035,0.025,0.015,0.005,0),a,b))/pbeta(0.05,a,b)
     probvec = rev(probvec)
@@ -53,13 +53,13 @@ calculateSwfdr = function(pValues,truncated,rounded,pi0 = 0.5,alpha=1,beta=50,nu
     n0 = n*pij0
     n1 = n - n0
     
-    z = rep(0,length(pp))
+    z = rep(NA,length(pp))
     z[tt == 0 & rr ==0] <- pi0*20/(pi0*20 + (1-pi0)*dbeta(pp[tt==0 & rr == 0],alpha,beta)/pbeta(0.05,alpha,beta))
     z[tt > 0 & rr ==0] <- pi0*20*pp[tt > 0 & rr ==0]/(pi0*20*pp[tt > 0 & rr==0] + (1-pi0)*pbeta(pp[tt > 0 & rr==0],alpha,beta)/pbeta(0.05,alpha,beta))
     
     ## M-step
     
-    pi0 = (sum(n0) + sum(z))/(sum(n) + sum(rr == 0))
+    pi0 = (sum(n0) + sum(z, na.rm=TRUE))/(sum(n) + sum(rr == 0))
     tmp = mle(ll,start=list(a=0.05,b=100),lower=c(0.001,1),upper=c(1,500),method="L-BFGS-B")
     alpha = coef(tmp)[1]
     beta = coef(tmp)[2]
