@@ -1,6 +1,6 @@
 Package: swfdr
 Title: Science-wise false discovery rate estimation
-Version: 0.0.0.9000
+Version: 0.99.0
 Author: Jeffrey T. Leek, Simina M. Boca
 Maintainer: Simina M. Boca <smb310@georgetown.edu>, Jeffrey T. Leek <jtleek@gmail.com>
 Description: This package allows users to estimate the science-wise false discovery rate from Jager and Leek, 

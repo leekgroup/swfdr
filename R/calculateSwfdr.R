@@ -12,8 +12,8 @@
 #' @return alpha Final value of parameter alpha - estimated from EM - from Beta(alpha, beta) true positive distribution
 #' @return beta Final value of parameter beta - estimated from EM - from Beta(alpha, beta) true positive distribution
 #' @return z Vector of expected values of the indicator of whether the p-value is null or not - estimated from EM - for the non-rounded p-values (values of NA represent the rounded p-values)
-#' @return n0 Expected number of rounded null p-values - estimated from EM - between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
-#' @return n Number of rounded p-values between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.051)
+#' @return n0 Expected number of rounded null p-values - estimated from EM - between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.05)
+#' @return n Number of rounded p-values between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.05)
 #' 
 #' @import stats4
 #' 
@@ -38,7 +38,13 @@ calculateSwfdr = function(pValues,truncated,rounded,pi0 = 0.5,alpha=1,beta=50,nu
     return(tmp1 + tmp2)
   }
   
-  n = table(cut(pp[rr > 0],c(-0.01,0.005,0.015,0.025,0.035,0.045,0.051)))
+  ##make vector of rounded p-values
+  ppR <- pp[rr > 0]
+  ##change values of 0 to 10^-10 and values of 0.05 to 0.05 - 10^-10 
+  ##(so we can take the lowest point in "cut" as 0 and highest point as 0.05)
+  ppR[ppR == 0] <- 10^-10
+  ppR[ppR == 0.05] <- 0.05-10^10-10
+  n = table(cut(ppR,c(0,0.005,0.015,0.025,0.035,0.045,0.050)))
   
   
   for(i in 1:numEmIterations){

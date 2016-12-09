@@ -14,6 +14,7 @@
   \item{se}{Estimated standard error (se) for association between SNP and BMI}
   \item{p}{P-value for association between SNP and BMI}
   \item{N}{Total sample size considered for association of SNP and BMI}
+  \item{Freq_MAF_Int_Hapmap}{Three approximately equal intervals for the Hapmap MAFs}
 }}
 \source{
 \url{https://www.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium_data_files#GWAS_Anthropometric_2015_BMI}

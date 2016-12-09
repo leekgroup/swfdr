@@ -15,3 +15,6 @@ LaTeX: pdfLaTeX
 BuildType: Package
 PackageUseDevtools: Yes
 PackageInstallArgs: --no-multiarch --with-keep.source
+PackageBuildArgs: --compact-vignettes=qpdf --keep-empty-dirs --resave-data
+PackageBuildBinaryArgs: --compact-vignettes=qpdf --keep-empty-dirs --resave-data
+PackageCheckArgs: --compact-vignettes=qpdf --keep-empty-dirs --resave-data

@@ -58,7 +58,7 @@ lm_pi0 <- function(pValues, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3, thre
   {
     if(i %% 10000==0)
     {
-      print(paste("At test #:",i))
+      message(paste("At test #:",i))
     }
     spi0 <- smooth.spline(lambda, pi0.lambda[i,], df=smooth.df)
     pi0.smooth[i, ] <- spi0$y
