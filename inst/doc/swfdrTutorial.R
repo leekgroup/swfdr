@@ -62,7 +62,6 @@ head(ldf)
 
 ## ---- BMI_GWAS_plot------------------------------------------------------
 library(ggplot2)
-
 ggplot(ldf, aes(x=N, y=pi0))+
   geom_line(aes(col=Freq_MAF_Int_Hapmap, linetype=lambda)) +
   ylab("Estimated proportion of nulls") +

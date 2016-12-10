@@ -11,11 +11,14 @@
 #' @return lambda Vector of the values of lambda used in calculating pi0.lambda
 #' @return pi0.smooth Matrix of fitted values from the smoother fit to the pi0(x) estimates at each value of lambda (same number of rows and columns as pi0.lambda)
 #'
+#' @import ggplot2
+#' @import reshape2
+#'
 #' @examples
-#' X <- seq(-1,2,1000) ##covariate
+#' X <- seq(-1,2,length=1000) ##covariate
 #' pi0 <- 1/4*X + 1/2 ##probability of being null
-#' nullI <- rbinom(ntest,prob=pi0,size=1)> 0 ##generate null/alternative p-values
-#' pValues <- rep(NA,ntest) ##vector of p-values
+#' nullI <- rbinom(1000,prob=pi0,size=1)> 0 ##generate null/alternative p-values
+#' pValues <- rep(NA,1000) ##vector of p-values
 #' pValues[nullI] <- runif(sum(nullI)) ##null from U(0,1)
 #' pValues[!nullI] <- rbeta(sum(!nullI),1,2) ##alternative from Beta
 #' pi0x <- lm_pi0(pValues=pValues, X=X, smooth.df=3)
