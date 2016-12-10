@@ -17,6 +17,11 @@
 #' 
 #' @import stats4
 #' 
+#' @examples
+#' pVals <- runif(100)
+#' tt <- rr <- rep(0, 100)
+#' resSwfdr <- calculateSwfdr(pValues = pVals, truncated = tt, rounded = rr, numEmIterations=100)
+#' 
 #' @export
 calculateSwfdr = function(pValues,truncated,rounded,pi0 = 0.5,alpha=1,beta=50,numEmIterations=100){
   pp = pValues

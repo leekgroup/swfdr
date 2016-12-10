@@ -38,4 +38,10 @@ n Number of rounded p-values between certain cutpoints (0.005, 0.015, 0.025, 0.0
 \description{
 Calculate the science-wise FDR (swfdr)
 }
+\examples{
+pVals <- runif(100)
+tt <- rr <- rep(0, 100)
+resSwfdr <- calculateSwfdr(pValues = pVals, truncated = tt, rounded = rr, numEmIterations=100)
+
+}
 
