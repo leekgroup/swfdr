@@ -16,6 +16,11 @@
 #' @return n Number of rounded p-values between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.05)
 #' 
 #' @import stats4
+#' @import MASS
+#' @import splines
+#' @import genefilter
+#' @import lme4
+#' @import reshape2
 #' 
 #' @examples
 #' pVals <- runif(100)

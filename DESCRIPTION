@@ -9,7 +9,7 @@ Description: This package allows users to estimate the science-wise false discov
     hypotheses in the presence of covariates, using a regression framework, as per Boca and Leek, "A regression
     framework for the proportion of true null hypotheses," 2015, bioRxiv preprint.
 Depends:
-    R (>= 3.3.0)
+    R (>= 3.4)
 Imports:
     MASS, splines, stats4, genefilter, lme4, reshape2
 License: GPL (>= 3)
