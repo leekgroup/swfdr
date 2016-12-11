@@ -1,6 +1,6 @@
 Package: swfdr
-Title: Science-wise false discovery rate estimation
-Version: 0.99.4
+Title: Science-wise false discovery rate and proportion of true null hypotheses estimation
+Version: 0.99.5
 Author: Jeffrey T. Leek, Simina M. Boca
 Maintainer: Simina M. Boca <smb310@georgetown.edu>, Jeffrey T. Leek <jtleek@gmail.com>
 Description: This package allows users to estimate the science-wise false discovery rate from Jager and Leek, 
@@ -16,8 +16,7 @@ License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 5.0.1
-Suggests: knitr,
-    rmarkdown
+Suggests: BiocStyle, knitr, rmarkdown
 VignetteBuilder: knitr
 biocViews: MultipleComparison, StatisticalMethod, Software
 
