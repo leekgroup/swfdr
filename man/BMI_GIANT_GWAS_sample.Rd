@@ -22,6 +22,9 @@
 \usage{
 data(BMI_GIANT_GWAS_sample)
 }
+\value{
+Object of class tbl_df, tbl, data.frame.
+}
 \description{
 A dataset containing 50,000 SNPs and results for their associations with BMI.
 }

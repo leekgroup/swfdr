@@ -26,9 +26,8 @@ The science-wise false discovery rate (swfdr) is defined in @JagerEtAl2013 as th
 ### Example: Estimate the swfdr based on p-values from biomedical journals
 
 We include a dataset containing 15,653 p-values from articles in 5 biomedical journals (American Journal of Epidemiology, BMJ, Jama, Lancet, New England Journal of Medicine), over 11 years (2000-2010).
-This is obtained from web-scraping, using the code at \url{https://github.com/jtleek/swfdr/blob/master/getPvalues.R} and can be loaded via:
+This is obtained from web-scraping, using the code at \url{https://github.com/jtleek/swfdr/blob/master/getPvalues.R} and is already loaded in the package.
 ```{r}
-data(journals_pVals)
 colnames(journals_pVals)
 ```
 
@@ -52,19 +51,24 @@ This function estimates the swfdr. It inputs the following parameters:
 
 Given that it runs an EM algorithm, it is somewhat computationally intensive. We show an example of applying it to all the p-values from the abstracts for articles published in the American Journal of Epidemiology in 2015. First, we subset the `journals_pVals` and only consider the p-values below $0.05$, as in @JagerEtAl2013:
 ```{r}
-journals_pVals1 <- journals_pVals[journals_pVals$year==2005 & 
-                                    journals_pVals$journal == "American Journal of Epidemiology" &
-                                    journals_pVals$pvalue < 0.05,]
+journals_pVals1 <- dplyr::filter(journals_pVals,
+                                 year == 2005,
+                                 journal == "American Journal of Epidemiology",
+                                 pvalue < 0.05)
+
 dim(journals_pVals1)
 ```
 
 Next, we define vectors corresponding to the truncation status and the rouding status (defined as rounding to 2 significant digits) and use these vectors, along with the vector of p-values, and the number of EM iterations, as inputs to the `calculateSwfdr` function:
 ```{r}
-tt <- journals_pVals1[,2]
+tt <- data.frame(journals_pVals1)[,2]
 rr <- rep(0,length(tt))
-rr[tt == 0] <- (journals_pVals1[tt==0,1] == round(journals_pVals1[tt==0,1],2))
-pVals <- journals_pVals1[,1]
-resSwfdr <- calculateSwfdr(pValues = pVals, truncated = tt, rounded = rr, numEmIterations=100)
+rr[tt == 0] <- (data.frame(journals_pVals1)[tt==0,1] == 
+                  round(data.frame(journals_pVals1)[tt==0,1],2))
+pVals <- data.frame(journals_pVals1)[,1]
+resSwfdr <- calculateSwfdr(pValues = pVals, 
+                           truncated = tt, 
+                           rounded = rr, numEmIterations=100)
 names(resSwfdr)
 ```
 
@@ -97,9 +101,8 @@ prior probability that a hypothesis is true or false.
 
 We consider an example from the meta-analysis of data from a genome-wide association study (GWAS) for
 body mass index (BMI) from @LockeEtAl2015. A subset of this data, corresponding to 50,000 
-single nucleotide polymorphisms (SNPs), can be loaded using:
+single nucleotide polymorphisms (SNPs) is already loaded with the package.
 ```{r}
-data(BMI_GIANT_GWAS_sample)
 head(BMI_GIANT_GWAS_sample)
 dim(BMI_GIANT_GWAS_sample)
 ```

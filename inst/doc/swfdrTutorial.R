@@ -2,7 +2,6 @@
 library(swfdr)
 
 ## ------------------------------------------------------------------------
-data(journals_pVals)
 colnames(journals_pVals)
 
 ## ------------------------------------------------------------------------
@@ -10,24 +9,28 @@ table(journals_pVals$year)
 table(journals_pVals$journal)
 
 ## ------------------------------------------------------------------------
-journals_pVals1 <- journals_pVals[journals_pVals$year==2005 & 
-                                    journals_pVals$journal == "American Journal of Epidemiology" &
-                                    journals_pVals$pvalue < 0.05,]
+journals_pVals1 <- dplyr::filter(journals_pVals,
+                                 year == 2005,
+                                 journal == "American Journal of Epidemiology",
+                                 pvalue < 0.05)
+
 dim(journals_pVals1)
 
 ## ------------------------------------------------------------------------
-tt <- journals_pVals1[,2]
+tt <- data.frame(journals_pVals1)[,2]
 rr <- rep(0,length(tt))
-rr[tt == 0] <- (journals_pVals1[tt==0,1] == round(journals_pVals1[tt==0,1],2))
-pVals <- journals_pVals1[,1]
-resSwfdr <- calculateSwfdr(pValues = pVals, truncated = tt, rounded = rr, numEmIterations=100)
+rr[tt == 0] <- (data.frame(journals_pVals1)[tt==0,1] == 
+                  round(data.frame(journals_pVals1)[tt==0,1],2))
+pVals <- data.frame(journals_pVals1)[,1]
+resSwfdr <- calculateSwfdr(pValues = pVals, 
+                           truncated = tt, 
+                           rounded = rr, numEmIterations=100)
 names(resSwfdr)
 
 ## ------------------------------------------------------------------------
 resSwfdr
 
 ## ------------------------------------------------------------------------
-data(BMI_GIANT_GWAS_sample)
 head(BMI_GIANT_GWAS_sample)
 dim(BMI_GIANT_GWAS_sample)
 

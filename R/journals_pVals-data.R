@@ -4,9 +4,11 @@
 #'
 #' @docType data
 #'
-#' @usage data(journals_pVals)
+#' @usage journals_pVals
 #'
-#' @format A data frame with 15,653 rows and 7 variables:
+#' @return Object of class tbl_df, tbl, data.frame.
+#' 
+#' @format A tbl data frame with 15,653 rows and 7 variables:
 #' \describe{
 #'   \item{pvalue}{P-value}
 #'   \item{pvalueTruncated}{Equals to 1 if the p-value is truncated, 0 otherwise}

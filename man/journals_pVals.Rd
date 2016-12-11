@@ -4,7 +4,7 @@
 \name{journals_pVals}
 \alias{journals_pVals}
 \title{P-values from abstracts from articles in 5 biomedical journals (American Journal of Epidemiology, BMJ, JAMA, Lancet, New England Journal of Medicine), over 11 years (2000-2010).}
-\format{A data frame with 15,653 rows and 7 variables:
+\format{A tbl data frame with 15,653 rows and 7 variables:
 \describe{
   \item{pvalue}{P-value}
   \item{pvalueTruncated}{Equals to 1 if the p-value is truncated, 0 otherwise}
@@ -18,7 +18,10 @@
 Code for extracting p-values at: \url{https://github.com/jtleek/swfdr/blob/master/getPvalues.R}
 }
 \usage{
-data(journals_pVals)
+journals_pVals
+}
+\value{
+Object of class tbl_df, tbl, data.frame.
 }
 \description{
 A dataset containing 15,653 p-values.

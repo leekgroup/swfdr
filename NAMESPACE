@@ -2,6 +2,7 @@
 
 export(calculateSwfdr)
 export(lm_pi0)
+import(dplyr)
 import(ggplot2)
 import(reshape2)
 import(stats4)

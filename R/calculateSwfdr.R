@@ -16,6 +16,7 @@
 #' @return n Number of rounded p-values between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.05)
 #' 
 #' @import stats4
+#' @import dplyr
 #' @importFrom stats dbeta lsfit pbeta smooth.spline
 #' 
 #' @examples
