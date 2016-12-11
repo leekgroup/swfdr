@@ -17,4 +17,3 @@ PackageUseDevtools: Yes
 PackageInstallArgs: --no-multiarch --with-keep.source
 PackageBuildArgs: --compact-vignettes=qpdf --keep-empty-dirs --resave-data
 PackageBuildBinaryArgs: --compact-vignettes=qpdf --keep-empty-dirs --resave-data
-PackageCheckArgs: --no-vignettes --no-build-vignettes
