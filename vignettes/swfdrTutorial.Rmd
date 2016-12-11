@@ -3,7 +3,7 @@ title: "Tutorial for `swfdr` package"
 author: "Jeff Leek, Simina Boca"
 date: "`r BiocStyle::doc_date()`"
 bibliography: myRefs.bib
-output: BiocStyle::pdf_document
+output: BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{Tutorial for swfdr package}
   %\VignetteEngine{knitr::rmarkdown}
@@ -21,7 +21,7 @@ library(swfdr)
 
 ## Estimating the science-wise false discovery rate
 
-The science-wise false discovery rate (swfdr) is defined in @JagerEtAl2013 as the rate that published research results are false positives. It is based on using reported p-values reported in biomedical journals and assuming that, for the p-values below 0.05, those corresponding to false positives are distributed as U$(0, 0.05)$, while those corresponding to true positives are distributed as tBeta$(\alpha, \beta; 0.05)$, where $\alpha$ and $\beta$ are unknown and tBeta is a Beta distribution truncated at $0.05$. The estimation of the swfdr is complicated by  truncation (e.g. reporting ``$p \le 0.01``) and rounding (e.g. p-values are often rounded to two significant digits). An EM algorithm is used to estimate $\alpha, \beta$, as well as the swfdr.
+The science-wise false discovery rate (swfdr) is defined in @JagerEtAl2013 as the rate that published research results are false positives. It is based on using reported p-values reported in biomedical journals and assuming that, for the p-values below 0.05, those corresponding to false positives are distributed as U$(0, 0.05)$, while those corresponding to true positives are distributed as tBeta$(\alpha, \beta; 0.05)$, where $\alpha$ and $\beta$ are unknown and tBeta is a Beta distribution truncated at $0.05$. The estimation of the swfdr is complicated by  truncation (e.g. reporting ``p < 0.01``) and rounding (e.g. p-values are often rounded to two significant digits). An EM algorithm is used to estimate $\alpha, \beta$, as well as the swfdr.
 
 ### Example: Estimate the swfdr based on p-values from biomedical journals
 
