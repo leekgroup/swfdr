@@ -8,14 +8,12 @@
 #'
 #' @return Object of class tbl_df, tbl, data.frame.
 #' 
-#' @format A tbl data frame with 15,653 rows and 7 variables:
+#' @format A tbl data frame with 15,653 rows and 5 variables:
 #' \describe{
 #'   \item{pvalue}{P-value}
 #'   \item{pvalueTruncated}{Equals to 1 if the p-value is truncated, 0 otherwise}
 #'   \item{pubmedID}{Pubmed ID of the article}
 #'   \item{year}{Year of publication}
-#'   \item{abstract}{Abstract}
-#'   \item{title}{Title}
 #'   \item{journal}{Journal}
 #' }
 #' 

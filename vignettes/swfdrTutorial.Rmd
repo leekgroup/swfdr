@@ -31,7 +31,7 @@ This is obtained from web-scraping, using the code at \url{https://github.com/jt
 colnames(journals_pVals)
 ```
 
-A description of the variables in `journals_pVals`can be found on its help page. In particular, `pvalue` gives the p-value, `pvalueTruncated` is a flag for whether it is truncated, `year`  is the year of publication, and `journal` the journal. The abstract - stored in the `abstract` field - may be quite long.
+A description of the variables in `journals_pVals`can be found on its help page. In particular, `pvalue` gives the p-value, `pvalueTruncated` is a flag for whether it is truncated, `year`  is the year of publication, and `journal` the journal. 
 ```{r}
 table(journals_pVals$year)
 table(journals_pVals$journal)
