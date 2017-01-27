@@ -1,7 +1,7 @@
 Package: swfdr
 Title: Science-wise false discovery rate and proportion of true null hypotheses estimation
-Version: 0.99.9
-Author: Jeffrey T. Leek, Simina M. Boca
+Version: 0.99.10
+Author: Jeffrey T. Leek, Leah Jager, Simina M. Boca
 Maintainer: Simina M. Boca <smb310@georgetown.edu>, Jeffrey T. Leek <jtleek@gmail.com>
 Description: This package allows users to estimate the science-wise false discovery rate from Jager and Leek, 
     "Empirical estimates suggest most published medical research is true," 2013, Biostatistics, using an EM approach

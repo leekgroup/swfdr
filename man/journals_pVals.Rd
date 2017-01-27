@@ -13,7 +13,7 @@
   \item{journal}{Journal}
 }}
 \source{
-Code for extracting p-values at: \url{https://github.com/jtleek/swfdr/blob/master/getPvalues.R}
+Code for extracting p-values at: \url{inst/script/getPvalues.R}
 }
 \usage{
 journals_pVals

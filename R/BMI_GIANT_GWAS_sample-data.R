@@ -25,4 +25,5 @@
 #' 
 #' @source \url{https://www.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium_data_files#GWAS_Anthropometric_2015_BMI}
 #'
-"BMI_GIANT_GWAS_sample"
+#' @name BMI_GIANT_GWAS_sample
+NULL

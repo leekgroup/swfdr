@@ -19,6 +19,8 @@
 #' 
 #' @keywords datasets
 #' 
-#' @source Code for extracting p-values at: \url{https://github.com/jtleek/swfdr/blob/master/getPvalues.R}
+#' @source Code for extracting p-values at: \url{inst/script/getPvalues.R}
 #'
-"journals_pVals"
+#' @name journals_pVals
+NULL
+
