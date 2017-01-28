@@ -1,0 +1,25 @@
+Package: swfdr
+Title: Science-wise false discovery rate and proportion of true null
+        hypotheses estimation
+Version: 0.99.10
+Author: Jeffrey T. Leek, Leah Jager, Simina M. Boca
+Maintainer: Simina M. Boca <smb310@georgetown.edu>, Jeffrey T. Leek
+        <jtleek@gmail.com>
+Description: This package allows users to estimate the science-wise
+        false discovery rate from Jager and Leek, "Empirical estimates
+        suggest most published medical research is true," 2013,
+        Biostatistics, using an EM approach due to the presence of
+        rounding and censoring. It also allows users to estimate the
+        proportion of true null hypotheses in the presence of
+        covariates, using a regression framework, as per Boca and Leek,
+        "A regression framework for the proportion of true null
+        hypotheses," 2015, bioRxiv preprint.
+Depends: R (>= 3.4)
+Imports: stats4, ggplot2, reshape2, stats, dplyr
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 5.0.1
+Suggests: BiocStyle, knitr, rmarkdown
+VignetteBuilder: knitr
+biocViews: MultipleComparison, StatisticalMethod, Software
