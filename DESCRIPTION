@@ -19,8 +19,7 @@ Imports: stats4, ggplot2, reshape2, stats, dplyr
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Suggests: BiocStyle, knitr, rmarkdown
-VignetteBuilder: knitr
+VignetteBuilder: rmarkdown
 biocViews: MultipleComparison, StatisticalMethod, Software
-

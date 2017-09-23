@@ -4,8 +4,8 @@
 \alias{lm_pi0}
 \title{Estimate pi0(x)}
 \usage{
-lm_pi0(pValues, lambda = seq(0.05, 0.95, 0.05), X, smooth.df = 3,
-  threshold = TRUE)
+lm_pi0(pValues, lambda = seq(0.05, 0.95, 0.05), X, type = "logistic",
+  smooth.df = 3, threshold = TRUE)
 }
 \arguments{
 \item{pValues}{Numerical vector of p-values}
@@ -13,6 +13,8 @@ lm_pi0(pValues, lambda = seq(0.05, 0.95, 0.05), X, smooth.df = 3,
 \item{lambda}{Numerical vector of thresholds. Must be in [0,1).}
 
 \item{X}{Design matrix (one test per row, one variable per column). Do not include the intercept.}
+
+\item{type}{Type of regression, "logistic" or "linear." Default is logistic.}
 
 \item{smooth.df}{Number of degrees of freedom when estimating pi0(x) with a smoother.}
 
@@ -40,4 +42,3 @@ pValues[!nullI] <- rbeta(sum(!nullI),1,2) ##alternative from Beta
 pi0x <- lm_pi0(pValues=pValues, X=X, smooth.df=3)
 
 }
-

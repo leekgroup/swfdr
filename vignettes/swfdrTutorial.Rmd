@@ -118,6 +118,7 @@ This function estimates $\pi_0(x)$. It inputs the following parameters:
 * `pValues` Numerical vector of p-values
 * `lambda` Numerical vector of thresholds in $[0,1)$ at which $\pi_0(x)$ is estimated. Default thresholds are $(0.05, 0.10, \ldots, 0.95)$.
 * `X` Design matrix (one test per row, one variable per column). Do not include the intercept.
+* `type` Type of regression, "logistic" or "linear." Default is logistic.
 * `smooth.df` Number of degrees of freedom when estimating $\pi_0(x)$ by smoothing. Default is $3$.
 * `threshold` If `TRUE` (default), all estimates are thresholded at 0 and 1, if `FALSE`, none of them are. 
 

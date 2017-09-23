@@ -44,4 +44,3 @@ tt <- rr <- rep(0, 100)
 resSwfdr <- calculateSwfdr(pValues = pVals, truncated = tt, rounded = rr, numEmIterations=100)
 
 }
-

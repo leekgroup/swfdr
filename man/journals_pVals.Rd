@@ -25,4 +25,3 @@ Object of class tbl_df, tbl, data.frame.
 A dataset containing 15,653 p-values.
 }
 \keyword{datasets}
-

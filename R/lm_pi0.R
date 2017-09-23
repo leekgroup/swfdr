@@ -3,6 +3,7 @@
 #' @param pValues Numerical vector of p-values
 #' @param lambda Numerical vector of thresholds. Must be in [0,1).
 #' @param X Design matrix (one test per row, one variable per column). Do not include the intercept.
+#' @param type Type of regression, "logistic" or "linear." Default is logistic.
 #' @param smooth.df Number of degrees of freedom when estimating pi0(x) with a smoother.
 #' @param threshold If TRUE (default), all estimates are thresholded at 0 and 1, if FALSE, none of them are.
 #' 
@@ -24,7 +25,7 @@
 #' pi0x <- lm_pi0(pValues=pValues, X=X, smooth.df=3)
 #'
 #' @export
-lm_pi0 <- function(pValues, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3, threshold=TRUE)
+lm_pi0 <- function(pValues, lambda = seq(0.05, 0.95, 0.05), X, type="logistic", smooth.df=3, threshold=TRUE)
 {
   ##if X is a vector, change it into a matrix
   if(is.null(dim(X)))
@@ -50,12 +51,23 @@ lm_pi0 <- function(pValues, lambda = seq(0.05, 0.95, 0.05), X, smooth.df=3, thre
     lambda.i <- lambda[i]
     y <- pValues > lambda.i
     
-    ##fit regression
-    regFit <- lsfit(X, y)
-    
-    ##get the estimated values of pi0
-    pi0.lambda[,i] <- (Xint %*% matrix(regFit$coefficients, ncol=1))[,1]/(1-lambda.i)
-    
+    if(tolower(type)=="logistic"){
+      ##fit regression
+      regFit <- glm(y ~ X, family=binomial)
+      
+      ##get the estimated values of pi0
+      pi0.lambda[,i] <- regFit$fitted.values/(1-lambda.i)
+    } else {
+      if(tolower(type)=="linear")
+      {
+        ##fit regression
+        regFit <- lsfit(X, y)
+        
+        ##get the estimated values of pi0
+        pi0.lambda[,i] <- (Xint %*% matrix(regFit$coefficients, ncol=1))[,1]/(1-lambda.i)
+      }
+    }
+
     if(threshold){
       pi0.lambda[,i] <- ifelse(pi0.lambda[,i] > 1, 1, pi0.lambda[,i])
       pi0.lambda[,i] <- ifelse(pi0.lambda[,i] < 0, 0, pi0.lambda[,i])

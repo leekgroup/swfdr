@@ -29,4 +29,3 @@ Object of class tbl_df, tbl, data.frame.
 A dataset containing 50,000 SNPs and results for their associations with BMI.
 }
 \keyword{datasets}
-
