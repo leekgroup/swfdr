@@ -3,7 +3,7 @@ title: "Tutorial for `swfdr` package"
 author: "Jeff Leek, Simina Boca"
 date: "`r BiocStyle::doc_date()`"
 bibliography: myRefs.bib
-output: BiocStyle::html_document
+output: BiocStyle::pdf_document
 vignette: >
   %\VignetteIndexEntry{Tutorial for swfdr package}
   %\VignetteEngine{knitr::rmarkdown}
