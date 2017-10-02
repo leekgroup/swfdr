@@ -17,8 +17,10 @@ Get number of decimals (i.e. return total number of digits after decimal point) 
 }
 \examples{
 get_number_decimals(c(0.0006, 0.0750, 0.0420, 0.0031, 0.0001, 0.0100))
-get_number_decimals(c(6.5*10^-4, 0.0100)) ##This does not work correctly!
+get_number_decimals(c(6*10^-4, 7.5*10^-2, 4.2*10^-2, 3.1*10^-3, 10^-4, 10^-2))
+get_number_decimals(c(6.5*10^-4, 0.0100)) 
 get_number_decimals(c(6.5e-4, 0.0100))
 get_number_decimals(c(0.00065, 0.0100))
+get_number_decimals(c(10^-7, 10e-7, 10e-3))
 
 }

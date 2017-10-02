@@ -6,9 +6,11 @@
 #'
 #' @examples
 #' get_number_decimals(c(0.0006, 0.0750, 0.0420, 0.0031, 0.0001, 0.0100))
-#' get_number_decimals(c(6.5*10^-4, 0.0100)) ##This does not work correctly!
+#' get_number_decimals(c(6*10^-4, 7.5*10^-2, 4.2*10^-2, 3.1*10^-3, 10^-4, 10^-2))
+#' get_number_decimals(c(6.5*10^-4, 0.0100)) 
 #' get_number_decimals(c(6.5e-4, 0.0100))
 #' get_number_decimals(c(0.00065, 0.0100))
+#' get_number_decimals(c(10^-7, 10e-7, 10e-3))
 #'
 #' @export
 get_number_decimals <- function(x)
@@ -23,19 +25,28 @@ get_number_decimals <- function(x)
   
   ##function for a single number
   n_dec_single <- function(x_single){
-    ##get which vector the query number is in, which corresponds to the "number of digits"
-    grid_x_is_in <- sapply(list_grid, function(l,a){a %in% l}, x_single)
+    ##round to get rid of funny numerical issues
+    x_single <- round(x_single, 12)
     
-    if(x_single==0)
+    if(x_single < 10^-6)
     {
-      n_dec <- 0
+      n_dec <- 7
+      warning("7 is a place-holder. Number of decimals seems to be > 6. This case is not implemented. Beware floating point arithmetic!")
     } else {
-      if(sum(grid_x_is_in) >= 1)
+      ##get which vector the query number is in, which corresponds to the "number of digits"
+      grid_x_is_in <- sapply(list_grid, function(l,a){a %in% l}, x_single)
+      
+      if(x_single==0)
       {
-        n_dec <- min((1:6)[grid_x_is_in])
+        n_dec <- 0
       } else {
-        n_dec <- 7
-        warning("Number of decimals seems to be > 6. This case is not implemented. Beware floating point arithmetic!")
+        if(sum(grid_x_is_in) >= 1)
+        {
+          n_dec <- min((1:6)[grid_x_is_in])
+        } else {
+          n_dec <- 7
+          warning("7 is a place-holder. Number of decimals seems to be > 6. This case is not implemented. Beware floating point arithmetic!")
+        }
       }
     }
     n_dec
