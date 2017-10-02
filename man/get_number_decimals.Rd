@@ -2,24 +2,23 @@
 % Please edit documentation in R/get_number_decimals.R
 \name{get_number_decimals}
 \alias{get_number_decimals}
-\title{Get number of decimals for any vector of numbers (i.e. return total number of digits after decimal point)}
+\title{Get number of decimals (i.e. return total number of digits after decimal point) for any vector of numbers in [0,1) if number of decimals <= 6}
 \usage{
 get_number_decimals(x)
 }
 \arguments{
-\item{x}{Numerical vector}
+\item{x}{Numerical vector where all elements are in [0,1)}
 }
 \value{
-Vector giving the number of decimals for each element in x
+Vector giving the number of decimals for each element in x if the number is <= 6; otherwise return 7 with a warning
 }
 \description{
-Get number of decimals for any vector of numbers (i.e. return total number of digits after decimal point)
+Get number of decimals (i.e. return total number of digits after decimal point) for any vector of numbers in [0,1) if number of decimals <= 6
 }
 \examples{
-get_number_decimals(c(1,2))
 get_number_decimals(c(0.0006, 0.0750, 0.0420, 0.0031, 0.0001, 0.0100))
-get_number_decimals(c(6.5*10^-5, 0.0100))
-get_number_decimals(c(10.5,6.57*10^-5))
-get_number_decimals(c(-1000.05,-6.57*10^-5))
+get_number_decimals(c(6.5*10^-4, 0.0100)) ##This does not work correctly!
+get_number_decimals(c(6.5e-4, 0.0100))
+get_number_decimals(c(0.00065, 0.0100))
 
 }
