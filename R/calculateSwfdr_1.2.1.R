@@ -1,10 +1,7 @@
-# Calculation of false-discovery rates
-#
-# Notes:
-#  - a previous version is available in a sister file
-#
-# Changes w.r.t. version 1.2.1:
-#  - removed unused import decorator for dplyr
+# This version of calculateSwfdr is one from package version 1.2.1
+# The main code is untouched w.r.t. version 1.2.1, except:
+# - function name has a suffix with version number
+# - function comment no longer marks the function for export
 
 
 #' Calculate the science-wise FDR (swfdr)
@@ -25,6 +22,7 @@
 #' @return n Number of rounded p-values between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.05)
 #' 
 #' @import stats4
+#' @import dplyr
 #' @importFrom stats dbeta lsfit pbeta smooth.spline
 #' 
 #' @examples
@@ -32,8 +30,7 @@
 #' tt <- rr <- rep(0, 100)
 #' resSwfdr <- calculateSwfdr(pValues = pVals, truncated = tt, rounded = rr, numEmIterations=100)
 #' 
-#' @export
-calculateSwfdr = function(pValues,truncated,rounded,pi0 = 0.5,alpha=1,beta=50,numEmIterations=100){
+calculateSwfdr_1.2.1= function(pValues,truncated,rounded,pi0 = 0.5,alpha=1,beta=50,numEmIterations=100){
   pp = pValues
   tt = truncated
   rr = rounded

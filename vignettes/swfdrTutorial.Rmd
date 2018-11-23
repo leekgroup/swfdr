@@ -130,7 +130,7 @@ head(X)
 
 We then run the `lm_pi0` function:
 ```{r}
-pi0x <- lm_pi0(pValues=BMI_GIANT_GWAS_sample$p, 
+pi0x <- lm_pi0(BMI_GIANT_GWAS_sample$p, 
                X=X, smooth.df=3)
 names(pi0x)
 ```
