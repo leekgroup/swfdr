@@ -9,13 +9,14 @@
 #  - moved fitting pi0.lambda to separate functions
 #  - removed some import decorators from documentation 
 #  - added some importFrom decorators
+#  - allowed X to be missing (uses a constant/uniformative covariate)
 #
 # Additional changes in lm_pi0_2
 #  - removed argument smooth.df and uses df=3 always
 #  - removed argument threshold (always force probabilities into [0,1])
 #  - pi0, pi0.lambda, as well as pi0.smooth are now truncated into [0,1]
-#  - shifted final estimate to using limit lambda=1 (instead of largest lambda)
 #  - removed pi0.smooth from output list
+#  - fitted splines using a customized function fast.spline instead of smooth.spline
 
 
 #' Estimate pi0(x)
@@ -52,7 +53,7 @@ lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
   lambda <- check_lambda(lambda, prange[2])
   n.lambda <- length(lambda)
   smooth.df <- check_df(smooth.df, n.lambda)
-  X <- check_X(X, p)
+  X <- check_X(X=X, p=p)
   
   # pick a modeling function, fit odels for each lambda
   available.functions <- list(logistic=fit_logistic, linear=fit_linear)
@@ -95,6 +96,8 @@ lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
 #' @param smooth character
 #'
 #' @return list with pi0, pi0.lambda, lambda
+#'
+#' @export
 lm_pi0_2 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
                      type=c("logistic", "linear")) {
   
@@ -103,8 +106,8 @@ lm_pi0_2 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
   prange <- check_p(p)
   lambda <- check_lambda(lambda, prange[2])
   n.lambda <- length(lambda)
-  X <- check_X(X, p)
-    
+  X <- check_X(X=X, p=p)
+  
   # pick a modeling function, fit odels for each lambda
   available.functions <- list(logistic=fit_logistic, linear=fit_linear)
   fit.function <- available.functions[[type]]  
@@ -118,9 +121,7 @@ lm_pi0_2 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
   # smooth over values of lambda (for each p-value/ row in X)
   # (instead of taking limit lambda->1, use largest available lambda)
   smooth.large.lambda = function(y) {
-    spline <- smooth.spline(lambda, y,
-                            df=3, keep.data=FALSE, tol=1e-7)
-    spline$y[n.lambda]
+    fast.spline(lambda, y)[n.lambda]
   }
   pi0 <- force.unit.interval(apply(pi0.lambda, 1, smooth.large.lambda))
   
@@ -170,6 +171,9 @@ fit_linear <- function(y, X) {
 #
 # @return numeric vector of length 2 with (min(p), max(p))
 check_p <- function(p) {
+  if (missing(p)) {
+    stop("p is a required argument\n", call. = FALSE)
+  }
   if (class(p) != "numeric") {
     stop("p must be a numeric vector\n", call. = FALSE)
   }
@@ -235,29 +239,32 @@ check_df <- function(x, max.value) {
 # verify that X is a matrix of covariates compatible with a vector of pvalues
 #
 # @param X vector or matrix of covariates
-# @param pvalues vector of values
+# @param p vector of p-values
 #
 # @return matrix
-check_X <- function(X, pvalues) {
+check_X <- function(X, p) {
   # allow for null input (no covariates)
+  if (missing(X)) {
+    X <- NULL
+  }
   if (is.null(X)) {
-    X <- cbind(rep(1, length(pvalues)))
-    rownames(X) <- names(pvalues)
+    X <- cbind(rep(1, length(p)))
+    rownames(X) <- names(p)
   }
   # allow for a single covariates specified as a vector
   if (is.null(dim(X))) {
     X <- cbind(X)
   }
   # ensure that X and pvalues are compatible
-  if (length(pvalues)!=nrow(X)) {
+  if (length(p)!=nrow(X)) {
     stop("incompatible X and p - different lengths\n", call. = FALSE)
   }
   if (class(X) != "matrix") {
     warning(paste0("coercing X info a matrix from a ", class(X)), call.=FALSE)
     X <- as.matrix(X)
   }
-  if (!identical(rownames(X), names(pvalues))) {
-    warning("X and p have different names", call. = FALSE)
+  if (!is.null(names(p)) & !identical(rownames(X), names(p))) {
+    stop("X and p have different names", call. = FALSE)
   }
   # ensure that all columns in X are numeric
   if (!all(apply(X, 2, class) %in% c("numeric", "integer", "factor"))) {

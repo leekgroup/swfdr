@@ -1,4 +1,4 @@
-# Testing lm_pi0
+# Tests for pi0  lm_pi0
 
 # This outputs a label for devtools::test()
 # (useful if test suite has multiple files)
@@ -7,8 +7,8 @@ cat("\ntest_lm_pi0.R\n")
 
 # pick a lm_pi0 function to test (uncomment one line)
 #pi0est <- lm_pi0_1.2.1
-pi0est <- lm_pi0
-#pi0est <- lm_pi0_2
+#pi0est <- lm_pi0
+pi0est <- lm_pi0_2
 
 
 # #############################################################################
@@ -66,6 +66,7 @@ test_that("lambda must be at least a vector of length 4", {
 
 
 test_that("p must be a numeric vector", {
+  expect_error(pi0est(), "required")
   temp.char <- letters[1:length(X.flat)]
   expect_error(pi0est(temp.char, X=X.flat), "numeric")
   temp.range <- seq(-0.2, 1.2, length=length(X.flat))
@@ -115,7 +116,7 @@ test_that("warnings if pvalues and covariates have different names", {
   expect_silent(pi0est(temp.p, X=temp.X, lambda=lambda.5))
   temp.X2 <- temp.X
   names(temp.X2)[2] = "z"
-  expect_warning(pi0est(temp.p, X=temp.X2, lambda=lambda.5), "names")
+  expect_error(pi0est(temp.p, X=temp.X2, lambda=lambda.5), "names")
 })
 
 
@@ -139,6 +140,18 @@ test_that("covariates must be a numeric vector or matrix", {
 
 test_that("uniform pvalues with uninformative covariate vector yield 1", {
   result <- pi0est(p.uniform, X=X.flat, lambda=lambda.5)
+  expect_equal(result$pi0, rep(1, length(p.uniform)))
+})
+
+
+test_that("uniform pvalues with missing covariates yield 1", {
+  result <- pi0est(p.uniform, lambda=lambda.5)
+  expect_equal(result$pi0, rep(1, length(p.uniform)))
+})
+
+
+test_that("uniform pvalues with null covariates yield 1", {
+  result <- pi0est(p.uniform, X=NULL, lambda=lambda.5)
   expect_equal(result$pi0, rep(1, length(p.uniform)))
 })
 
@@ -264,4 +277,6 @@ if (FALSE) {
     expect_silent(pi0est(p.temp, X=rep(0, length(p.temp)), lambda=lambda.5))
   })
 }
+
+
 
