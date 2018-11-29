@@ -5,10 +5,10 @@
 cat("\ntest_lm_pi0.R\n")
 
 
-# pick a lm_pi0 function to test (uncomment one line)
-#pi0est <- lm_pi0_1.2.1
-#pi0est <- lm_pi0
-pi0est <- lm_pi0_2
+## pi0est is another name for lm_pi0
+pi0est <- lm_pi0
+
+
 
 
 # #############################################################################
@@ -32,7 +32,7 @@ lambda.5 <- seq(0.05, 0.95, length=5)
 
 
 # #############################################################################
-# compatibility of input data
+# validation of input data
 
 
 test_that("lambda must be numeric, without NAs, and within (0,1)", {
@@ -46,7 +46,7 @@ test_that("lambda must be numeric, without NAs, and within (0,1)", {
   expect_error(pi0est(p.uniform, X=X.flat, lambda=c(-0.05, temp)),"range")
   expect_error(pi0est(p.uniform, X=X.flat, lambda=c(temp, 1.2)), "range")
   # exactly boundary values 0, 1
-  expect_error(pi0est(p.uniform, X=X.flat, lambda=c(0, temp)),"range")
+  expect_error(pi0est(p.uniform, X=X.flat, lambda=c(-0.1, 0, temp)),"range")
   expect_error(pi0est(p.uniform, X=X.flat, lambda=c(temp, 1)), "range")
 })
 
@@ -82,7 +82,7 @@ test_that("some p should be higher than lambda range", {
 })
 
 
-if (identical(pi0est, lm_pi0_1.2.1) | identical(pi0est, lm_pi0)) {
+if (identical(pi0est, lm_pi0_1.2.1) | identical(pi0est, lm_pi0_1.3)) {
   test_that("df must be a single finite number", {
     expect_error(pi0est(p.uniform, X=X.flat, smooth.df="3"), "number")
     expect_error(pi0est(p.uniform, X=X.flat, smooth.df=NA), "number")
@@ -131,6 +131,7 @@ test_that("covariates must be a numeric vector or matrix", {
   expect_error(suppressWarnings(pi0est(temp.p, X=temp.df[, c("A", "C")], lambda=lambda.5)),
                "numeric matrix")
 })
+
 
 
 
@@ -212,6 +213,7 @@ test_that("uniform pvals, informative covariate, all pi0 values are in range (0,
 
 
 
+
 # #############################################################################
 # use logistic or linear modeling
 
@@ -236,7 +238,7 @@ test_that("informative covariate lead to non-eqiv pi0 w. logistic/linear models"
 # use unusual arguments
 
 
-if (identical(pi0est, lm_pi0)) {
+if (identical(pi0est, lm_pi0_1.3)) {
   test_that("smooth.df can accept fractional values for smooth.df", {
     result.30 <- pi0est(p.uniform, X=X.flat, smooth.df=3)
     result.32 <- pi0est(p.uniform, X=X.flat, smooth.df=3.2)
@@ -277,6 +279,4 @@ if (FALSE) {
     expect_silent(pi0est(p.temp, X=rep(0, length(p.temp)), lambda=lambda.5))
   })
 }
-
-
 

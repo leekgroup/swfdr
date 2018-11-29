@@ -3,7 +3,7 @@
 # Notes:
 #  - a previous version (v1.2.1) of this function is available in a sister file
 #
-# Changes in lm_pi0 w.r.t version 1.2.1:
+# Changes in lm_pi0_1.3 w.r.t version 1.2.1:
 #  - added argument value matching for "type"
 #  - added checks on arguments lambda, X, smooth.df
 #  - moved fitting pi0.lambda to separate functions
@@ -11,7 +11,7 @@
 #  - added some importFrom decorators
 #  - allowed X to be missing (uses a constant/uniformative covariate)
 #
-# Additional changes in lm_pi0_2
+# Additional changes in lm_pi0
 #  - removed argument smooth.df and uses df=3 always
 #  - removed argument threshold (always force probabilities into [0,1])
 #  - pi0, pi0.lambda, as well as pi0.smooth are now truncated into [0,1]
@@ -44,7 +44,7 @@
 #' pi0x <- lm_pi0(pValues, X=X, smooth.df=3)
 #'
 #' @export
-lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
+lm_pi0_1.3 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
                    type=c("logistic", "linear"), smooth.df=3, threshold=TRUE) {
   
   # check validity of inputs
@@ -87,19 +87,37 @@ lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
 
 
 
-#' Another version of lm_pi0
+#' Estimation of pi0, proportion of p-values consistent with a null hypothesis
 #'
-#' @param p numeric vector
-#' @param lambda numeric vector
-#' @param X matrix of covariates
-#' @param type character
-#' @param smooth character
+#' @param p numeric vector, p-values
+#' @param lambda numeric vector, thresholds used to bin pvalues, must be in [0,1).
+#' @param X numeric matrix, covariates that might be related to p values
+#' (one test per row, one variable per column). 
+#' @param type character, type of regression used to fit features to pvalues
 #'
+#' @return pi0 numerical vector of smoothed estimate of pi0(x).
+#' The length is the number of rows in X.
+#' @return pi0.lambda numeric matrix of estimated pi0(x) for each value of lambda.
+#' The number of columns is the number of tests, the number of rows is the length of lambda.
+#' @return lambda numeric vector of the thresholds used in calculating pi0.lambda
+#' 
+#' @importFrom stats binomial glm
+#'
+#' @examples
+#' X <- seq(-1,2,length=1000) ##covariate
+#' pi0 <- 1/4*X + 1/2 ##probability of being null
+#' nullI <- rbinom(1000,prob=pi0,size=1)> 0 ##generate null/alternative p-values
+#' pValues <- rep(NA,1000) ##vector of p-values
+#' pValues[nullI] <- runif(sum(nullI)) ##null from U(0,1)
+#' pValues[!nullI] <- rbeta(sum(!nullI),1,2) ##alternative from Beta
+#' pi0x <- lm_pi0(pValues, X=X, smooth.df=3)
+#'
+#' 
 #' @return list with pi0, pi0.lambda, lambda
 #'
 #' @export
-lm_pi0_2 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
-                     type=c("logistic", "linear")) {
+lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
+                   type=c("logistic", "linear")) {
   
   # check validity of inputs
   type <- match.arg(type)
@@ -116,14 +134,14 @@ lm_pi0_2 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
     y <- (p > lambda[i])
     pi0.lambda[, i] <- fit.function(y, X)/(1-lambda[i])
   }
-  pi0.lambda <- force.unit.interval(pi0.lambda)
+  pi0.lambda <- regularize.interval(pi0.lambda)
   
   # smooth over values of lambda (for each p-value/ row in X)
   # (instead of taking limit lambda->1, use largest available lambda)
   smooth.large.lambda = function(y) {
     fast.spline(lambda, y)[n.lambda]
   }
-  pi0 <- force.unit.interval(apply(pi0.lambda, 1, smooth.large.lambda))
+  pi0 <- regularize.interval(apply(pi0.lambda, 1, smooth.large.lambda))
   
   list(pi0=pi0, pi0.lambda=pi0.lambda, lambda=lambda)
 }
@@ -162,128 +180,19 @@ fit_linear <- function(y, X) {
 
 
 # #############################################################################
-# Input validation checks
+# other helper functions
 
 
-# verify quality of pvalues
-#
-# @param p numeric vector of p-values
-#
-# @return numeric vector of length 2 with (min(p), max(p))
-check_p <- function(p) {
-  if (missing(p)) {
-    stop("p is a required argument\n", call. = FALSE)
-  }
-  if (class(p) != "numeric") {
-    stop("p must be a numeric vector\n", call. = FALSE)
-  }
-  prange <- range(p, na.rm=TRUE)
-  if (prange[1] < 0 | prange[2] > 1) {
-    stop("p must be numeric in range [0, 1]\n", call. = FALSE)
-  }
-  if (any(is.na(p))) {
-    stop("p must not have missinge values\n", call. = FALSE)
-  }
-  prange
-}
-
-
-# verify the suitability of lambda
-#
-# @param x vector of lambda values
-# @param pmax numeric, maximal pvalue
-#
-# @return numeric vector of sorted unique x, or stop if x does not satisfy criteria
-check_lambda <- function(x, pmax) {
-  if (class(x)!="numeric") {
-    stop("lambda must be a numeric vector \n", call. = FALSE)
-  }
-  if (!all(is.finite(x))) {
-    stop("lambda must not contain NAs, NULL, or non-finite elements\n", call. = FALSE)
-  }
-  x <- sort(unique(x))
-  if (length(x)<4) {
-    stop("lambda must be of length >=4\n", call. = FALSE)
-  }
-  if (min(x)<=0 | max(x)>=1) {
-    stop("lambda values must all be in range (0, 1)\n", call. = FALSE)
-  }
-  if (pmax < max(x)) {
-    warning("maximal p is smaller than maximal lambda", call. = FALSE)
-  }
-  x
-}
-
-
-# verify the suitability of a value as a number of degrees of freedrom
-#
-# @param x expect a single number
-# @param max.value numeric, maximal value allowed for x
-#
-# @return integer derived from x
-check_df <- function(x, max.value) {
-  if (class(x) != "numeric" & class(x) != "integer") {
-    stop("df must be a number")
-  }
-  if (length(x) != 1 | any(!is.finite(x))) {
-    stop("df must be a single finite number", call. = FALSE)
-  }
-  x <- round(x)
-  if (x <= 1 | x > max.value) {
-    stop("df must be in range 1 < df < length(lambda)\n", call. = FALSE)
-  }
-  x
-}
-
-
-# verify that X is a matrix of covariates compatible with a vector of pvalues
-#
-# @param X vector or matrix of covariates
-# @param p vector of p-values
-#
-# @return matrix
-check_X <- function(X, p) {
-  # allow for null input (no covariates)
-  if (missing(X)) {
-    X <- NULL
-  }
-  if (is.null(X)) {
-    X <- cbind(rep(1, length(p)))
-    rownames(X) <- names(p)
-  }
-  # allow for a single covariates specified as a vector
-  if (is.null(dim(X))) {
-    X <- cbind(X)
-  }
-  # ensure that X and pvalues are compatible
-  if (length(p)!=nrow(X)) {
-    stop("incompatible X and p - different lengths\n", call. = FALSE)
-  }
-  if (class(X) != "matrix") {
-    warning(paste0("coercing X info a matrix from a ", class(X)), call.=FALSE)
-    X <- as.matrix(X)
-  }
-  if (!is.null(names(p)) & !identical(rownames(X), names(p))) {
-    stop("X and p have different names", call. = FALSE)
-  }
-  # ensure that all columns in X are numeric
-  if (!all(apply(X, 2, class) %in% c("numeric", "integer", "factor"))) {
-    stop("X must be a numeric vector or numeric matrix\n", call. = FALSE)
-  }
-  X
-}
-
-
-# helper to force a set of values in a unit interval
+# helper to force a set of values in a regular interval
 #
 # (This is a simpler implementation than ifelse)
 #
 # @param x numeric vector or matrix
 #
 # @return same object like x, with values truncated by [0,1]
-force.unit.interval <- function(x) {
-  x[x<0] <- 0
-  x[x>1] <- 1
+regularize.interval <- function(x, interval = c(0, 1)) {
+  x[x < interval[1]] <- interval[1]
+  x[x > interval[2]] <- interval[2]
   x
 }
 

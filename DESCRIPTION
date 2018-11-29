@@ -15,7 +15,11 @@ Description: This package allows users to estimate the science-wise
         "A regression framework for the proportion of true null
         hypotheses," 2015, bioRxiv preprint.
 Depends: R (>= 3.4)
-Imports: stats4, ggplot2, reshape2, stats
+Imports:
+	stats4,
+	ggplot2,
+	reshape2,
+	stats
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
@@ -26,4 +30,7 @@ Suggests:
 	rmarkdown,
 	testthat
 VignetteBuilder: knitr
-biocViews: MultipleComparison, StatisticalMethod, Software
+biocViews:
+	MultipleComparison,
+	StatisticalMethod,
+	Software
