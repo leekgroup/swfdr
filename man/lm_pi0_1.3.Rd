@@ -17,6 +17,8 @@ lm_pi0_1.3(p, lambda = seq(0.05, 0.95, 0.05), X, type = c("logistic",
 \item{type}{Type of regression, "logistic" or "linear." Default is logistic.}
 
 \item{smooth.df}{Number of degrees of freedom when estimating pi0(x) with a smoother.}
+
+\item{threshold}{logical}
 }
 \value{
 pi0 Numerical vector of smoothed estimate of pi0(x). The length is the number of rows in X.
@@ -37,6 +39,6 @@ nullI <- rbinom(1000,prob=pi0,size=1)> 0 ##generate null/alternative p-values
 pValues <- rep(NA,1000) ##vector of p-values
 pValues[nullI] <- runif(sum(nullI)) ##null from U(0,1)
 pValues[!nullI] <- rbeta(sum(!nullI),1,2) ##alternative from Beta
-pi0x <- lm_pi0(pValues, X=X, smooth.df=3)
+pi0x <- lm_pi0_1.3(pValues, X=X, smooth.df=3)
 
 }

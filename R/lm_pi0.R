@@ -26,7 +26,8 @@
 #' @param X Design matrix (one test per row, one variable per column). Do not include the intercept.
 #' @param type Type of regression, "logistic" or "linear." Default is logistic.
 #' @param smooth.df Number of degrees of freedom when estimating pi0(x) with a smoother.
-#' 
+#' @param threshold logical
+#'
 #' @return pi0 Numerical vector of smoothed estimate of pi0(x). The length is the number of rows in X.
 #' @return pi0.lambda Numerical matrix of estimated pi0(x) for each value of lambda. The number of columns is the number of tests, the number of rows is the length of lambda.
 #' @return lambda Vector of the values of lambda used in calculating pi0.lambda
@@ -41,7 +42,7 @@
 #' pValues <- rep(NA,1000) ##vector of p-values
 #' pValues[nullI] <- runif(sum(nullI)) ##null from U(0,1)
 #' pValues[!nullI] <- rbeta(sum(!nullI),1,2) ##alternative from Beta
-#' pi0x <- lm_pi0(pValues, X=X, smooth.df=3)
+#' pi0x <- lm_pi0_1.3(pValues, X=X, smooth.df=3)
 #'
 #' @export
 lm_pi0_1.3 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
@@ -64,7 +65,7 @@ lm_pi0_1.3 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
     pi0.lambda[, i] <- fit.function(y, X)/(1-lambda[i])
   }
   if (threshold) {
-    pi0.lambda <- force.unit.interval(pi0.lambda)
+    pi0.lambda <- regularize.interval(pi0.lambda)
   }
   
   # smooth over values of lambda (for each p-value/ row in X)
@@ -75,14 +76,16 @@ lm_pi0_1.3 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
   }
   pi0.smooth = t(apply(pi0.lambda, 1, smooth.function))
   if (threshold) {
-    pi0.smooth = force.unit.interval(pi0.smooth)
+    pi0.smooth = regularize.interval(pi0.smooth)
   }
   
   # get final estimate of pi0
   # (instead of taking limit lambda->1, use largest available lambda)
-  pi0 <- force.unit.interval(pi0.smooth[, n.lambda])
+  pi0 <- regularize.interval(pi0.smooth[, n.lambda])
   
-  list(pi0=pi0, pi0.lambda=pi0.lambda, lambda=lambda, pi0.smooth=pi0.smooth)
+  result <- list(pi0=pi0, pi0.lambda=pi0.lambda, lambda=lambda, pi0.smooth=pi0.smooth)
+  class(result) <- "lm_pi0"
+  result
 }
 
 
@@ -110,10 +113,7 @@ lm_pi0_1.3 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
 #' pValues <- rep(NA,1000) ##vector of p-values
 #' pValues[nullI] <- runif(sum(nullI)) ##null from U(0,1)
 #' pValues[!nullI] <- rbeta(sum(!nullI),1,2) ##alternative from Beta
-#' pi0x <- lm_pi0(pValues, X=X, smooth.df=3)
-#'
-#' 
-#' @return list with pi0, pi0.lambda, lambda
+#' pi0x <- lm_pi0(pValues, X=X)
 #'
 #' @export
 lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
@@ -143,7 +143,10 @@ lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
   }
   pi0 <- regularize.interval(apply(pi0.lambda, 1, smooth.large.lambda))
   
-  list(pi0=pi0, pi0.lambda=pi0.lambda, lambda=lambda)
+  result <- list(call=match.call(), lambda=lambda, X.names = colnames(X),
+                 pi0=pi0, lambda=lambda, pi0.lambda=pi0.lambda)
+  class(result) <- "lm_pi0"
+  result
 }
 
 
@@ -161,16 +164,32 @@ lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
 # @return numeric vector of length(y)
 
 
-# fit response values using a binomial/logit model
+#' Fit response values using a binomial/logit model
+#'
+#' @keywords internal
+#' @param y numeric vector
+#' @param X numeric matrix (covariates)
+#'
+#' @return numeric vector
+#'
+#' @importFrom stats binomial glm
 fit_logistic <- function(y, X) {
   glm(y ~ X, family=binomial)$fitted.values
 }
 
 
-# fit response values using a linear regression
-# 
-# (This could be implemnted via glm(... family=gaussian) but the
-# implementation with lsfit is much faster
+#' Fit response values using a linear regression
+#' 
+#' (This could be implemnted via glm(... family=gaussian) but the
+#' implementation with lsfit is much faster
+#'
+#' @keywords internal
+#' @param y numeric vector
+#' @param X numeric matrix (covariates)
+#'
+#' @return numeric vector
+#'
+#' @importFrom stats lsfit
 fit_linear <- function(y, X) {
   regFit <- lsfit(X, y)$coefficients
   regFit[1] + (X %*% matrix(regFit[-1], ncol=1))
@@ -183,18 +202,18 @@ fit_linear <- function(y, X) {
 # other helper functions
 
 
-# helper to force a set of values in a regular interval
-#
-# (This is a simpler implementation than ifelse)
-#
-# @param x numeric vector or matrix
-#
-# @return same object like x, with values truncated by [0,1]
+#' Force a set of values in a regular interval
+#'
+#' (This is a simpler/faster implementation than with ifelse)
+#'
+#' @keywords internal
+#' @param x numeric vector or matrix
+#' @param interval numeric vector of length 2 with min/max values
+#'
+#' @return same object like x, with values truncated by [0,1]
 regularize.interval <- function(x, interval = c(0, 1)) {
   x[x < interval[1]] <- interval[1]
   x[x > interval[2]] <- interval[2]
   x
 }
-
-
 

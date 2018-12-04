@@ -25,8 +25,6 @@ pi0.lambda numeric matrix of estimated pi0(x) for each value of lambda.
 The number of columns is the number of tests, the number of rows is the length of lambda.
 
 lambda numeric vector of the thresholds used in calculating pi0.lambda
-
-list with pi0, pi0.lambda, lambda
 }
 \description{
 Estimation of pi0, proportion of p-values consistent with a null hypothesis
@@ -38,7 +36,6 @@ nullI <- rbinom(1000,prob=pi0,size=1)> 0 ##generate null/alternative p-values
 pValues <- rep(NA,1000) ##vector of p-values
 pValues[nullI] <- runif(sum(nullI)) ##null from U(0,1)
 pValues[!nullI] <- rbeta(sum(!nullI),1,2) ##alternative from Beta
-pi0x <- lm_pi0(pValues, X=X, smooth.df=3)
-
+pi0x <- lm_pi0(pValues, X=X)
 
 }

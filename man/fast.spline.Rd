@@ -36,3 +36,4 @@ has remained fixed for many years (now 2018) and is thus not likely to
 change. If that happens, the results from fast.spline can be reproduced
 via 'smooth.spline(x, y, df=3, tol=4.5e-7)$y'
 }
+\keyword{internal}

@@ -54,6 +54,7 @@
 #' change. If that happens, the results from fast.spline can be reproduced
 #' via 'smooth.spline(x, y, df=3, tol=4.5e-7)$y'
 #'
+#' @keywords internal
 #' @param x numeric vector, must have sorted, unique, finite values
 #' @param y numeric vector, must have finite values
 #' @param df integer, number of degrees of freedom

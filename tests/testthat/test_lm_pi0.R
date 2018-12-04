@@ -160,7 +160,7 @@ test_that("uniform pvalues with null covariates yield 1", {
 test_that("ordering of lambda does not matter", {
   result.fwd <- pi0est(p.uniform, X=X.flat, lambda=lambda.5)
   result.rev <- pi0est(p.uniform, X=X.flat, lambda=rev(lambda.5))
-  expect_equal(result.fwd, result.rev)
+  expect_equal(result.fwd$pi0.lambda, result.rev$pi0.lambda)
 })
 
 

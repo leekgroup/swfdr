@@ -28,7 +28,7 @@
 #' pValues <- rep(NA,1000) ##vector of p-values
 #' pValues[nullI] <- runif(sum(nullI)) ##null from U(0,1)
 #' pValues[!nullI] <- rbeta(sum(!nullI),1,2) ##alternative from Beta
-#' pi0x <- lm_pi0(pValues=pValues, X=X, smooth.df=3)
+#' pi0x <- lm_pi0_1.2.1(pValues=pValues, X=X, smooth.df=3)
 #'
 #' @export
 lm_pi0_1.2.1 <- function(pValues, lambda = seq(0.05, 0.95, 0.05), X, type="logistic", smooth.df=3, threshold=TRUE)

@@ -6,7 +6,6 @@
 #' The recipe for turning pvalues into qvalues is adapted from package
 #' 'qvalue' and articles by Storey, Tibshirani, Taylor, Siegmund.
 #' 
-#'
 #' @param p numeric vector of p-values
 #' @param X matrix of covariates (can be missing if pi0 is specified instead)
 #' @param pfdr logical
@@ -14,6 +13,7 @@
 #' @param ... other parameters (passed on to lm_pi0 if pi0 is not provided)
 #' 
 #' @return list
+#' @export
 lm_qvalue <- function(p, X, pfdr=FALSE, pi0=NULL, ...) {
   
   # check inputs
@@ -43,4 +43,5 @@ lm_qvalue <- function(p, X, pfdr=FALSE, pi0=NULL, ...) {
   class(result) <- c("lm_qvalue")
   result
 }
+
 

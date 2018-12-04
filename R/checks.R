@@ -3,11 +3,12 @@
 # All these functions are for internal use for the package only
 
 
-# validate pvalues. They must be finite, in range[0,1]
-#
-# @param p numeric vector of p-values
-#
-# @return numeric vector of length 2 with (min(p), max(p))
+#' validate pvalues. They must be finite, in range [0,1]
+#'
+#' @keywords internal
+#' @param p numeric vector of p-values
+#'
+#' @return numeric vector of length 2 with (min(p), max(p))
 check_p <- function(p) {
   if (missing(p)) {
     stop("p is a required argument\n", call. = FALSE)
@@ -26,13 +27,13 @@ check_p <- function(p) {
 }
 
 
-# validate lambda. They must be numeric, finite, sorted with unique value
-# 
-#
-# @param x vector of lambda values
-# @param pmax numeric, maximal pvalue
-#
-# @return numeric vector of sorted unique x, or stop if x does not satisfy criteria
+#' validate lambda. They must be numeric, finite, sorted with unique value
+#' 
+#' @keywords internal
+#' @param x vector of lambda values
+#' @param pmax numeric, maximal pvalue
+#'
+#' @return numeric vector of sorted unique x, or stop if x does not satisfy criteria
 check_lambda <- function(x, pmax) {
   if (class(x)!="numeric") {
     stop("lambda must be a numeric vector \n", call. = FALSE)
@@ -54,12 +55,13 @@ check_lambda <- function(x, pmax) {
 }
 
 
-# validate degrees of freedom. 
-#
-# @param x expect a single number
-# @param max.value numeric, maximal value allowed for x
-#
-# @return integer derived from x
+#' validate degrees of freedom. 
+#'
+#' @keywords internal
+#' @param x expect a single number
+#' @param max.value numeric, maximal value allowed for x
+#'
+#' @return integer derived from x
 check_df <- function(x, max.value) {
   if (class(x) != "numeric" & class(x) != "integer") {
     stop("df must be a number")
@@ -75,12 +77,13 @@ check_df <- function(x, max.value) {
 }
 
 
-# validate matrix of covariates. It must be compatible with a vector of pvalues
-#
-# @param X vector or matrix of covariates
-# @param p vector of p-values
-#
-# @return matrix
+#' validate matrix of covariates. It must be compatible with a vector of pvalues
+#'
+#' @keywords internal
+#' @param X vector or matrix of covariates
+#' @param p vector of p-values
+#'
+#' @return matrix
 check_X <- function(X, p) {
   # allow for null input (no covariates)
   if (missing(X)) {
@@ -111,3 +114,18 @@ check_X <- function(X, p) {
   }
   X
 }
+
+
+#' check if an object is of a certain class
+#'
+#' @keywords internal
+#' @param x object
+#' @param classname character
+#'
+#' @return nothing, emit error if check not satisfied
+check_class <- function(x, classname) {
+  if (!classname %in% class(x)) {
+    stop(paste0("object is not of class '", classname, "'\n"), call. = FALSE)
+  }
+}
+
