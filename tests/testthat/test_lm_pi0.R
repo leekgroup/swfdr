@@ -136,24 +136,37 @@ test_that("covariates must be a numeric vector or matrix", {
 
 
 # #############################################################################
+# toggle between smoothing methods
+
+
+test_that("uniform pvalues with uninformative covariate vector yield 1", {
+  expect_silent(pi0est(p.uniform, X=X.flat, lambda=lambda.5, type.smoothing="unit"))
+  expect_silent(pi0est(p.uniform, X=X.flat, lambda=lambda.5, type.smoothing="smooth"))
+})
+
+
+
+
+
+# #############################################################################
 # uniform p values and uninformative covariates
 
 
 test_that("uniform pvalues with uninformative covariate vector yield 1", {
   result <- pi0est(p.uniform, X=X.flat, lambda=lambda.5)
-  expect_equal(result$pi0, rep(1, length(p.uniform)))
+  expect_equal(result$pi0, rep(1, length(p.uniform)), tol=1e-3)
 })
 
 
 test_that("uniform pvalues with missing covariates yield 1", {
   result <- pi0est(p.uniform, lambda=lambda.5)
-  expect_equal(result$pi0, rep(1, length(p.uniform)))
+  expect_equal(result$pi0, rep(1, length(p.uniform)), tol=1e-3)
 })
 
 
 test_that("uniform pvalues with null covariates yield 1", {
   result <- pi0est(p.uniform, X=NULL, lambda=lambda.5)
-  expect_equal(result$pi0, rep(1, length(p.uniform)))
+  expect_equal(result$pi0, rep(1, length(p.uniform)), tol=1e-3)
 })
 
 
@@ -169,7 +182,7 @@ test_that("uniform pvals with uninformative covariate matrix yield 1 (dim 2)", {
   temp.X <- cbind(A=rep(0, length(p.uniform)),
                   B=rep(2, length(p.uniform)))
   result <- pi0est(p.uniform, X=temp.X, lambda=lambda.5)
-  expect_equal(result$pi0, rep(1, length(p.uniform)))
+  expect_equal(result$pi0, rep(1, length(p.uniform)), tol=1e-3)
 })
 
 
@@ -177,7 +190,7 @@ test_that("uniform pvals with uninformative covariate matrix yield 1 (dim 1)", {
   # a two-variable covariate matrix
   temp.X <- cbind(A=X.flat, B=X.flat+2)        
   result <- pi0est(p.uniform, X=temp.X, lambda=lambda.5)
-  expect_equal(result$pi0, rep(1, length(p.uniform)))
+  expect_equal(result$pi0, rep(1, length(p.uniform)), tol=1e-3)
 })
 
 
@@ -270,13 +283,4 @@ test_that("p value can be a short vector", {
   result <- pi0est(c(0.5, 1), X=c(0,0), lambda=lambda.5)
   expect_equal(result$pi0, c(1, 1))
 })
-
-
-if (FALSE) {
-  ## TO-DO
-  test_that("p values can include NA", {
-    p.temp <- c(0.1, NA, 0.5, 0.9)
-    expect_silent(pi0est(p.temp, X=rep(0, length(p.temp)), lambda=lambda.5))
-  })
-}
 

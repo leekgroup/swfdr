@@ -96,7 +96,8 @@ lm_pi0_1.3 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
 #' @param lambda numeric vector, thresholds used to bin pvalues, must be in [0,1).
 #' @param X numeric matrix, covariates that might be related to p values
 #' (one test per row, one variable per column). 
-#' @param type character, type of regression used to fit features to pvalues
+#' @param type.regression character, type of regression used to fit features to pvalues
+#' @param type.smoothing character, type of smoothing used to fit pi0
 #'
 #' @return pi0 numerical vector of smoothed estimate of pi0(x).
 #' The length is the number of rows in X.
@@ -117,18 +118,20 @@ lm_pi0_1.3 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
 #'
 #' @export
 lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
-                   type=c("logistic", "linear")) {
+                   type.regression=c("logistic", "linear"),
+                   type.smoothing=c("unit.spline", "smooth.spline")) {
   
   # check validity of inputs
-  type <- match.arg(type)
+  type.regression <- match.arg(type.regression)
+  type.smoothing <- match.arg(type.smoothing)
   prange <- check_p(p)
   lambda <- check_lambda(lambda, prange[2])
   n.lambda <- length(lambda)
   X <- check_X(X=X, p=p)
   
   # pick a modeling function, fit odels for each lambda
-  available.functions <- list(logistic=fit_logistic, linear=fit_linear)
-  fit.function <- available.functions[[type]]  
+  available.regressions <- list(logistic=fit_logistic, linear=fit_linear)
+  fit.function <- available.regressions[[type.regression]]  
   pi0.lambda <- matrix(NA, nrow=nrow(X), ncol=n.lambda)
   for (i in 1:n.lambda) {
     y <- (p > lambda[i])
@@ -138,10 +141,12 @@ lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
   
   # smooth over values of lambda (for each p-value/ row in X)
   # (instead of taking limit lambda->1, use largest available lambda)
-  smooth.large.lambda = function(y) {
-    fast.spline(lambda, y)[n.lambda]
-  }
-  pi0 <- regularize.interval(apply(pi0.lambda, 1, smooth.large.lambda))
+  available.smoothings <- list(smooth.spline=smooth.spline.last,
+                               unit.spline=unit.spline.last)
+  smoothing.function <- available.smoothings[[type.smoothing]]
+  pi0 <- smoothing.function(lambda, pi0.lambda)
+  pi0 <- regularize.interval(pi0)
+  
   
   result <- list(call=match.call(), lambda=lambda, X.names = colnames(X),
                  pi0=pi0, lambda=lambda, pi0.lambda=pi0.lambda)
@@ -155,13 +160,6 @@ lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
 
 # #############################################################################
 # modeling of a response vector with covariates
-#
-# all functions take as input:
-#
-# @param y vector of response values
-# @param X matrix of covariates with nrow(X) = length(y)
-#
-# @return numeric vector of length(y)
 
 
 #' Fit response values using a binomial/logit model

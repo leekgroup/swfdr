@@ -16,6 +16,7 @@ Description: This package allows users to estimate the science-wise
         hypotheses," 2015, bioRxiv preprint.
 Depends: R (>= 3.4)
 Imports:
+	splines,
 	stats4,
 	ggplot2,
 	reshape2,

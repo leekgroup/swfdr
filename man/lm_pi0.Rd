@@ -4,8 +4,9 @@
 \alias{lm_pi0}
 \title{Estimation of pi0, proportion of p-values consistent with a null hypothesis}
 \usage{
-lm_pi0(p, lambda = seq(0.05, 0.95, 0.05), X, type = c("logistic",
-  "linear"))
+lm_pi0(p, lambda = seq(0.05, 0.95, 0.05), X,
+  type.regression = c("logistic", "linear"),
+  type.smoothing = c("unit.spline", "smooth.spline"))
 }
 \arguments{
 \item{p}{numeric vector, p-values}
@@ -15,7 +16,9 @@ lm_pi0(p, lambda = seq(0.05, 0.95, 0.05), X, type = c("logistic",
 \item{X}{numeric matrix, covariates that might be related to p values
 (one test per row, one variable per column).}
 
-\item{type}{character, type of regression used to fit features to pvalues}
+\item{type.regression}{character, type of regression used to fit features to pvalues}
+
+\item{type.smoothing}{character, type of smoothing used to fit pi0}
 }
 \value{
 pi0 numerical vector of smoothed estimate of pi0(x).

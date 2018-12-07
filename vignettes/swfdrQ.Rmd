@@ -1,0 +1,17 @@
+---	
+title: "Adjusted q-values using `swfdr`"
+date: "`r BiocStyle::doc_date()`"
+bibliography: swfdrQ.bib
+output: BiocStyle::pdf_document
+vignette: >
+  %\VignetteIndexEntry{Tutorial for swfdr package}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Introduction
+
+## Results
+
+## Conclusion
+
