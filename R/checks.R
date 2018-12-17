@@ -90,6 +90,8 @@ check_X <- function(X, p) {
     X <- NULL
   }
   if (is.null(X)) {
+    warning("X is missing or NULL - without covariates, modeling will have no effect",
+            call.=FALSE)
     X <- cbind(rep(1, length(p)))
     rownames(X) <- names(p)
   }
@@ -98,12 +100,13 @@ check_X <- function(X, p) {
     X <- cbind(X=X)
   }
   # ensure that X and pvalues are compatible
+  if (!"matrix" %in% class(X)) {
+    if ("data.frame" %in% class(X)) {
+      X <- as.matrix(X)
+    }
+  }
   if (length(p)!=nrow(X)) {
     stop("incompatible X and p - different lengths\n", call. = FALSE)
-  }
-  if (class(X) != "matrix") {
-    warning(paste0("coercing X info a matrix from a ", class(X)), call.=FALSE)
-    X <- as.matrix(X)
   }
   if (!is.null(names(p)) & !identical(rownames(X), names(p))) {
     stop("X and p have different names", call. = FALSE)
@@ -111,6 +114,11 @@ check_X <- function(X, p) {
   # ensure that all columns in X are numeric
   if (!all(apply(X, 2, class) %in% c("numeric", "integer", "factor"))) {
     stop("X must be a numeric vector or numeric matrix\n", call. = FALSE)
+  }
+  # ensure that all values are set
+  num.bad <- sum(!is.finite(X))
+  if (num.bad>0) {
+    stop("X must not contain missing or non-finite values\n", call. = FALSE)
   }
   X
 }

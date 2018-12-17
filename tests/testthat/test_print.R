@@ -100,3 +100,9 @@ test_that("print qvalues gives call, lambda, pi0, qvalue hits", {
   expect_message(print(q.matrix), "0.05")
 })
 
+
+test_that("print can rpdouce partial output", {
+  expect_message(print(q.flat, components="lambda"), "lambda")
+  expect_message(print(q.flat, components="X"), "covariate")
+})
+

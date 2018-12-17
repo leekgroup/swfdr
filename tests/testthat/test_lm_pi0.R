@@ -110,6 +110,11 @@ test_that("pvalues and covariates must match", {
 })
 
 
+test_that("warnings if covariates are NULL or missing", {
+  expect_warning(pi0est(p.uniform, lambda=lambda.5), "covariate")
+})
+
+
 test_that("warnings if pvalues and covariates have different names", {
   temp.p <- setNames(seq(0, 1, length=10), letters[1:10])
   temp.X <- setNames(rep(0, length=10), letters[1:10])
@@ -121,15 +126,43 @@ test_that("warnings if pvalues and covariates have different names", {
 
 
 test_that("covariates must be a numeric vector or matrix", {
-  temp.p <- seq(0, 1, length=10)
-  expect_error(pi0est(temp.p, X=letters[1:10]), "numeric")
+  temp.p <- seq(0, 1, length=100)
+  expect_error(pi0est(temp.p, X=rep(letters[1:10], 10)), "numeric")
   temp.mat <- cbind(A=1:10, B=1)
-  temp.df <- data.frame(A=1:10, B=1:10, C=letters[1:10], stringsAsFactors=F)
-  ## data frame with numeric columns will produce a warning
-  expect_warning(pi0est(temp.p, X=temp.df[, c("A", "B")], lambda=lambda.5), "coercing")
+  temp.df <- data.frame(A=rep(1:10, 10), B=1:5, C=letters[1:10], stringsAsFactors=F)
+  ## data frame with numeric columns is OK
+  expect_silent(pi0est(temp.p, X=temp.df[, c("A", "B")], lambda=lambda.5))
   ## data frame with non-numeric columns is not ok
   expect_error(suppressWarnings(pi0est(temp.p, X=temp.df[, c("A", "C")], lambda=lambda.5)),
                "numeric matrix")
+})
+
+
+test_that("covariates must not contain bad values", {
+  X.na = X.matrix
+  X.na[1,2] = NA
+  expect_error(pi0est(p.uniform, X=X.na), "missing")
+  X.inf = X.matrix
+  X.inf[3,1] = Inf
+  expect_error(pi0est(p.uniform, X=X.inf), "finite")
+})
+
+
+
+
+# #############################################################################
+# structure of output
+
+
+test_that("lm_pi0 gives an object of class lm_pi0", {
+  result <- lm_pi0(p.uniform, X=X.flat, lambda=lambda.5)
+  expect_equal(class(result), "lm_pi0")
+})
+
+
+test_that("all components of lm_qvalue must have unique names", {
+  result <- lm_pi0(p.uniform, X=X.flat, lambda=lambda.5)
+  expect_equal(names(result), unique(names(result)))
 })
 
 
@@ -140,8 +173,8 @@ test_that("covariates must be a numeric vector or matrix", {
 
 
 test_that("uniform pvalues with uninformative covariate vector yield 1", {
-  expect_silent(pi0est(p.uniform, X=X.flat, lambda=lambda.5, type.smoothing="unit"))
-  expect_silent(pi0est(p.uniform, X=X.flat, lambda=lambda.5, type.smoothing="smooth"))
+  expect_silent(pi0est(p.uniform, X=X.flat, lambda=lambda.5, smoothing="unit"))
+  expect_silent(pi0est(p.uniform, X=X.flat, lambda=lambda.5, smoothing="smooth"))
 })
 
 
@@ -159,13 +192,13 @@ test_that("uniform pvalues with uninformative covariate vector yield 1", {
 
 
 test_that("uniform pvalues with missing covariates yield 1", {
-  result <- pi0est(p.uniform, lambda=lambda.5)
+  result <- suppressWarnings(pi0est(p.uniform, lambda=lambda.5))
   expect_equal(result$pi0, rep(1, length(p.uniform)), tol=1e-3)
 })
 
 
 test_that("uniform pvalues with null covariates yield 1", {
-  result <- pi0est(p.uniform, X=NULL, lambda=lambda.5)
+  result <- suppressWarnings(pi0est(p.uniform, X=NULL, lambda=lambda.5))
   expect_equal(result$pi0, rep(1, length(p.uniform)), tol=1e-3)
 })
 

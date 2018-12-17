@@ -19,6 +19,7 @@ Imports:
 	splines,
 	stats4,
 	ggplot2,
+	qvalue,
 	reshape2,
 	stats
 License: GPL (>= 3)

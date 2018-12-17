@@ -10,11 +10,15 @@
 #' @param X matrix of covariates (can be missing if pi0 is specified instead)
 #' @param pfdr logical
 #' @param pi0 list with pi0 estimates from lm_pi0
+#' @param monotone determines mapping between p-values and lfdr
 #' @param ... other parameters (passed on to lm_pi0 if pi0 is not provided)
 #' 
 #' @return list
+#'
+#' @importFrom qvalue lfdr
+#'
 #' @export
-lm_qvalue <- function(p, X, pfdr=FALSE, pi0=NULL, ...) {
+lm_qvalue <- function(p, X, pfdr=FALSE, pi0=NULL, monotone=FALSE, ...) {
   
   # check inputs
   prange <- check_p(p)
@@ -37,9 +41,16 @@ lm_qvalue <- function(p, X, pfdr=FALSE, pi0=NULL, ...) {
     q <- pmin(1, cummin( p[o]*n/ i ))
   }
   q <- (q* pi0$pi0[o])[ro]
-  
-  # create output 
-  result <- c(list(call=match.call()), pi0, list(pvalues = p, qvalues = q))
+
+  # block to map p-values to lfdr
+  lfdr <- lfdr(p, pi0=pi0$pi0, monotone=monotone)
+
+  # create output
+  if ("call" %in% names(pi0)) {
+    pi0 = pi0[-which(names(pi0)=="call")]
+  }
+  result <- c(list(call=match.call()), pi0,
+              list(pvalues = p, qvalues = q, lfdr = lfdr))
   class(result) <- c("lm_qvalue")
   result
 }

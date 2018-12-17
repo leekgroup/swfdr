@@ -4,7 +4,7 @@
 \alias{lm_qvalue}
 \title{Compute qvalues taking into account a matrix of covariates}
 \usage{
-lm_qvalue(p, X, pfdr = FALSE, pi0 = NULL, ...)
+lm_qvalue(p, X, pfdr = FALSE, pi0 = NULL, monotone = FALSE, ...)
 }
 \arguments{
 \item{p}{numeric vector of p-values}
@@ -14,6 +14,8 @@ lm_qvalue(p, X, pfdr = FALSE, pi0 = NULL, ...)
 \item{pfdr}{logical}
 
 \item{pi0}{list with pi0 estimates from lm_pi0}
+
+\item{monotone}{determines mapping between p-values and lfdr}
 
 \item{...}{other parameters (passed on to lm_pi0 if pi0 is not provided)}
 }

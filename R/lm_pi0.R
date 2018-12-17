@@ -96,8 +96,8 @@ lm_pi0_1.3 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
 #' @param lambda numeric vector, thresholds used to bin pvalues, must be in [0,1).
 #' @param X numeric matrix, covariates that might be related to p values
 #' (one test per row, one variable per column). 
-#' @param type.regression character, type of regression used to fit features to pvalues
-#' @param type.smoothing character, type of smoothing used to fit pi0
+#' @param type character, type of regression used to fit features to pvalues
+#' @param smoothing character, type of smoothing used to fit pi0
 #'
 #' @return pi0 numerical vector of smoothed estimate of pi0(x).
 #' The length is the number of rows in X.
@@ -118,12 +118,12 @@ lm_pi0_1.3 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
 #'
 #' @export
 lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
-                   type.regression=c("logistic", "linear"),
-                   type.smoothing=c("unit.spline", "smooth.spline")) {
+                   type=c("logistic", "linear"),
+                   smoothing=c("unit.spline", "smooth.spline")) {
   
   # check validity of inputs
-  type.regression <- match.arg(type.regression)
-  type.smoothing <- match.arg(type.smoothing)
+  type <- match.arg(type)
+  smoothing <- match.arg(smoothing)
   prange <- check_p(p)
   lambda <- check_lambda(lambda, prange[2])
   n.lambda <- length(lambda)
@@ -131,10 +131,10 @@ lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
   
   # pick a modeling function, fit odels for each lambda
   available.regressions <- list(logistic=fit_logistic, linear=fit_linear)
-  fit.function <- available.regressions[[type.regression]]  
+  fit.function <- available.regressions[[type]]
   pi0.lambda <- matrix(NA, nrow=nrow(X), ncol=n.lambda)
   for (i in 1:n.lambda) {
-    y <- (p > lambda[i])
+    y <- (p >= lambda[i])
     pi0.lambda[, i] <- fit.function(y, X)/(1-lambda[i])
   }
   pi0.lambda <- regularize.interval(pi0.lambda)
@@ -143,13 +143,13 @@ lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
   # (instead of taking limit lambda->1, use largest available lambda)
   available.smoothings <- list(smooth.spline=smooth.spline.last,
                                unit.spline=unit.spline.last)
-  smoothing.function <- available.smoothings[[type.smoothing]]
+  smoothing.function <- available.smoothings[[smoothing]]
   pi0 <- smoothing.function(lambda, pi0.lambda)
   pi0 <- regularize.interval(pi0)
   
   
   result <- list(call=match.call(), lambda=lambda, X.names = colnames(X),
-                 pi0=pi0, lambda=lambda, pi0.lambda=pi0.lambda)
+                 pi0=pi0, pi0.lambda=pi0.lambda)
   class(result) <- "lm_pi0"
   result
 }

@@ -66,6 +66,24 @@ test_that("pvalues must be numeric", {
 
 
 # #############################################################################
+# structure of output
+
+
+test_that("lm_qvalue gives an object of class lm_qvalue", {
+  result <- lm_qvalue(p.uniform, X=X.flat, lambda=lambda.5)
+  expect_equal(class(result), "lm_qvalue")
+})
+
+
+test_that("all components of lm_qvalue must have unique names", {
+  result <- lm_qvalue(p.uniform, X=X.flat, lambda=lambda.5)
+  expect_equal(names(result), unique(names(result)))
+})
+
+
+
+
+# #############################################################################
 # uniform p values and uninformative covariates
 
 
@@ -76,7 +94,7 @@ test_that("uniform pvalues with uninformative covariate give large q", {
 
 
 test_that("uniform pvalues and no covariatesgive large q", {
-  result.none <- lm_qvalue(p.uniform)
+  result.none <- suppressWarnings(lm_qvalue(p.uniform))
   result.flat <- lm_qvalue(p.uniform, X=X.flat)
   expect_equal(result.none$qvalue, result.flat$qvalue)
 })
@@ -126,8 +144,8 @@ test_that("non-uniform pvalues with uninformative covariate give reasonable q", 
 test_that("non-uniform pvalues with uninformative covariate give reasonable q", {
   # a large fraction of hit with low p valuess
   p.hits <- c(p.uniform/1e2, p.uniform)
-  result <- lm_qvalue(p.hits, lambda=lambda.5)
-  expect_gt(sum(result$qvalues<0.05), length(p.uniform))
+  result <- suppressWarnings(lm_qvalue(p.hits, lambda=lambda.5))
+  expect_gte(sum(result$qvalues<0.05), length(p.uniform))
 })
 
 
@@ -144,7 +162,7 @@ test_that("non-uniform pvalues with easy covariate", {
   p <- c(runif(len.long, 0, 1), p.hits)
   X <- c(runif(len.long, 0, 1), runif(n.hits, 2, 3))
   i.hits <- len.long + 1:n.hits
-  result.0 <- lm_qvalue(p, lambda=lambda.10)$qvalue
+  result.0 <- suppressWarnings(lm_qvalue(p, lambda=lambda.10)$qvalue)
   result.X <- lm_qvalue(p, X=X, lambda=lambda.10)$qvalue
   # qvalues using covariates should be lower for the hits
   q.hits.ratio <- result.X[i.hits]/result.0[i.hits]
@@ -160,7 +178,7 @@ test_that("non-uniform pvalues with very easy covariate", {
   i.hits <- len.long + 1:n.hits  
   # here introduce a p-dependent component into the X covariate
   X <- c(runif(len.long, 0, 1), runif(n.hits, 1.8, 2.2)*log(p[i.hits]))
-  result.0 <- lm_qvalue(p, lambda=lambda.10)$qvalues
+  result.0 <- suppressWarnings(lm_qvalue(p, lambda=lambda.10)$qvalues)
   result.X <- lm_qvalue(p, X=X, lambda=lambda.10)$qvalues
   # qvalues using covariates should be much lower for the hits
   q.hits.ratio <- result.X[i.hits]/result.0[i.hits]
@@ -184,7 +202,7 @@ test_that("pvalues from overlapping distributions with informative covariate", {
   p[i.B] <- rbeta(len.long/2, 1, 10)
   # here introduce a p-dependent component into the X covariate
   X <- rep(c(1,2), len.long/2)
-  result.0 <- lm_qvalue(p, lambda=lambda.10)$qvalues
+  result.0 <- suppressWarnings(lm_qvalue(p, lambda=lambda.10)$qvalues)
   result.X <- lm_qvalue(p, X=X, lambda=lambda.10)$qvalues
   # qvalues using covariates should be much lower for the hits
   # using covariates should detect many more of the B distribution
@@ -212,7 +230,7 @@ test_that("pvalues from overlapping distributions with noisy informative covaria
   p[i.B] <- rbeta(len.long/2, 0.5, 20)
   # here introduce a p-dependent component into the X covariate
   X <- rep(c(1,2), len.long/2) + rnorm(len.long)
-  result.0 <- lm_qvalue(p, lambda=lambda.10)$qvalues
+  result.0 <- suppressWarnings(lm_qvalue(p, lambda=lambda.10)$qvalues)
   result.X <- lm_qvalue(p, X=X, lambda=lambda.10)$qvalues
   # there should be more true hits than false hits 
   expect_gt(count.even(which(result.X<0.01)), count.odd(which(result.X<0.01)))
@@ -242,7 +260,7 @@ test_that("pvalues with a few hits with noisy informative covariate", {
   # here introduce a p-dependent component into the X covariate
   X <- rnorm(len.long)
   X[i.hits] <- log(p[i.hits])*rnorm(len.hits, 1, 1)
-  result.0 <- lm_qvalue(p, lambda=lambda.10)$qvalues
+  result.0 <- suppressWarnings(lm_qvalue(p, lambda=lambda.10)$qvalues)
   result.X <- lm_qvalue(p, X=X, lambda=lambda.10)$qvalues
   # make sure starting with some naive p values below threshold
   FP.naive = count.in.set(which(p<0.05), i.nonhits)
