@@ -5,7 +5,8 @@
 \title{Estimation of pi0, proportion of p-values consistent with a null hypothesis}
 \usage{
 lm_pi0(p, lambda = seq(0.05, 0.95, 0.05), X, type = c("logistic",
-  "linear"), smoothing = c("unit.spline", "smooth.spline"))
+  "linear"), smooth.df = 3, threshold = TRUE,
+  smoothing = c("smooth.spline", "unit.spline"))
 }
 \arguments{
 \item{p}{numeric vector, p-values}
@@ -17,6 +18,11 @@ lm_pi0(p, lambda = seq(0.05, 0.95, 0.05), X, type = c("logistic",
 
 \item{type}{character, type of regression used to fit features to pvalues}
 
+\item{smooth.df}{Number of degrees of freedom when estimating pi0(x) with a smoother.}
+
+\item{threshold}{logical, if TRUE, all estimates are thresholded into unit interval;
+if FALSE, all estimates are left as they are computed}
+
 \item{smoothing}{character, type of smoothing used to fit pi0}
 }
 \value{
@@ -27,6 +33,10 @@ pi0.lambda numeric matrix of estimated pi0(x) for each value of lambda.
 The number of columns is the number of tests, the number of rows is the length of lambda.
 
 lambda numeric vector of the thresholds used in calculating pi0.lambda
+
+pi0.smooth (only output with smoothing="smooth.spline") Matrix of fitted values
+from the smoother fit to the pi0(x) estimates at each value of lambda (same number of
+rows and columns as pi0.lambda)
 }
 \description{
 Estimation of pi0, proportion of p-values consistent with a null hypothesis

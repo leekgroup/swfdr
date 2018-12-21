@@ -2,7 +2,7 @@
 % Please edit documentation in R/spline_pi0.R
 \name{unit.spline}
 \alias{unit.spline}
-\title{Fit smoothing unit spline to a curve}
+\title{Fit smoothing unit spline to one curve}
 \usage{
 unit.spline(x, y, df = 3)
 }
@@ -15,6 +15,6 @@ unit.spline(x, y, df = 3)
 vector of same length as y
 }
 \description{
-This is to unit.spline.last and smooth.spline.last is to smooth.spline
+Fit smoothing unit spline to one curve
 }
 \keyword{internal}

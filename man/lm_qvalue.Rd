@@ -4,7 +4,8 @@
 \alias{lm_qvalue}
 \title{Compute qvalues taking into account a matrix of covariates}
 \usage{
-lm_qvalue(p, X, pfdr = FALSE, pi0 = NULL, monotone = FALSE, ...)
+lm_qvalue(p, X, pfdr = FALSE, pi0 = NULL, monotone = FALSE,
+  smoothing = c("unit.spline", "smooth.spline"), ...)
 }
 \arguments{
 \item{p}{numeric vector of p-values}
@@ -16,6 +17,9 @@ lm_qvalue(p, X, pfdr = FALSE, pi0 = NULL, monotone = FALSE, ...)
 \item{pi0}{list with pi0 estimates from lm_pi0}
 
 \item{monotone}{determines mapping between p-values and lfdr}
+
+\item{smoothing}{character, type of smoothing used to fit pi0. Note the default
+in this function is different than in lm_pi0.}
 
 \item{...}{other parameters (passed on to lm_pi0 if pi0 is not provided)}
 }

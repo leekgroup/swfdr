@@ -1,8 +1,8 @@
-# Estimation of a point on curves (pi0) using splines 
+# Estimation of a pi0 curves using splines 
 # This is used in lm_pi0 to estimate pi0 based on estimates at various lambda
 
 
-#' Fit smoothing splines to several curves and obtain last fitted values
+#' Fit smoothing splines to several curves 
 #'
 #' This implementation uses smooth.spline. It gives a slight optimization
 #' by not reporting original data (keep.data=FALSE) and by setting numeric
@@ -14,33 +14,36 @@
 #' @param x numeric vector, position of knots
 #' @param ymat numeric matrix, ncol(ymat) should match length(x)
 #'
-#' @return numeric vector of length equal to rows in ymat
-smooth.spline.last <- function(x, ymat, df=3) {
+#' @return list with components pi0.smooth and pi0
+smooth.spline.pi0 <- function(x, ymat, df=3) {
   nx <- length(x)
-  result <- rep(NA, nrow(ymat))
+  pi0.smooth = matrix(NA, nrow=nrow(ymat), ncol=nx)
+  pi0 <- rep(NA, nrow(ymat))
   for (i in seq_len(nrow(ymat))) {
     yfit <- smooth.spline(x, ymat[i,], df=df, tol=1e-7, keep.data=FALSE)$y
-    result[i] <- yfit[nx]
+    pi0.smooth[i,] = yfit
+    pi0[i] <- yfit[nx]
   }
-  result
+  list(pi0.smooth=pi0.smooth, pi0=pi0)
 }
 
 
-#' Fit smoothing unit splines to several series and obtain last fitted value
+#' Fit smoothing unit splines to several curves
 #'
-#' In contrast to smooth.spline.last, this function uses the bs() bases
+#' In contrast to smooth.spline.pi0, this function uses the bs() bases
 #' and uses boundary knots at x=(0, 1)
 #'
 #' @keywords internal
 #' @param x numeric vector, position of knots
 #' @param ymat numeric matrix, ncol(ymat) should match length(x)
 #'
-#' @return numeric vector
-unit.spline.last <- function(x, ymat, df=3) {
+#' @return list with component pi0 (numeric vector)
+unit.spline.pi0 <- function(x, ymat, df=3) {
   transform.matrix <- unit.spline.matrix(x, df=df)
   ## make prediction only from the last row of the transformation matrix
   transform.last <- transform.matrix[nrow(transform.matrix), ]
-  apply(ymat, 1, function(z) { sum(transform.last * z) })
+  pi0 <- apply(ymat, 1, function(z) { sum(transform.last * z) })
+  list(pi0=pi0)
 }
 
 
@@ -77,9 +80,7 @@ unit.spline.matrix <- function(x, df=3) {
 }
 
 
-#' Fit smoothing unit spline to a curve
-#'
-#' This is to unit.spline.last and smooth.spline.last is to smooth.spline
+#' Fit smoothing unit spline to one curve
 #'
 #' @keywords internal
 #' @param x numeric vector

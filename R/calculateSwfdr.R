@@ -1,10 +1,4 @@
 # Calculation of false-discovery rates
-#
-# Notes:
-#  - a previous version is available in a sister file
-#
-# Changes w.r.t. version 1.2.1:
-#  - removed unused import decorator for dplyr
 
 
 #' Calculate the science-wise FDR (swfdr)

@@ -31,19 +31,21 @@ yy.smooth <- smooth.spline(xx, yy, df=3)$y
 
 
 # #############################################################################
-# Last-point estimate using smooth.spline
+# pi0 estimate using smooth.splines
 
 
-test_that("smooth.spline.last with matrix (1 row)", {
-  result <- smooth.spline.last(xx, matrix(yy, nrow=1))
-  expect_equal(result, yy.smooth[length(xx)], tol=1e-6)
+test_that("smooth.spline.pi0 with matrix (1 row)", {
+  result <- smooth.spline.pi0(xx, matrix(yy, nrow=1))
+  expect_true("pi0" %in% names(result))
+  expect_true("pi0.smooth" %in% names(result))
+  expect_equal(result$pi0, yy.smooth[length(xx)], tol=1e-6)
 })
 
 
-test_that("smooth.spline.last with matrix (multiple rows)", {
-  result <- smooth.spline.last(xx, yymat)
+test_that("smooth.spline.pi0 with matrix (multiple rows)", {
+  result <- smooth.spline.pi0(xx, yymat)
   smooth.last = yy.smooth[xx.len]
-  expect_equal(result, c(smooth.last, -smooth.last, 0, 1, xx.len), tol=0.1)
+  expect_equal(result$pi0, c(smooth.last, -smooth.last, 0, 1, xx.len), tol=0.1)
 })
 
 
@@ -64,18 +66,18 @@ test_that("entire unit.spline is similar to smooth.spline", {
 
 
 test_that("can estimate last point on unit.spline", {
-  result <- unit.spline.last(xx, matrix(yy, nrow=1))
+  result <- unit.spline.pi0(xx, matrix(yy, nrow=1))
   # just check ballpark estimate
-  expect_equal(result, yy.smooth[length(xx)], tol=0.1)
+  expect_equal(result$pi0, yy.smooth[length(xx)], tol=0.1)
 })
 
 
 test_that("can estimate last point on unit.spline", {
-  result <- unit.spline.last(xx, yymat)
+  result <- unit.spline.pi0(xx, yymat)
   smooth.last = yy.smooth[xx.len]
   ## first two items in result are based on a noisy curve ->  tolerant comparison
-  expect_equal(result[1:2], smooth.last * c(1, -1), tol=1e-1)
+  expect_equal(result$pi0[1:2], smooth.last * c(1, -1), tol=1e-1)
   # last three items in result are based on non-noisy curve -> stricter
-  expect_equal(result[3:5], c(0, 1, xx.len), tol=1e-2)
+  expect_equal(result$pi0[3:5], c(0, 1, xx.len), tol=1e-2)
 })
 

@@ -11,6 +11,8 @@
 #' @param pfdr logical
 #' @param pi0 list with pi0 estimates from lm_pi0
 #' @param monotone determines mapping between p-values and lfdr
+#' @param smoothing character, type of smoothing used to fit pi0. Note the default
+#' in this function is different than in lm_pi0.
 #' @param ... other parameters (passed on to lm_pi0 if pi0 is not provided)
 #' 
 #' @return list
@@ -18,14 +20,16 @@
 #' @importFrom qvalue lfdr
 #'
 #' @export
-lm_qvalue <- function(p, X, pfdr=FALSE, pi0=NULL, monotone=FALSE, ...) {
+lm_qvalue <- function(p, X, pfdr=FALSE, pi0=NULL, monotone=FALSE,
+                      smoothing=c("unit.spline", "smooth.spline"), ...) {
   
   # check inputs
   prange <- check_p(p)
+  smoothing <- match.arg(smoothing)
   
   # pi0 is required - compute it if not provided
   if (is.null(pi0)) {
-    pi0 <- lm_pi0(p, X=X, ...)
+    pi0 <- lm_pi0(p, X=X, smoothing=smoothing, ...)
   }
   
   # block to compute qvalues (adapted from package qvalue)
