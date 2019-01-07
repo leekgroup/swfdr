@@ -1,8 +1,5 @@
 # Computation of pi0 from pvalues and matrix of covariates
 #
-# Notes:
-#  - a previous version (v1.2.1) of this function is available in a sister file
-#
 
 
 #' Estimation of pi0, proportion of p-values consistent with a null hypothesis
@@ -25,7 +22,6 @@
 #' @return pi0.smooth (only output with smoothing="smooth.spline") Matrix of fitted values
 #' from the smoother fit to the pi0(x) estimates at each value of lambda (same number of
 #' rows and columns as pi0.lambda)
-#'
 #'
 #' @importFrom stats binomial glm
 #'

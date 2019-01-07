@@ -16,11 +16,9 @@ Description: This package allows users to estimate the science-wise
         hypotheses," 2015, bioRxiv preprint.
 Depends: R (>= 3.4)
 Imports:
+	qvalue,
 	splines,
 	stats4,
-	ggplot2,
-	qvalue,
-	reshape2,
 	stats
 License: GPL (>= 3)
 Encoding: UTF-8
@@ -28,8 +26,10 @@ LazyData: true
 RoxygenNote: 6.1.1
 Suggests:
 	dplyr,
+	ggplot2,
 	BiocStyle,
 	knitr,
+	reshape2,
 	rmarkdown,
 	testthat
 VignetteBuilder: knitr

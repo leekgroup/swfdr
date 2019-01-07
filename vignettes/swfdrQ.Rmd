@@ -12,13 +12,13 @@ vignette: >
 
 # Introduction
 
-Multiple hypothesis testing is a common concern in modern data science workflows: after performing several - in some cases, thousands - statistical tests on a dataset, many of the resultant p-values are expected to be small purely by chance. So it is imperative to interpret the results in a manner that limits spurious associations. At the same time, a parallel requirement is to identify significant results despite having performed many tests. 
+Multiple hypothesis testing is a common concern in modern data science workflows: after performing several - in some cases, thousands - statistical tests on a dataset, many of the resultant p-values are expected to be small purely by chance. So it is imperative to interpret the results in a manner that limits spurious associations. At the same time, a parallel requirement is to identify significant hits despite having performed many tests. 
 
-In addition to the classic multiple hypothesis testing problem described above, analyses of complex datasets are also complicated by covariates. Given p-values calculated using a particular statistical test, background knowledge may suggest that the test may be more appropriate for some data instances than for others, or that some results may be more or less expected a-priori. In such situation, a possible strategy for follow-up analysis is to partition the dataset into strata and analyze each part separately. However, direct stratification is not trouble-free. It relies on splitting data into discrete groups, which can introduce challenges in the choice of appropriate thresholds. It also leads to further statistical testing, which is redundant and magnifies the burdern of multiple-hypothesis testing. Thus, an alternative approach is needed to using background knowledge when handling multiple-hypothesis testing.
+In addition to the classic multiple hypothesis testing problem described above, analyses of complex datasets are also complicated by covariates. Given p-values calculated using a particular statistical test, background knowledge may suggest that the test may be more appropriate for some data instances than for others, or that some results may be more or less expected a-priori. A tempting analysis strategy in such situations might be to partition the dataset and to study each part separately. However, direct stratification is not trouble-free. It relies on splitting data into discrete groups, which can introduce challenges of its own, including in the choice of appropriate thresholds. It also leads to further statistical testing, which is redundant and magnifies the burden of multiple hypothesis testing. Thus, an alternative, more systematic, approach is needed to utilize background knowledge in statistical analyses. 
 
-There many possible ways to use covariate variables when tackling the multiple hypothesis testing problem. This vignette does not attempt an unbiased exposition of the available methods; some of them have been benchmarked by @korthauer2018practical. Instead, it provides a guide to using package `swfdr`, which implements algorithms for modling the effect of covariates on false discovery rates. The theoretical aspects and modeling details are provided by @BocaEtAl2015 and @JagerEtAl2013, which themselves extend methods by @storey2002direct, and @storey2003statistical. In practice, these methods take in set of p-values and output another set of quantities, q-values, that can be interpreted in the context of an analysis using multiple hypothesis testing. 
+There are, in principle, many possible ways to use covariate variables when tackling the multiple hypothesis testing problem. This vignette does not attempt an unbiased exposition of the available methods; some of them have been summarized and benchmarked by @korthauer2018practical. Instead, this vignette provides a practical guide to using package `swfdr`, which implements algorithms for modeling the effect of covariates on false discovery rates. The theoretical aspects and modeling details are provided by @BocaEtAl2015 and @JagerEtAl2013, which themselves extend methods by @storey2002direct, and @storey2003statistical. In practice, these methods take in a set of p-values and output another set of quantities, q-values, that can be interpreted in the context of a multiple hypothesis analysis. 
 
-The vignette begins with notes on how to install the `swfdr` software. Next, it provides a review of q-values and calculations with the `qvalue` package. Finally, two sections explain how to condition q-values on covariates. 
+The vignette begins with notes on how to install the `swfdr` software. Next, it provides a review of q-values using the classic `qvalue` package. This section also introduces some conceptual datasets and motivates the use of covariates to augment standard q-value analysis. Subsequent sections how to condition q-values on covariates using the `swfdr` package. The main points are summarized in the discussion and some technical details are discussed in an appendix.
 
 
 
@@ -26,33 +26,34 @@ The vignette begins with notes on how to install the `swfdr` software. Next, it 
 # Installation
 
 
-The `swfdr` is distributed via Bioconductor and can be installed via the Bioconductor package manager, @biocmanager2018package. If you don't already have the package manager, you'll first have to install that.
+The `swfdr` package is distributed via Bioconductor and can be installed via the Bioconductor package manager, @biocmanager2018package. If you don't already have the package manager, you'll first have to install it. 
 
 ```{r, eval=FALSE}
 install.packages("BiocManager")
 ```
 
-This might show a prompt to select a package repository, and you can choose any one that seems convenient for you. Next, we can load the Bioconductor manager and request to install `swfdr`. 
+This might show a prompt to select a package repository, and you can choose any one that seems convenient for you.
+
+To perform the package installation, load the Bioconductor manager and request to install `swfdr`. 
 
 ```{r, eval=FALSE}
 library("BiocManager")
 BiocManager::install("swfdr")
 ```
 
-After a successful installation, we can load the package. 
+After the above command completes, we can load the package. 
 
 ```{r}	
 library(swfdr)
 ```
 
-For this vignette, we will also use Bioconductor package `qvalue`, @qvalue2018package. We can install and load it using the same procedure as above.
+For this vignette, we will also use Bioconductor package `qvalue`, @qvalue2018package. This is automatically installed in the procedure above. Thus, we can immediately load it. 
 
 ```{r, eval=FALSE}
-biocManager::install("qvalue")
 library(qvalue)
 ```
 
-**Temporary note:** The above steps are for installing official releases of the named packages. To use a development version of the `swfdr` package, install the package via github.
+**Temporary note:** The above steps are for installing the official `swfdr` package release. To use a development version of the package, install the package via github.
 
 ```{r, eval=FALSE}
 install.packages("devtools") 
@@ -64,32 +65,32 @@ library(swfdr)
 
 # q-values without covariates
 
-Suppose we have measurements from two groups. To perform a statistical analysis, we would formulate a null hypothesis, compute a p-value against that hypothesis, and then use some criteria to call the test instance as significant or not. The practical details may vary from application to application, but a common use case is to set the null hypothesis as the hypothesis that measurements come from distributions with equal means and variances. In such case, we would test that null hypothesis with a t-test. In this section, we will be interested in computing p-values as well as q-values for a large set of statistical tests and to use these quantities to call significant test instances.
+Suppose we have measurements from two groups. To perform a statistical analysis, we would formulate a null hypothesis, compute a p-value against that hypothesis, and then use some criteria to call the test instance as significant or not. The practical details may vary from application to application. For example, a common use case is to assume that measuremets come from distributions with equal variances, formulate the hypothesis that the distributions have equal means, and compute p-values using a t-test. An interpretation strategy might consist of calling a result a 'hit' or 'significant' if the p-value is below a threshold, often 0.05.
 
-While the technical definitions for p-values and q-values are given in textbooks and the original references, it will be useful to highlight some of their properties here. Consider the operational  statistical test and an associated numerical result $v$. The interpretation of that result with respect to p-values and q-values would be as follows (@storey2003statistical).
+In this section, we will look at how to interpret results from a large set of statistical tests and control the rate of false discoveries using q-values. While the technical definitions for p-values and q-values are given in textbooks and original references, it is useful to highlight some of their properties here. Consider a statistical test and an associated numerical result $v$. The interpretation with respect to p-values and q-values would be as follows (@storey2003statistical).
 
- - *p-value:* Assuming that the test originated from data consistent with the null hypothesis, the probability that the single test with $p=v$ is a false positive is $v$.
+ - *p-value:* Assuming that the original data is consistent with the null hypothesis, the probability that the single result with $p=v$ is a false positive is $v$.
 
  - *q-value:* Among the tests assigned q-values below $v$ during an analysis, the proportion of false positives is $v$.
 
 There are some important conceptual and practical differences between these definitions.
 
- - The p-value is defined from the perspective of a hypothetical ensemble of data that is consistent with the null hypothesis. The q-value is instead formulated with respsect to the ensemble of actually performed measurements. 
+ - The interpretation of the p-value is focused on a single test instance, so any adjustments motivated by multiple hypothesis testing must be performed *post-hoc*. In contrast, the q-value is defined relative to an ensemble of tests and thus intrinsically refers to a multiple-hypothesis context.
 
- - The interpretation of the p-value is focused on a single test instance, so any adjustments motivated by multiple hypothesis testing must be performed *post-hoc*. In contrast, the q-value is defined relative to an ensemble of multiple tests. 
+ - The p-value is defined from the perspective of a hypothetical ensemble of data that is consistent with the null hypothesis. The q-value is instead formulated with respect to the ensemble of performed measurements. (Technically, the properties of the q-value are valid in the limit of a large ensemble of measurements, but it is possible to replace that hypothetical ensemble by an actual set of measurements and thus work with q-value *estimates*.)
 
 
 
 
 ## Conceptual datasets
 
-To demonstrate calculations of q-values, let's work with some practical datasets. To cover various scenarios, let's generate three synthetic datasets and some helper functions. Each dataset will consist of a moderate number of examples, i.e. instances requiring a statistical test.
+To demonstrate calculations of q-values, let's work with some practical datasets. To cover various scenarios, let's define three synthetic datasets and some helper functions. Each dataset will consist of a moderate number of examples, i.e. instances requiring a statistical test.
 
 ```{r}
 N <- 1000
 ```
 
-In the first dataset, `dataset0`, let's consider two groups with three samples each and formulate a null hypothesis that there is no difference in means between the two groups. Moreover, let's construct the data so that all measurements come from the same generative process. In other words, despite fluctuations in individual measured values, all instances are concordant with the null hypothesis.
+In the first dataset, `dataset0`, let's consider two groups with three measurements each and formulate a null hypothesis that there is no difference in means between the two groups. Moreover, let's construct the data so that all measurements come from the same generative process. In other words, despite fluctuations in individual measurements, all instances are concordant with the null hypothesis.
 
 ```{r D0_raw, cache=TRUE}
 set.seed(12345)
@@ -97,7 +98,7 @@ dataset0 <- matrix(rnorm(6*N), ncol=6)
 head(dataset0, 3)
 ```
 
-From this data, we can compute p-values for each set of measurements (rows) using a t-test. Because a similar calculation will be required again later, it is best to define a helper function and then apply it on the dataset.
+From this data, we can compute p-values for each set of measurements (rows) using a t-test. Because a similar calculation will be required again later, it is best to define a helper function.
 
 ```{r D0, cache=TRUE}
 # compute t-tests on each row of a matrix
@@ -111,20 +112,20 @@ D0 <- data.frame(p=dataset_p(dataset0), truth=0)
 summary(D0$p)
 ```
 
-After the helper function, the above block also defines a data frame with p-values and an integer code `truth` to mark the dataset; we will use this code later. The p-values range from `r min(D0$p)` to `r max(D0$p)`. Thus, although *a-priori* all instances in `dataset0` are consistent with the null hypothesis, some p-values are nominally quite small. 
+After the helper function, the above block also defines a data frame with p-values and an integer code `truth`; we will use this code later. The p-values range from `r min(D0$p)` to `r max(D0$p)`. Thus, although by construction all instances in `dataset0` are consistent with the null hypothesis, some p-values are nominally quite small. 
 
-For the second dataset, `dataset1`, let's again assume we are comparing two groups of three samples each, but that now one group has a shifted mean. 
+For the second dataset, `dataset1`, let's again assume we are comparing two groups of three measurements each, but that one group has a shifted mean. 
 
 ```{r D1, cache=TRUE}
-dataset1 <- matrix(c(rnorm(3*N), rnorm(3*N, 2, 1)), ncol=6)
+dataset1 <- matrix(c(rnorm(3*N, 0, 1), rnorm(3*N, 2, 1)), ncol=6)
 head(dataset1, 3)
 D1 <- data.frame(p=dataset_p(dataset1), truth=1)
 summary(D1$p)
 ```
 
-The resulting p-values span almost the same range as before, from `r sprintf("%f", min(D1$p))` to `r max(D1$p)`. However, they are skewed toward lower values. It is important to note that although all instances are actually inconsistent with the null hypothesis, some p-values are nominally large.
+The resulting p-values span a similar range as before, from `r sprintf("%f", min(D1$p))` to `r max(D1$p)`. However, they are skewed toward lower values. It is important to note that although all instances are actually inconsistent with the null hypothesis, some p-values are nominally large.
 
-To conclude this section, let's also create a final dataset that is a concatenation of the previous two. We will only need the p-values, so we can omit creating the dataset itself and only define the summary data frame.
+To conclude this section, let's create a final dataset that is a concatenation of the previous two. We will only need the p-values, so we can omit creating the dataset itself and only define the summary data frame.
 
 ```{r}
 D2 <- rbind(D0, D1)
@@ -137,9 +138,9 @@ This combined dataset has `r 2*N` instances. The first half is concordant with t
 
 
 
-## pi0
+## pi0 {#intro_pi0}
 
-Let's visualize the distributions of p-values from the three synthetic dataset. 
+Given p-values from individual statistical tests, we can begin looking at their properties as a set of multiple hypotheses. Let's visualize the distributions of p-values.
 
 ```{r Dhist, fig.width=7.5, fig.height=2.2}
 par(mfrow=c(1,3), las=1, mar=c(3,4,2,1))
@@ -151,9 +152,9 @@ p_hist(D1$p, col="#cccccc", main="p-values in D1")
 p_hist(D2$p, col="#999999", main="p-values in D2")
 ```
 
-In the first histogram based on `D0`, the distribution of p-values is fairly flat. This is the expected pattern for a dataset consistent with the null hypothesis. In the second panel based on dataset `D1`, the distribution is skewed and indicates deviation from the null hypothesis. The last histogram based on the composition of `D0` and `D1`, shows an intermediate skew. 
+In the first histogram based on `D0`, the distribution of p-values is flat. This is the expected pattern for data consistent with the null hypothesis. In the second panel based on dataset `D1`, the distribution is skewed and indicates deviation from the null hypothesis. The last histogram, which is based on the composition of `D0` and `D1`, shows an intermediate skew. 
 
-Thus, the shape of the histogram is an indicator for the extent to which a dataset is consistent with the null hypothesis. This intuition can been codified into a probability that the null hypothesis is true, denoted as $\pi_0$ or `pi0`. It is computed from the histogram by considering the number of test instances that give p-values below various thresholds, $p<\lambda$ , where $\lambda$ might be 0.05, 0.1, etc. See e.g. @storey2002direct and @storey2003statistical for details. We can compute $\pi_0$ on each of the datasets using the `qvalue` package.
+Thus, the shape of the histogram is an indicator for the extent to which a dataset is consistent with the null hypothesis. This intuition can be codified into a probability that the null hypothesis is true, denoted as $\pi_0$ or `pi0`. It is computed from the histogram by considering the number of test instances that give p-values below various thresholds, $p<\lambda$, where $\lambda$ might be 0.05, 0.1, etc. See e.g. @storey2002direct and @storey2003statistical for details. We can compute $\pi_0$ for each dataset using the `qvalue` package.
 
 ```{r Dqs, cache=TRUE}
 library(qvalue)
@@ -163,13 +164,13 @@ D2q <- qvalue(D2$p)
 c(D0=D0q$pi0, D1=D1q$pi0, D2=D2q$pi0)
 ```
 
-The $\pi_0$ estimate for `D0` is unity, which is consistent with how the dataset was generated. For `D1`, $\pi_0$ is much lower. At `r round(D1q$pi0, 3)`, it is greater than the true value (zero; none of the instances in `D1` are generated in a way consistent with the null hypothesis). However, this estimate is nonetheless closer to the truth. Unsurprisingly, the last $\pi_0$ estimate - for the combined dataset `D2` - lies between the previous values.
+The $\pi_0$ estimate for `D0` is unity, which is consistent with how we generated the dataset. For `D1`, $\pi_0$ is much lower. At `r round(D1q$pi0, 3)`, it is greater than the true value (zero; none of the instances in `D1` were generated in a way consistent with the null hypothesis). However, this estimate is nonetheless closer to the truth. Unsurprisingly, the last $\pi_0$ estimate - for the combined dataset `D2` - lies between the previous values.
 
 
 
 ## q-value
 
-While $\pi_0$ is an aggregate summary of an entire dataset, we are often interested in assigning significance calls to individual test instances. The q-value is a measure that controls for false positive calls and internally uses the $\pi_0$ to allow for true positive calls. It captures an operational definition of significance: if we call an instance with a q-value of $q$ as significant, then we would expect to see a proporion $q$ of instances with q-values below $q$ to be false positives. 
+While $\pi_0$ is an aggregate summary of an entire dataset, we are often interested in assigning significance calls to individual test instances. The q-value is a measure that controls for false positive calls and internally uses the $\pi_0$ to allow for true positive calls.
 
 We already computed q-values when we ran the function `qvalue` in the previous section. We can display a summary for the `D0` dataset as follows. 
 
@@ -177,9 +178,10 @@ We already computed q-values when we ran the function `qvalue` in the previous s
 summary(D0q)
 ```
 
-The table displays hit counts that might be obtained at various thresholds. To simplify the discussion, let's just look at the rows labeled 'p-value' and 'q-value' and the threshold of  0.05. (For a discussion of local FDR, see @qvalue2018package.) A helper function will be useful to extract the relevant data.
+The table displays hit counts at various thresholds. To simplify the discussion, let's just look at the rows labeled 'p-value' and 'q-value' and the threshold of  0.05. (For a discussion of local FDR, see @qvalue2018package.) A helper function will be useful to extract the relevant data.
 
 ```{r}
+# extract number of hits with values below a threshold
 hit_counts <- function(x, threshold=0.05) {
   counts <- c(sum(x$pvalues<threshold), sum(x$qvalues<threshold))
   names(counts) <- paste0(c("p<", "q<"), threshold)
@@ -188,15 +190,19 @@ hit_counts <- function(x, threshold=0.05) {
 hit_counts(D0q)
 ```
 
-These results reproduce the relevant entries from the table above. They convey that if we were to call significance using unadjusted p-values, we would have `r hit_counts(D0q)[1]` hits. All of these hits would be false positives. In contrast, the number of hits using the q-value would drop to `r hit_counts(D0q)[2]`, which in this case is the appropriate answer. (As an aside, note that the number of hits with a Bonferroni-adjusted p-value threshold would also drop to `r hit_counts(D0q, 0.05/N)[1]`. To check that, evaluate `sum(D0$p < 0.05/N)`.) 
+If we were to call significance using unadjusted p-values, we would have `r hit_counts(D0q)[1]` hits. Because we explicitly constructed the dataset to be consistent with the null hypothesis, we know that all of these hits would be false positives. In contrast, the number of hits using the q-value would drop to `r hit_counts(D0q)[2]`, which in this case is the appropriate answer.
 
-We can obtain an analogous summary for the second dataset.
+As an aside, note that if we were to adjust p-values for multiple-hypothesis testing say with a Bonferroni correction, the number of hits would also drop to `r hit_counts(D0q, 0.05/N)[1]`. To check that, evaluate `sum(D0$p < 0.05/N)`.
+
+Let's move on to the second dataset, in which all instances are inconsistent with the null hypothesis. 
 
 ```{r}
 hit_counts(D1q)
 ```
 
-Here, the number of hits obtained by thresholding p-values is higher. However, at `r hit_counts(D1q)[1]`, it leaves a large number of instances of the dataset as false negatives. In contrast, the procedure based on q-values capture the entire dataset. Because `dataset1` consists entirely of instances that are inconsistent with the null hypothesis, this is the correct result for this dataset. (Again as an aside, note that using a Bonferroni correction on the p-value calculation would yield `r hit_counts(D1q, 0.05/N)[1]` hits, and thus an even larger number of false negatives.)
+Here, the number of hits obtained by thresholding p-values is higher. However, at `r hit_counts(D1q)[1]`, it leaves a large number of instances of the dataset as false negatives. In contrast, the procedure based on q-values captures the entire dataset. Again, this is a satisfactory result for this conceptual dataset. 
+
+Continuing the previous side note, how many hits would we have using a Bonferroni correction? The answer is `r hit_counts(D1q, 0.05/N)[1]` hits, thus producing an even larger number of false negatives. This shows that procedures that use adjustments of p-values are quite distinct from q-values.
 
 Finally, let's consider the combined dataset. 
 
@@ -204,9 +210,10 @@ Finally, let's consider the combined dataset.
 hit_counts(D2q)
 ```
 
-The number of hits based on p-values is simply the sum of the previous two results, `r hit_counts(D2q)[1]` = `r hit_counts(D0q)[1]` + `r hit_counts(D1q)[1]`. Because they are fewer than `r N`, we know that we have a large number of false negatives. To understand whether they represent true hits or not, we need to analyze which items were called as significant. To this end, let's create a helper function for generating a confusion matrix. 
+The number of hits based on p-values is simply the sum of the previous two results, `r hit_counts(D2q)[1]` = `r hit_counts(D0q)[1]` + `r hit_counts(D1q)[1]`. To look at this result from a different perspective and in preparation for subsequent calculations, we can display this information as a confusion matrix comparing expected versus computed hit counts. 
 
 ```{r}
+# compare expected and observed p-values or q-values
 confusion_matrix <- function(truth, x,
                              criterion=c("qvalues", "pvalues"),
                              threshold=0.05) {
@@ -231,33 +238,31 @@ For comparison, the confusion matrix based on q-values is as follows.
 confusion_matrix(D2$truth, D2q, "q")
 ```
 
-There are no positive hits - we have lost all signal.
-
-We are left with two calculations that both appear to give sub-optimal results. However, we know that calling hits based on q-values produced correct result based on data from `D0` and `D1` separately. Thus, it might be possible to adjust the analysis methodology to produce a better result. This leads to using background knowledge to condition calculations of $\pi_0$ and q-values in the next section. 
+There are no positive hits - we have lost all signal. However, we know that calling hits based on q-values produced correct result based on data from `D0` and `D1` separately. Thus, it might be possible to improve the calculation for the joint dataset. This leads to using background knowledge to condition calculations of $\pi_0$ and q-values in the next section. 
 
 
 
 
 # Conditioning on covariates
 
-Covariates are variables that can be associated with a dataset in addition to the core data. These metadata may be used within an analysis or post-processing. Although many numerical recipes are possible, approaches based on linear models are often a good choice due to their simplicity and versatility. Package `swfdr` provides two functions, `lm_pi0` and `lm_qvalue`, using linear models to condition estimates for $\pi_0$ and q-values.
+In addition to a core set of data, many datasets come with additional descriptive variables called metadata. While these descriptive variables might not enter into a primary statistical analysis, it may nonetheless be fruitful to incorporate them in a larger analysis pipeline. Although many numerical recipes are possible in this direction, approaches that incorporate metadata as covariates in linear models are appealing due to their simplicity and versatility. Package `swfdr` provides two functions, `lm_pi0` and `lm_qvalue`, that use linear models to condition estimates for $\pi_0$ and q-values.
 
 
 ## Conditioned pi0
 
-Following on the datasets and examples from the previous section, let's compute $\pi_0$ estimates conditioned on the dataset of origin.
+Following from the datasets and examples of the previous section, let's compute $\pi_0$ estimates for `D2` conditioned on the dataset of origin.
 
 ```{r DX_pi0, cache=TRUE}
 D2_lm_pi0 <- lm_pi0(D2$p, X=D2$truth)
 ```
 
-The output is a composite object (list), and we can inspect the names of its components.
+The output is a composite object (list) with several components. 
 
 ```{r}
 names(D2_lm_pi0)
 ```
 
-For some follow-up calculations, we will retrieve data from these components. However, it is instructive to first print out a summary of the object by executing it in the console.
+For some follow-up calculations, we will retrieve data from these components. However, it is instructive to first examine a summary of the object, via `summary(D2_lm_pi0)` or `print(D2_lm_pi0)` or by simply executing it in the console.
 
 ```{r, eval=FALSE}
 D2_lm_pi0
@@ -269,19 +274,19 @@ This should produce output with multiple sections. The first few summarize techn
 print(D2_lm_pi0, components=c("call", "lambda"))
 ```
 
-The top part reiterates the function call and the section on `lambda` provides details on how the results were estimated, see @storey2002direct and @storey2003statistical for details on methods and notation. The next section summarizes the covariates.
+The top part reiterates the function call and the section on `lambda` provides details on how the results were estimated, see @storey2002direct and @storey2003statistical for details. The next section summarizes the covariates.
 
 ```{r, echo=FALSE, eval=TRUE}
 print(D2_lm_pi0, components="X")
 ```
 
-In this case, there is only one covariate. Finally, the last section summarizes $\pi_0$ estimates.
+In this case, there is only one covariate. The last section summarizes $\pi_0$ estimates.
 
 ```{r, echo=FALSE, eval=TRUE}
 print(D2_lm_pi0, components="pi0")
 ```
 
-In contrast to the $\pi_0$ estimate from function `qvalue`, we now have one estimate per instance in the dataset, ranging from `r round(min(D2_lm_pi0$pi0), 3)` to `r round(max(D2_lm_pi0$pi0), 3)`. Internally, the function used linear logistic regression to estimate how the distribution of input p-values depends on the covariate, see @BocaEtAl2015 for details.
+In contrast to the $\pi_0$ estimate from function `qvalue`, we now have one estimate per instance in the dataset, ranging from `r round(min(D2_lm_pi0$pi0), 3)` to `r round(max(D2_lm_pi0$pi0), 3)`. Internally, the function used logistic regression to estimate how the distribution of input p-values depends on the covariate, see @BocaEtAl2015 for details.
 
 
 
@@ -294,7 +299,7 @@ Let's now compute q-values conditioned on the same covariate.
 D2_lm_q <- lm_qvalue(D2$p, X=D2$truth)
 ```
 
-Again, this is a composite object/list and its components can be listed using `names(D2_lm_q)`. A summary is also available by printing the object in the console. 
+Again, this is a composite object/list. A summary is available by evaluating it in the console. 
 
 ```{r, eval=FALSE}
 D2_lm_q
@@ -316,9 +321,9 @@ confusion_matrix(D2$truth, D2_lm_q)
 D2conf <- confusion_matrix(D2$truth, D2_lm_q, "q", 0.05)
 ```
 
-This reveals a strong presence of true positives with `r D2conf[1,2]` false positives and `r D2conf[2,1]` false negatives. The analysis of the combined dataset with covariate thus reproduces the perfomance we obtained when we analyzed `D0` and `D1` separately.
+This reveals a strong presence of true positives with `r D2conf[1,2]` false positives and `r D2conf[2,1]` false negatives. The analysis of the combined dataset with covariate thus reproduces the performance we obtained when we analyzed `D0` and `D1` separately.
 
-Of course, the above calculation is idealized in that the covariate perfectly stratifies the instances. To finish this section, we can repeat the calculation with a slightly modified and more difficult setting where the covariate carries imperfect signal. 
+Of course, the above calculation is idealized in that the covariate perfectly stratifies the instances. To finish this section, we can repeat the calculation with a slightly modified and more difficult setting where the covariate carries imperfect signal. To this end, let's define an object similar to `D2`.
 
 ```{r D2_noisy, cache=TRUE}
 D2_noisy <- data.frame(p=D2[, "p"],
@@ -326,7 +331,7 @@ D2_noisy <- data.frame(p=D2[, "p"],
 head(D2_noisy, 3)
 ```
 
-The new variable `truth.noisy` is now a real number based on the previous variable, but carries considerable noise. We can repeat the `lm_qvalue` calculations using this as a covariate.
+The new variable `truth.noisy` is now a real number based on the previous `truth`, but carries considerable noise. We can repeat the `lm_qvalue` calculations using this as a covariate.
 
 ```{r D2_noisy_lm_q}
 D2_noisy_lm_q <- lm_qvalue(D2_noisy$p, X=D2_noisy$truth.noisy)
@@ -338,23 +343,23 @@ The hit summary for this object is as follows.
 print(D2_noisy_lm_q, components="hits")
 ```
 
-In this case, it is instructive to inspect the confusion matrix at various thresholds. 
+It is instructive to inspect the confusion matrix at various thresholds. 
 
 ```{r D2calls_noisy}
 confusion_matrix(D2$truth, D2_noisy_lm_q)
 confusion_matrix(D2$truth, D2_noisy_lm_q, threshold=0.1)
 ```
 
-In each case, the confusion matrix reveals a moderate or large number of true positives with a very limited number of false positives. Thus, even in this noisy setting, we have a high hit rate while restraining false discovery.
+In each case, the confusion matrix reveals a moderate or large number of true positives with a limited number of false positives. Thus, even in this noisy setting, we have a high hit rate while restraining false discovery.
 
-Although the last example introduced some noise, the above calculations are nonetheless still quite artificial. We have also considered analyses based on just one covariate. In the next section, we can apply the `swfdr` package on more realistic data. 
+Although the last example introduced some noise, all calculations in this section are still based on synthetic data and are thus quite artificial. We have also considered analyses based on just one covariate. Nonetheless, the examples are instructive because the analytical workflow and syntax also apply in more complex scenarios, as demonstrated in the next section. 
 
 
 
 
 # Conditioning on multiple covariates
 
-The package comes with a prepared dataset, `BMI_GIANT_GWAS_sample`, that summarizes a portion of a genome-wide association study by @LockeEtAl2015. The dataset provides associations between simple-nucleotide polymorphisms (SNPs) and body-mass-index (BMI).
+The package comes with a prepared dataset, `BMI_GIANT_GWAS_sample`, that summarizes a portion of a genome-wide association study by @LockeEtAl2015. The dataset holds associations between simple-nucleotide polymorphisms (SNPs) and body-mass-index (BMI).
 
 ```{r GWAS, cache=TRUE}
 GWAS <- BMI_GIANT_GWAS_sample
@@ -363,43 +368,33 @@ GWAS
 
 This is a table with 50,000 rows. Column `SNP` contains an identifier for a genetic polymorphism. Column `p` contains the p-value from a statistical test linking that polymorphism and BMI. The other columns contain metadata about the polymorphism - see the original article @LockeEtAl2015 or the data set annotation (`help(BMI_GIANT_GWAS_sample)`).
 
-In this vignette, we will use two of the metadata columns, `N` and `Freq_MAF_Hapmap`. The first is an integer field conveying the number of patients in the study for which the SNP was measured. The second features conveys the prevalence of the polymorphism in a background population. Both of these features impact the power of an association test and thus we can correct for that effect using linear modeling. 
+In this vignette, we will use two of the metadata columns, `N` and `Freq_MAF_Hapmap`. The first is an integer field conveying the number of patients in the study for which the SNP was measured. This impacts on the power of the individual statistical tests. The second feature is the prevalence of the polymorphism in a background population. This impacts the likelihood that the SNP is associated with an unhealthy phenotype. For various reasons, then, it thus makes sense to use both variables as covariates. 
 
 
 ## Conditioned pi0s with multiple covariates
 
-We can compute $\pi_0$ estimate just like in the previous section. In this case, however, argument `X` should be a matrix or data frame containing both covariates of interest.
+The calculation for $\pi_0$ proceeds just like in the previous section. In this case, however, argument `X` should be a matrix or data frame containing both covariates of interest.
 
 ```{r GWAS_pi0, cache=TRUE}
 GWAS_lm_pi0 <- lm_pi0(GWAS$p, X=GWAS[, c("N", "Freq_MAF_Hapmap")])
 ```
 
-The output is a composite object and we can view its summary by executing the output object in the console. 
+We can view a summary of the output object by executing it in the console. 
 
-```{r, eval=FALSE}
+```{r}
 GWAS_lm_pi0
 ```
 
-In this case, one interesting section is the one based on covariates.
+The output structure is by now familiar. One interesting section here summarizes the covariates and confirms that the function used two variables in the calculation.
 
-```{r, echo=FALSE, eval=TRUE}
-print(GWAS_lm_pi0, components="X")
-```
-
-This confirms that the function used two covariates in the calculation. The next section in the output summarizes the distribution of $\pi_0$ values.
-
-```{r, echo=FALSE, eval=TRUE}
-print(GWAS_lm_pi0, components="pi0")
-```
-
-Recall that $\pi_0$ estimate the probability that a null hypothesis is true. Here, the $\pi_0$ estimates range from `r min(GWAS_lm_pi0$pi0)` to `r max(GWAS_lm_pi0$pi0)`. Because the values are all fairly close to unity, they suggest that the majority of test instances are concordant with no association between the genetic feature and BMI. This is an expected property for a GWAS study.
+The final table summarizes the distribution of $\pi_0$ values. Recall that $\pi_0$ estimate the probability that a null hypothesis is true. Here, the estimates range from `r min(GWAS_lm_pi0$pi0)` to `r max(GWAS_lm_pi0$pi0)`. Because the values are all fairly close to unity, they suggest that the test instances are largely concordant with no association between SNPs and BMI. This is an expected property for a GWAS study.
 
 
 
 
 ## Conditioned q-values with multiple covariates
 
-Next, we can evaluate whether or not we can treat individual instances in the dataset as significant. 
+Next, we can evaluate whether or not individual instances in the dataset are significant. 
 
 ```{r GWAS_lm_qvalue, cache=TRUE}
 GWAS_lm_qvalue <- lm_qvalue(GWAS$p, X=GWAS[, c("N", "Freq_MAF_Hapmap")])
@@ -411,7 +406,7 @@ We can preview the contents of the output object by executing it on the console.
 GWAS_lm_qvalue
 ```
 
-As with the summary for `GWAS_lm_pi0`, the output here should contain multiple sections. Most of them coincide with the output that we saw earlier. The new section is a summary of hits at various thresholds. 
+Most of the output should be the analogous to that of `GWAS_lm_pi0`. The new section is a summary of hits at various thresholds. 
 
 ```{r, echo=FALSE, eval=TRUE}
 print(GWAS_lm_qvalue, components="hits")
@@ -423,12 +418,12 @@ We can use our helper function to focus just on the 0.05 threshold.
 hit_counts(GWAS_lm_qvalue)
 ```
 
-There are `r hit_counts(GWAS_lm_qvalue)[1]` SNPs that have a nominal p-value lower than 0.05. If we were to correct for multiple testing via a Bonferroni correction, we would instead impose a threshold of 0.05/50000. The result would be `r sum(GWAS$p < 0.05/nrow(GWAS))` hits. In contrast, using a q-value threshold, we have `r hit_counts(GWAS_lm_qvalue)[2]` hits. 
+There are `r hit_counts(GWAS_lm_qvalue)[1]` SNPs that have a nominal p-value lower than 0.05. (That hit count is unadjusted for multiple-hypothesis testing and is likely to include many false positives. If we were to correct for multiple testing via a Bonferroni correction, we would instead impose a threshold of 0.05/50000. The result would be `r sum(GWAS$p < 0.05/nrow(GWAS))` hits.) In contrast, using a q-value threshold, we have `r hit_counts(GWAS_lm_qvalue)[2]` hits. 
 
 
 
 
-## Comparison with `qvalue`
+## Comparison with `qvalue` {#smoothing}
 
 In the above calculations, we computed q-values conditioned on two covariates. Let's now see how those results compare with q-values without conditioning. We can compute those by repeating the same steps as before, but without specifying argument `X`.
 
@@ -436,24 +431,24 @@ In the above calculations, we computed q-values conditioned on two covariates. L
 GWAS_lm_qvalue_0 <- lm_qvalue(GWAS$p)
 ```
 
-In this calculation, `lm_qvalue` displays a warning that raises attention to the fact that a function meant to model the effect of covariates is actually used without any covariates at all. This message is useful to detect coding errors, e.g. unintentionally poviding an empty object for modeling. Here, omitting the covariates was the intended action. Thus, we can ignore the warning and inspect the output. 
+In this calculation, `lm_qvalue` displays a warning that raises attention to the fact that a function meant to model the effect of covariates is actually used without any covariates at all. This message is useful to detect coding errors, e.g. unintentionally providing an empty object for modeling. Here, omitting the covariates was the intended action, so can ignore the warning and inspect the output. 
 
 ```{r, eval=TRUE, echo=FALSE}
 print(GWAS_lm_qvalue_0, components=c("pi0", "hits"))
 ```
 
-We see that although the function computes 50,000 estimates for pi0, all the estimates are equal. The hit table is slightly different than before. 
+This reveals that although the function computes 50,000 estimates for pi0, all the estimates are equal. The hit table is slightly different than before. 
 
-When there are no covariates, the calculations performed by `lm_qvalue` are conceptually equivalent to those in function `qvalue` from the `qvalue` package. We can check the equivalence explicitly.
+When there are no covariates, the calculations performed by `lm_qvalue` are conceptually equivalent to those in function `qvalue` from the `qvalue` package. We can check this explicitly.
 
 ```{r GWAS_qvalue, cache=TRUE}
 GWAS_qvalue = qvalue(GWAS$p)
 summary(GWAS_qvalue)
 ```
 
-Apart from the stylistic discrepancies, the final q-value results in the hits table are the same as those output by `lm_qvalue`. There are however, two other differences.
+Apart from the stylistic discrepancies, the final q-value results in the hits table are the same as those output by `lm_qvalue`. There are, however, other differences in the overall output.
 
-First, there is a small discrepancy in the estimate for pi0. That is due to a slight difference in an internal algorithm: whereas package `qvalue` relies on smoothing splines, function `lm_qvalue` uses b-splines instead. The discrepancy is <1% so it is likely to be incosequential in most workflows. However, it is possible to obtain exact parity by calling `lm_qvalue` with an argument `smoothing` requesting fitting pi0 with smoothing-splines.
+First, there is a small discrepancy in the estimate for $\pi_0$. This is due to a slight difference in an internal algorithm, which is elaborated upon in the appendix. Here, we note that the discrepancy is <1% so it is likely to be inconsequential in most workflows. However, it is possible to obtain exact parity by calling `lm_qvalue` with an additional argument `smoothing` set to `smooth.spline`.
 
 Second, the estimates for local FDR appear to be different. This is due to the default mapping from $\pi_0$ to FDR. Exact concordance with `qvalue` can be achieved by setting an argument `monotone` to `TRUE`. 
 
@@ -471,14 +466,112 @@ The same warning appears, but we can again skip it and inspect the output.
 print(GWAS_lm_qvalue_smooth, components=c("pi0", "hits"))
 ```			     
 
-We have exact parity with the `qvalue` package. This is a useful technical control and it builds confidence in the correctness of the results. However, if you run this code in your console, there will be a noticeable different in running time. The smoothing spline implementation is much slower than the default one. Thus, for large datasets, it is more convenient to use the default fitting method.
+We have exact parity with the `qvalue` package. This is a useful technical control and it builds confidence in the correctness of the results. However, if you run this code in your console, there will be a noticeable difference in running time. The implementation leading to exact equivalence with `qvalue` is much slower than the default one. Thus, for large datasets, it is more convenient to use the default settings.
 
 
 
 
 # Discussion
 
-**TO DO**
+Interpreting statistical results can be challenging, especially when an analysis involves a large number of tests and p-values. When the aim is to call significant hits while controlling the rate of false discoveries, it can be useful to re-frame the interpretation in terms of q-values. The influencial package `qvalue` provides several functions for this purpose. However, the `qvalue` package is applicable only in contexts when all the statistical tests in an analysis are *a-priori* similar and can be weighted equally. These constraints are at odds with the analysis of complex datasets for which metadata may influence the tested relationsships. The `swfdr` package provides functions for using such metadata as covariates while controlling false discovery rates.
+
+In this vignette, we saw how to install the software and walked through the analysis of some small datasets. These datasets, being synthetically generated, do not capture the nuances and complexities of a real-word analysis. Instead, the hope is that their they capture the value of using q-values for controlling false discovery and the potential benefits of using informative covariates. In particular, they demonstrate the ability q-values to interpret datasets with a very high proportion of instances that are significant, as well as for modeling with covariates to bring out such hits when they are surrounded by data that is concordant with the null hypothesis. These are illustrative examples; further evaluations are described in the original article, @BocaEtAl2015 as well as in an independent review, @korthauer2018practical, which concluded that `swfdr` consistently performs well in a range of scenarios.
+
+All the analyses included a discussion of $\pi_0$, the probabilities that a null hypothesis is true, before going on to compute q-values. Given the outputs of functions `lm_pi0` and `lm_qvalue`, it should be apparent that the second calculation is an extension of the first. This duplication of effort is included in the vignette to emphasize the central role $\pi_0$ plays in computing q-values and in conditioning on covariates. Practical pipelines, however, may rely on the single function `lm_qvalue`. 
+
+If you use package `swfdr`, please cite:
+
+ - the article describing the method for conditioning false-discovery rates on covariates via $\pi_0$, @BocaEtAl2015
+
+ - the R `swfdr` software, @swfdr2018package
+
+To view the package source, report a bug, or contribute bug fixes, please see the github development page https://github.com/leekgroup/swfdr.
+
+
+
+
+
+\appendix
+
+
+
+# Technical notes
+
+The main vignette described a complete, coherent workflow for controlling false discovery rates using functions `lm_pi0` and `lm_qvalue` from the `swfdr` package. The focus was on demonstrating the core features of those functions and on interpreting their outputs. But those same functions also support other arguments which can fine-tune aspects of the calculations.
+
+These additional arguments have default values that should be suitable for common use cases. However, (rare) situations may occur when it may be desirable to adjust the default settings. This section quickly summarizes those options and their implications for the interpretation of the results and computational performance. The arguments are applicable to both `lm_pi0` and `lm_qvalue`, unless specified otherwise.
+
+
+
+
+## Modeling resolution (argument `lambda`)
+
+As hinted in [review section](#intro_pi0), estimates for $\pi_0$ are computed from the distribution of the input p-values. The full details for the algorithm are described e.g. in @storey2002direct and @storey2003statistical. Briefly, the calculations take a threshold, say $\lambda=0.05$, and evaluate the proportion of p-values below that threshold, and then repeat for several thresholds, say $\lambda=0.1, 0.15, \ldots$. By using such estimates together with a spline fit, the calculations arrive at a single estimate for $\pi_0$. Argument `lambda` provides the series of thresholds used in this process.
+
+A large number of thresholds, i.e. a long vector `lambda`, is needed to allow the spline to fit the trend in proportions in a reliable manner. However, excessive length can be counter-productive if the input set of p-values is short. Long `lambda` vectors can also increase running time. 
+
+In many common applications, the default `lambda` vector will be appropriate and it is recommended to leave it unchanged. For small datasets with a small number of p-values, say below 100 items, it may be advisable to provide a shorter vector, e.g. `seq(0.05, 0.95, 0.1)`.
+
+
+
+## Covariate matrix (argument `X`)
+
+One of the key inputs to `lm_pi0` and `lm_qvalue` is an object, `X`, capturing covariates. When there is only one covariate, `X` can be specified as a vector. Otherwise, it should be either a matrix or a data frame. 
+
+Covariate data is used internally in relatively simple linear models and thus object `X` cannot contain missing (`NA`) or non-finite values (`NULL`, `Inf`, `NaN`). Datasets with such components should either omit incompatible parts before processing with `swfdr` or impute values.
+
+Covariate data should contain only numeric data. Factors and other categorical data are not supported.
+
+
+
+
+## Model type (argument `type`)
+
+Modeling the effect of covariates on $\pi_0$ is controlled via argument `type`. The default value for this argument is `logistic`. In this configuration, functions `lm_pi0` and `lm_qvalue` use logistic regression with one model term for each given covariate. The other supported value for the `type` argument is `linear`, which uses a standard linear regression model instead. 
+
+The run time of linear regression is typically faster than logistic regression. However, linear regression is uninformed about the fact that the output variable is meant to be a probability in a finite range. Thus, logistic is the more appropriate approach.
+
+It is recommended to leave `type` with its default and use logistic regression. The argument is provided primarily for backward compatibility and for research purposes into other modeling approaches.
+
+
+
+
+## Thresholding (argument `threshold`)
+
+Internally, `lm_pi0` and `lm_qvalue` train models on the input data and then predict individual `pi0` estimates. Because these predictions represent probabilities, they are expected to be in the range $[0, 1]$. However, some predictions may fall outside this range. By default, the functions threshold spurious values and impose the expected lower and upper bounds. Setting argument `threshold` to `FALSE` allows the raw prediction values to propagate to the output.
+
+The value of the `threshold` argument has almost no impact on performance. Changing it from its default value can make interpretation of the output less intuitive, although unusual values can in principle provide insight on the quality of the covariate modeling. 
+
+It is recommended to leave `threshold` at its default value of `TRUE`. The argument is provided primarily for testing and research purposes, as well as for backward compatibility.
+
+
+
+
+## Smoothing (argument `smoothing`)
+
+As described above, the calculations internally use splines to model the effect of $\lambda$ on $\pi_0$. There exist several algorithms for fitting splines, and argument `smoothing` toggles between two approaches. Both procedures are motivated by the same conceptual reasoning, but differ in the implementation, computational performance, and provided output.
+
+Setting `smoothing` to `smooth.spline` instructs the algorithm to use base R's `smooth.spline` to fit the spline. This is the spline-fitting approach that is used within the `qvalue` package and in early versions of the `swfdr` package. In the context of covariate modeling, this approach is, however, computationally inefficient. Setting `smoothing` to `unit.spline` shifts the spline calculations to a bespoke implementation that focuses on predicting $\pi_0$ and exploits the fact that multiple splines are fitted for the same series of $\lambda$. The alternative approach can reduce the running time many-fold with only small numerical discrepancies with the original algorithm.
+
+The default value for `smoothing` is set to `smooth.spline` in function `lm_pi0` for backward compatibility with previous package versions. The default is set to `unit.spline` in `lm_qvalue` for better runtime performance. It is important to stress that these defaults should not be regarded as a recommendation to use alternate methods in those two settings; you are welcome to pick the smoothing method of your choice. 
+
+
+
+
+## Smoothing degrees of freedom (argument `smooth.df`)
+
+Spline-fitting can be further tuned by setting the spline degrees of freedom via argument `smooth.df`. The value of `smooth.df` must be $\geq 3$ to fit p-value distributions such D0, D1, and D2 [above](#intro_pi0). Higher values would allow the internal model to accommodate more complex distributions. However, if the p-value distribution deviates substantially from the examples, the premise of the $\pi_0$ calculation comes into question. Thus, there is rarely a good reason to increase the value of `smooth.df`.
+
+It is recommended to leave this argument at its default value. The argument is provided primarily for testing, diagnostics, and backward compatibility.
+
+
+
+
+## Local false discovery rates (argument `monotone`)
+
+In addition to q-values, it is possible to compute local false discovery rates. The details of this calculation are explained in the `qvalue` package documentation, @qvalue2018package. The calculation can be extended to the context with covariates. However, because in `swfdr` each test instance is associated with its own $\pi_0$, there is one practical distinction. Whereas the `qvalue` package uses an argument `monotone` with a recommended value of `TRUE`, that argument is given a default value of `FALSE` in `swfdr`. This default value performs better in the case of the conceptual dataset `D2` in the vignette.  
+
+Argument `monotone` is a new, i.e. expermental, feature in `lm_qvalue`. 
 
 
 

@@ -153,6 +153,7 @@ BMI_GIANT_GWAS_sample$fitted.final.smooth <- pi0x$pi0
 
 We next create a long data frame so that we can use the plotting tools in `ggplot2`:
 ```{r}
+library(reshape2)
 ldf <- reshape2::melt(BMI_GIANT_GWAS_sample,
                       id.vars=colnames(BMI_GIANT_GWAS_sample)[-grep("fitted",
                                                                     colnames(BMI_GIANT_GWAS_sample))],
