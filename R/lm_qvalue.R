@@ -10,17 +10,14 @@
 #' @param X matrix of covariates (can be missing if pi0 is specified instead)
 #' @param pfdr logical
 #' @param pi0 list with pi0 estimates from lm_pi0
-#' @param monotone determines mapping between p-values and lfdr
 #' @param smoothing character, type of smoothing used to fit pi0. Note the default
 #' in this function is different than in lm_pi0.
 #' @param ... other parameters (passed on to lm_pi0 if pi0 is not provided)
 #' 
 #' @return list
 #'
-#' @importFrom qvalue lfdr
-#'
 #' @export
-lm_qvalue <- function(p, X, pfdr=FALSE, pi0=NULL, monotone=FALSE,
+lm_qvalue <- function(p, X, pfdr=FALSE, pi0=NULL, 
                       smoothing=c("unit.spline", "smooth.spline"), ...) {
   
   # check inputs
@@ -47,8 +44,8 @@ lm_qvalue <- function(p, X, pfdr=FALSE, pi0=NULL, monotone=FALSE,
   q <- (q* pi0$pi0[o])[ro]
 
   # block to map p-values to lfdr
-  lfdr <- lfdr(p, pi0=pi0$pi0, monotone=monotone)
-
+  lfdr <- lfdr(p, pi0=pi0$pi0)
+  
   # create output
   if ("call" %in% names(pi0)) {
     pi0 = pi0[-which(names(pi0)=="call")]

@@ -167,14 +167,14 @@ test_that("all components of lm_qvalue must have unique names", {
 # toggle between smoothing methods
 
 
-test_that("default smoothing is smooth.spline and outputs pi0 for each lambda", {
-  result <- lm_pi0(p.uniform, X=X.flat, lambda=lambda.5)
+test_that("smoothing with smooth.spline outputs pi0 for each lambda", {
+  result <- lm_pi0(p.uniform, X=X.flat, lambda=lambda.5, smoothing="smooth")
   expect_true("pi0.smooth" %in% names(result))
   expect_equal(dim(result$pi0.smooth), dim(result$pi0.lambda))
 })
 
 
-test_that("alternative smoothing gives pi0 but omits pi0.smooth", {
+test_that("smoothing with unit.spline gives pi0 but omits pi0.smooth", {
   result <- lm_pi0(p.uniform, X=X.flat, lambda=lambda.5, smoothing="unit")
   expect_true("pi0" %in% names(result))
   expect_equal(length(result$pi0), length(p.uniform))

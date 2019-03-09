@@ -37,7 +37,7 @@
 #' @export
 lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
                    type=c("logistic", "linear"), smooth.df=3, threshold=TRUE,
-                   smoothing=c("smooth.spline", "unit.spline")) {
+                   smoothing=c("unit.spline", "smooth.spline")) {
   
   # check validity of inputs
   type <- match.arg(type)

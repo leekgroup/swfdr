@@ -6,7 +6,7 @@
 \usage{
 lm_pi0(p, lambda = seq(0.05, 0.95, 0.05), X, type = c("logistic",
   "linear"), smooth.df = 3, threshold = TRUE,
-  smoothing = c("smooth.spline", "unit.spline"))
+  smoothing = c("unit.spline", "smooth.spline"))
 }
 \arguments{
 \item{p}{numeric vector, p-values}
