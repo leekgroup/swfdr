@@ -6,7 +6,8 @@ inst/doc
 *~
 *pdf
 *out
+*log
 
 vignettes/*cache*
 vignettes/*files*
-
+vignettes/*log

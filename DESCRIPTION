@@ -28,6 +28,7 @@ Suggests:
 	ggplot2,
 	BiocStyle,
 	knitr,
+	qvalue,
 	reshape2,
 	rmarkdown,
 	testthat

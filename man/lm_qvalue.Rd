@@ -12,7 +12,8 @@ lm_qvalue(p, X, pfdr = FALSE, pi0 = NULL,
 
 \item{X}{matrix of covariates (can be missing if pi0 is specified instead)}
 
-\item{pfdr}{logical}
+\item{pfdr}{logical, making estimates robust for small p-values and a small
+sample size}
 
 \item{pi0}{list with pi0 estimates from lm_pi0}
 

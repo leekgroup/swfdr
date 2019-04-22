@@ -160,10 +160,10 @@ compound.message <- function(x, components=c("call", "lambda", "X", "pi0", "hits
     thresholds = c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 1)
     hits.p <- c("p-value", sapply(thresholds, function(t) { sum(x$pvalues<t) } ))
     hits.q <- c("q-value", sapply(thresholds, function(t) { sum(x$qvalues<t) } ))
-    hits.lfdr <- c("local FDR", sapply(thresholds, function(t) { sum(x$lfdr<t) } ))
     output$hits <- c("Cumulative number of significant calls:",
-                     v2s(hits.header, hits.widths), v2s(hits.p, hits.widths),
-                     v2s(hits.q, hits.widths), v2s(hits.lfdr, hits.widths))
+                     v2s(hits.header, hits.widths),
+                     v2s(hits.p, hits.widths),
+                     v2s(hits.q, hits.widths))
   }
   # add a separator line
   output = lapply(output, function(x) { c(x, "") })
