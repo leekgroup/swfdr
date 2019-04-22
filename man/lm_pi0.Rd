@@ -2,35 +2,44 @@
 % Please edit documentation in R/lm_pi0.R
 \name{lm_pi0}
 \alias{lm_pi0}
-\title{Estimate pi0(x)}
+\title{Estimation of pi0, proportion of p-values consistent with a null hypothesis}
 \usage{
-lm_pi0(pValues, lambda = seq(0.05, 0.95, 0.05), X, type = "logistic",
-  smooth.df = 3, threshold = TRUE)
+lm_pi0(p, lambda = seq(0.05, 0.95, 0.05), X, type = c("logistic",
+  "linear"), smooth.df = 3, threshold = TRUE,
+  smoothing = c("unit.spline", "smooth.spline"))
 }
 \arguments{
-\item{pValues}{Numerical vector of p-values}
+\item{p}{numeric vector, p-values}
 
-\item{lambda}{Numerical vector of thresholds. Must be in [0,1).}
+\item{lambda}{numeric vector, thresholds used to bin pvalues, must be in [0,1).}
 
-\item{X}{Design matrix (one test per row, one variable per column). Do not include the intercept.}
+\item{X}{numeric matrix, covariates that might be related to p values
+(one test per row, one variable per column).}
 
-\item{type}{Type of regression, "logistic" or "linear." Default is logistic.}
+\item{type}{character, type of regression used to fit features to pvalues}
 
 \item{smooth.df}{Number of degrees of freedom when estimating pi0(x) with a smoother.}
 
-\item{threshold}{If TRUE (default), all estimates are thresholded at 0 and 1, if FALSE, none of them are.}
+\item{threshold}{logical, if TRUE, all estimates are thresholded into unit interval;
+if FALSE, all estimates are left as they are computed}
+
+\item{smoothing}{character, type of smoothing used to fit pi0}
 }
 \value{
-pi0 Numerical vector of smoothed estimate of pi0(x). The length is the number of rows in X.
+pi0 numerical vector of smoothed estimate of pi0(x).
+The length is the number of rows in X.
 
-pi0.lambda Numerical matrix of estimated pi0(x) for each value of lambda. The number of columns is the number of tests, the number of rows is the length of lambda.
+pi0.lambda numeric matrix of estimated pi0(x) for each value of lambda.
+The number of columns is the number of tests, the number of rows is the length of lambda.
 
-lambda Vector of the values of lambda used in calculating pi0.lambda
+lambda numeric vector of the thresholds used in calculating pi0.lambda
 
-pi0.smooth Matrix of fitted values from the smoother fit to the pi0(x) estimates at each value of lambda (same number of rows and columns as pi0.lambda)
+pi0.smooth (only output with smoothing="smooth.spline") Matrix of fitted values
+from the smoother fit to the pi0(x) estimates at each value of lambda (same number of
+rows and columns as pi0.lambda)
 }
 \description{
-Estimate pi0(x)
+Estimation of pi0, proportion of p-values consistent with a null hypothesis
 }
 \examples{
 X <- seq(-1,2,length=1000) ##covariate
@@ -39,6 +48,6 @@ nullI <- rbinom(1000,prob=pi0,size=1)> 0 ##generate null/alternative p-values
 pValues <- rep(NA,1000) ##vector of p-values
 pValues[nullI] <- runif(sum(nullI)) ##null from U(0,1)
 pValues[!nullI] <- rbeta(sum(!nullI),1,2) ##alternative from Beta
-pi0x <- lm_pi0(pValues=pValues, X=X, smooth.df=3)
+pi0x <- lm_pi0(pValues, X=X)
 
 }

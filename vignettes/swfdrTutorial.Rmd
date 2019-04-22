@@ -130,8 +130,7 @@ head(X)
 
 We then run the `lm_pi0` function:
 ```{r}
-pi0x <- lm_pi0(pValues=BMI_GIANT_GWAS_sample$p, 
-               X=X, smooth.df=3)
+pi0x <- lm_pi0(BMI_GIANT_GWAS_sample$p, X=X)
 names(pi0x)
 ```
 
@@ -154,6 +153,7 @@ BMI_GIANT_GWAS_sample$fitted.final.smooth <- pi0x$pi0
 
 We next create a long data frame so that we can use the plotting tools in `ggplot2`:
 ```{r}
+library(reshape2)
 ldf <- reshape2::melt(BMI_GIANT_GWAS_sample,
                       id.vars=colnames(BMI_GIANT_GWAS_sample)[-grep("fitted",
                                                                     colnames(BMI_GIANT_GWAS_sample))],

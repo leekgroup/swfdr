@@ -1,19 +1,29 @@
-#' Estimate pi0(x)
-#' 
-#' @param pValues Numerical vector of p-values
-#' @param lambda Numerical vector of thresholds. Must be in [0,1).
-#' @param X Design matrix (one test per row, one variable per column). Do not include the intercept.
-#' @param type Type of regression, "logistic" or "linear." Default is logistic.
-#' @param smooth.df Number of degrees of freedom when estimating pi0(x) with a smoother.
-#' @param threshold If TRUE (default), all estimates are thresholded at 0 and 1, if FALSE, none of them are.
-#' 
-#' @return pi0 Numerical vector of smoothed estimate of pi0(x). The length is the number of rows in X.
-#' @return pi0.lambda Numerical matrix of estimated pi0(x) for each value of lambda. The number of columns is the number of tests, the number of rows is the length of lambda.
-#' @return lambda Vector of the values of lambda used in calculating pi0.lambda
-#' @return pi0.smooth Matrix of fitted values from the smoother fit to the pi0(x) estimates at each value of lambda (same number of rows and columns as pi0.lambda)
+# Computation of pi0 from pvalues and matrix of covariates
+#
+
+
+#' Estimation of pi0, proportion of p-values consistent with a null hypothesis
 #'
-#' @import ggplot2
-#' @import reshape2
+#' @param p numeric vector, p-values
+#' @param lambda numeric vector, thresholds used to bin pvalues, must be in [0,1).
+#' @param X numeric matrix, covariates that might be related to p values
+#' (one test per row, one variable per column). 
+#' @param type character, type of regression used to fit features to pvalues
+#' @param smooth.df Number of degrees of freedom when estimating pi0(x) with a smoother.
+#' @param threshold logical, if TRUE, all estimates are thresholded into unit interval;
+#' if FALSE, all estimates are left as they are computed
+#' @param smoothing character, type of smoothing used to fit pi0
+#'
+#' @return pi0 numerical vector of smoothed estimate of pi0(x).
+#' The length is the number of rows in X.
+#' @return pi0.lambda numeric matrix of estimated pi0(x) for each value of lambda.
+#' The number of columns is the number of tests, the number of rows is the length of lambda.
+#' @return lambda numeric vector of the thresholds used in calculating pi0.lambda
+#' @return pi0.smooth (only output with smoothing="smooth.spline") Matrix of fitted values
+#' from the smoother fit to the pi0(x) estimates at each value of lambda (same number of
+#' rows and columns as pi0.lambda)
+#'
+#' @importFrom stats binomial glm
 #'
 #' @examples
 #' X <- seq(-1,2,length=1000) ##covariate
@@ -22,78 +32,112 @@
 #' pValues <- rep(NA,1000) ##vector of p-values
 #' pValues[nullI] <- runif(sum(nullI)) ##null from U(0,1)
 #' pValues[!nullI] <- rbeta(sum(!nullI),1,2) ##alternative from Beta
-#' pi0x <- lm_pi0(pValues=pValues, X=X, smooth.df=3)
+#' pi0x <- lm_pi0(pValues, X=X)
 #'
 #' @export
-lm_pi0 <- function(pValues, lambda = seq(0.05, 0.95, 0.05), X, type="logistic", smooth.df=3, threshold=TRUE)
-{
-  ##if X is a vector, change it into a matrix
-  if(is.null(dim(X)))
-  {
-    X <- matrix(X, ncol=1)
+lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
+                   type=c("logistic", "linear"), smooth.df=3, threshold=TRUE,
+                   smoothing=c("unit.spline", "smooth.spline")) {
+  
+  # check validity of inputs
+  type <- match.arg(type)
+  smoothing <- match.arg(smoothing)
+  prange <- check_p(p)
+  lambda <- check_lambda(lambda, prange[2])
+  n.lambda <- length(lambda)
+  smooth.df <- check_df(smooth.df, n.lambda)
+  X <- check_X(X=X, p=p)
+  
+  # pick a modeling function, fit odels for each lambda
+  available.regressions <- list(logistic=fit_logistic, linear=fit_linear)
+  fit.function <- available.regressions[[type]]
+  pi0.lambda <- matrix(NA, nrow=nrow(X), ncol=n.lambda)
+  for (i in 1:n.lambda) {
+    y <- (p >= lambda[i])
+    pi0.lambda[, i] <- fit.function(y, X)/(1-lambda[i])
+  }
+  if (threshold) {
+    pi0.lambda <- regularize.interval(pi0.lambda)
   }
   
-  ##number of tests
-  n <- nrow(X)
-  ##number of lambdas
-  nLambda <- length(lambda)
+  # smooth over values of lambda (for each p-value/ row in X)
+  # (instead of taking limit lambda->1, use largest available lambda)
+  available.smoothings <- list(smooth.spline=smooth.spline.pi0,
+                               unit.spline=unit.spline.pi0)
+  smoothing.function <- available.smoothings[[smoothing]]
+  pi0 <- smoothing.function(lambda, pi0.lambda, smooth.df)
+  if (threshold) {
+    pi0 <- regularize.interval(pi0)
+  }
   
-  ##sort lambdas from smallest to largest and take only unique values
-  lambda <- sort(unique(lambda))
+  result <- c(list(call=match.call(), lambda=lambda, X.names = colnames(X),
+                 pi0.lambda=pi0.lambda), pi0)
   
-  ##make a design matrix with the intercept
-  Xint <- cbind(1, X)
-  
-  ##get the estimate for each value of lambda 
-  pi0.lambda <- matrix(NA, nrow=n, ncol=nLambda)
-  for(i in 1:nLambda)
-  {
-    lambda.i <- lambda[i]
-    y <- pValues > lambda.i
-    
-    if(tolower(type)=="logistic"){
-      ##fit regression
-      regFit <- glm(y ~ X, family=binomial)
-      
-      ##get the estimated values of pi0
-      pi0.lambda[,i] <- regFit$fitted.values/(1-lambda.i)
-    } else {
-      if(tolower(type)=="linear")
-      {
-        ##fit regression
-        regFit <- lsfit(X, y)
-        
-        ##get the estimated values of pi0
-        pi0.lambda[,i] <- (Xint %*% matrix(regFit$coefficients, ncol=1))[,1]/(1-lambda.i)
-      }
-    }
+  class(result) <- "lm_pi0"
+  result
+}
 
-    if(threshold){
-      pi0.lambda[,i] <- ifelse(pi0.lambda[,i] > 1, 1, pi0.lambda[,i])
-      pi0.lambda[,i] <- ifelse(pi0.lambda[,i] < 0, 0, pi0.lambda[,i])
-    }
+
+
+
+
+# #############################################################################
+# modeling of a response vector with covariates
+
+
+#' Fit response values using a binomial/logit model
+#'
+#' @keywords internal
+#' @param y numeric vector
+#' @param X numeric matrix (covariates)
+#'
+#' @return numeric vector
+#'
+#' @importFrom stats binomial glm
+fit_logistic <- function(y, X) {
+  glm(y ~ X, family=binomial)$fitted.values
+}
+
+
+#' Fit response values using a linear regression
+#' 
+#' (This could be implemnted via glm(... family=gaussian) but the
+#' implementation with lsfit is much faster
+#'
+#' @keywords internal
+#' @param y numeric vector
+#' @param X numeric matrix (covariates)
+#'
+#' @return numeric vector
+#'
+#' @importFrom stats lsfit
+fit_linear <- function(y, X) {
+  regFit <- lsfit(X, y)$coefficients
+  regFit[1] + (X %*% matrix(regFit[-1], ncol=1))
+}
+
+
+
+
+# #############################################################################
+# other helper functions
+
+
+#' Force a set of values in a regular interval
+#'
+#' (This is a simpler/faster implementation than with ifelse)
+#'
+#' @keywords internal
+#' @param x numeric vector or matrix
+#' @param interval numeric vector of length 2 with min/max values
+#'
+#' @return same object like x, with values truncated by [0,1]
+regularize.interval <- function(x, interval = c(0, 1)) {
+  if (class(x)=="list") {
+    return (lapply(x, regularize.interval, interval=interval))
   }
-  
-  ##smooth over values of lambda (do this for each test in part)
-  pi0.smooth <- matrix(NA, nrow=n, ncol=nLambda)
-  ##also save final estimate (maximum of 0 and minimum of 1 and smoothed value at largest lambda)
-  pi0 <- rep(NA, length=n)
-  for(i in 1:n)
-  {
-    if(i %% 10000==0)
-    {
-      message(paste("At test #:",i))
-    }
-    spi0 <- smooth.spline(lambda, pi0.lambda[i,], df=smooth.df)
-    pi0.smooth[i, ] <- spi0$y
-    pi0[i] <- pi0.smooth[i,nLambda]
-  }
-  
-  if(threshold){ 
-    pi0 <- ifelse(pi0 > 1, 1, pi0)
-    pi0 <- ifelse(pi0 < 0, 0, pi0)
-  }
-  
-  return(list(pi0=pi0, pi0.lambda=pi0.lambda, lambda=lambda, pi0.smooth=pi0.smooth))
+  x[x < interval[1]] <- interval[1]
+  x[x > interval[2]] <- interval[2]
+  x
 }
 

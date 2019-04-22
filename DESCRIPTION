@@ -1,7 +1,7 @@
 Package: swfdr
 Title: Science-wise false discovery rate and proportion of true null
         hypotheses estimation
-Version: 1.2.1
+Version: 1.3.0
 Author: Jeffrey T. Leek, Leah Jager, Simina M. Boca
 Maintainer: Simina M. Boca <smb310@georgetown.edu>, Jeffrey T. Leek
         <jtleek@gmail.com>
@@ -15,11 +15,25 @@ Description: This package allows users to estimate the science-wise
         "A regression framework for the proportion of true null
         hypotheses," 2015, bioRxiv preprint.
 Depends: R (>= 3.4)
-Imports: stats4, ggplot2, reshape2, stats, dplyr
+Imports:
+	splines,
+	stats4,
+	stats
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
-Suggests: BiocStyle, knitr, rmarkdown
+RoxygenNote: 6.1.1
+Suggests:
+	dplyr,
+	ggplot2,
+	BiocStyle,
+	knitr,
+	qvalue,
+	reshape2,
+	rmarkdown,
+	testthat
 VignetteBuilder: knitr
-biocViews: MultipleComparison, StatisticalMethod, Software
+biocViews:
+	MultipleComparison,
+	StatisticalMethod,
+	Software
