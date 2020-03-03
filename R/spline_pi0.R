@@ -11,6 +11,7 @@
 #' at each iteration in the loop.
 #'
 #' @keywords internal
+#' @noRd
 #' @param x numeric vector, position of knots
 #' @param ymat numeric matrix, ncol(ymat) should match length(x)
 #'
@@ -34,6 +35,7 @@ smooth.spline.pi0 <- function(x, ymat, df=3) {
 #' and uses boundary knots at x=(0, 1)
 #'
 #' @keywords internal
+#' @noRd
 #' @param x numeric vector, position of knots
 #' @param ymat numeric matrix, ncol(ymat) should match length(x)
 #'
@@ -53,6 +55,7 @@ unit.spline.pi0 <- function(x, ymat, df=3) {
 #' from knots, using [0,1] as the boundary knots.
 #'
 #' @keywords internal
+#' @noRd
 #' @param x numeric vector, position of internal knots within [0,1]
 #'
 #' @importFrom splines bs
@@ -83,6 +86,7 @@ unit.spline.matrix <- function(x, df=3) {
 #' Fit smoothing unit spline to one curve
 #'
 #' @keywords internal
+#' @noRd
 #' @param x numeric vector
 #' @param y numeric vector
 #'
@@ -103,6 +107,7 @@ unit.spline <- function(x, y, df=3) {
 #' or zooms in to find an
 #'
 #' @keywords internal
+#' @noRd
 #' @param X matrix
 #' @param omega matrix
 #' @param target numeric, target for trace(X+lambda*omega)

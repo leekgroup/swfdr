@@ -6,6 +6,7 @@
 #' validate pvalues. They must be finite, in range [0,1]
 #'
 #' @keywords internal
+#' @noRd
 #' @param p numeric vector of p-values
 #'
 #' @return numeric vector of length 2 with (min(p), max(p))
@@ -30,6 +31,7 @@ check_p <- function(p) {
 #' validate lambda. They must be numeric, finite, sorted with unique value
 #' 
 #' @keywords internal
+#' @noRd
 #' @param x vector of lambda values
 #' @param pmax numeric, maximal pvalue
 #'
@@ -58,6 +60,7 @@ check_lambda <- function(x, pmax) {
 #' validate degrees of freedom. 
 #'
 #' @keywords internal
+#' @noRd
 #' @param x expect a single number
 #' @param max.value numeric, maximal value allowed for x
 #'
@@ -80,6 +83,7 @@ check_df <- function(x, max.value) {
 #' validate matrix of covariates. It must be compatible with a vector of pvalues
 #'
 #' @keywords internal
+#' @noRd
 #' @param X vector or matrix of covariates
 #' @param p vector of p-values
 #'
@@ -127,6 +131,7 @@ check_X <- function(X, p) {
 #' check if an object is of a certain class
 #'
 #' @keywords internal
+#' @noRd
 #' @param x object
 #' @param classname character
 #'

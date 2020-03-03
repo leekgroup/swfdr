@@ -4,8 +4,14 @@
 \alias{lm_qvalue}
 \title{Compute qvalues taking into account a matrix of covariates}
 \usage{
-lm_qvalue(p, X, pfdr = FALSE, pi0 = NULL,
-  smoothing = c("unit.spline", "smooth.spline"), ...)
+lm_qvalue(
+  p,
+  X,
+  pfdr = FALSE,
+  pi0 = NULL,
+  smoothing = c("unit.spline", "smooth.spline"),
+  ...
+)
 }
 \arguments{
 \item{p}{numeric vector of p-values}

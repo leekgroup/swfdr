@@ -4,9 +4,15 @@
 \alias{lm_pi0}
 \title{Estimation of pi0, proportion of p-values consistent with a null hypothesis}
 \usage{
-lm_pi0(p, lambda = seq(0.05, 0.95, 0.05), X, type = c("logistic",
-  "linear"), smooth.df = 3, threshold = TRUE,
-  smoothing = c("unit.spline", "smooth.spline"))
+lm_pi0(
+  p,
+  lambda = seq(0.05, 0.95, 0.05),
+  X,
+  type = c("logistic", "linear"),
+  smooth.df = 3,
+  threshold = TRUE,
+  smoothing = c("unit.spline", "smooth.spline")
+)
 }
 \arguments{
 \item{p}{numeric vector, p-values}

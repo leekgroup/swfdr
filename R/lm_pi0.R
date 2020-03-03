@@ -88,6 +88,7 @@ lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
 #' Fit response values using a binomial/logit model
 #'
 #' @keywords internal
+#' @noRd
 #' @param y numeric vector
 #' @param X numeric matrix (covariates)
 #'
@@ -105,6 +106,7 @@ fit_logistic <- function(y, X) {
 #' implementation with lsfit is much faster
 #'
 #' @keywords internal
+#' @noRd
 #' @param y numeric vector
 #' @param X numeric matrix (covariates)
 #'
@@ -128,6 +130,7 @@ fit_linear <- function(y, X) {
 #' (This is a simpler/faster implementation than with ifelse)
 #'
 #' @keywords internal
+#' @noRd
 #' @param x numeric vector or matrix
 #' @param interval numeric vector of length 2 with min/max values
 #'

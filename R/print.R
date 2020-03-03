@@ -4,6 +4,7 @@
 #' Display a summary of object lm_pi0
 #'
 #' @keywords internal
+#' @noRd
 #' @param x object of class lm_pi0
 #' @param ... other arguments ignored
 #'
@@ -21,6 +22,7 @@ print.lm_pi0 <- function(x, ...) {
 #' Display a summary of an lm_qvalue object
 #'
 #' @keywords internal
+#' @noRd
 #' @param x lm_qvalue object
 #' @param ... ignored
 #'
@@ -40,6 +42,7 @@ print.lm_qvalue <- function(x, ...) {
 #' (This is the same as print.lm_pi0)
 #'
 #' @keywords internal
+#' @noRd
 #' @param object object of class lm_pi0
 #' @param ... other arguments ignored
 #'
@@ -55,6 +58,7 @@ summary.lm_pi0 <- function(object, ...) {
 #' (This is the same as print.lm_qvalue)
 #'
 #' @keywords internal
+#' @noRd
 #' @param object object of class lm_qvalue
 #' @param ... other arguments ignored
 #'
@@ -74,6 +78,7 @@ summary.lm_qvalue <- function(object, ...) {
 #' Helper to create a single string by concatenating items from a vector
 #'
 #' @keywords internal
+#' @noRd
 #' @param x vector of things
 #' @param width vector of character widths for each item in x
 #'
@@ -103,6 +108,7 @@ v2s <- function(x, width=8) {
 #' This is meant to identify a subset of supported features that are requested
 #'
 #' @keywords internal
+#' @noRd
 #' @param supported vector of supported feature names
 #' @param requested vector of requested feature names
 #'
@@ -118,6 +124,7 @@ get.components <- function(supported, requested) {
 #' Compose a two line report about a numeric vector
 #'
 #' @keywords internal
+#' @noRd
 #' @param v numeric vector
 #'
 #' @return vector with two strings a header line and a data line
@@ -133,6 +140,7 @@ compose.stats <- function(v) {
 #' Compose and output a compound message and output
 #'
 #' @keywords internal
+#' @noRd
 #' @param x list object of type lm_qvalue or lm_pi0 (not checked)
 #' @param components character vector, identifiers suggesting what to include in output
 #'
