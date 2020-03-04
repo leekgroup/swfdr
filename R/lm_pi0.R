@@ -136,7 +136,7 @@ fit_linear <- function(y, X) {
 #'
 #' @return same object like x, with values truncated by [0,1]
 regularize.interval <- function(x, interval = c(0, 1)) {
-  if (class(x)=="list") {
+  if (is(x, "list")) {
     return (lapply(x, regularize.interval, interval=interval))
   }
   x[x < interval[1]] <- interval[1]

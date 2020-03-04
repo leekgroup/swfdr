@@ -151,7 +151,7 @@ test_that("covariates must not contain bad values", {
 
 test_that("lm_pi0 gives an object of class lm_pi0", {
   result <- lm_pi0(p.uniform, X=X.flat, lambda=lambda.5)
-  expect_equal(class(result), "lm_pi0")
+  expect_is(result, "lm_pi0")
 })
 
 

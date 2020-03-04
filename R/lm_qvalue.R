@@ -46,12 +46,11 @@ lm_qvalue <- function(p, X, pfdr=FALSE, pi0=NULL,
   
   # create output
   if ("call" %in% names(pi0)) {
-    pi0 = pi0[-which(names(pi0)=="call")]
+    pi0 <- pi0[-which(names(pi0)=="call")]
   }
   result <- c(list(call=match.call()), pi0,
               list(pvalues = p, qvalues = q))
-  class(result) <- c("lm_qvalue")
+  class(result) <- "lm_qvalue"
   result
 }
-
 

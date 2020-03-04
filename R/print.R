@@ -89,7 +89,7 @@ v2s <- function(x, width=8) {
   if (length(width)<xlen) {
     width <- rep(width, length=xlen)[1:xlen]
   }
-  if (class(x) == "numeric") {
+  if (is(x, "numeric")) {
     x <- as.character(round(x, 4))
   }
   result <- as.character(x)
@@ -128,8 +128,6 @@ get.components <- function(supported, requested) {
 #' @param v numeric vector
 #'
 #' @return vector with two strings a header line and a data line
-#'
-#' @importFrom stats median
 compose.stats <- function(v) {
   header <- c("(Length)", "Min", "Mean", "Median", "Max")
   data <- c(length(v), min(v), mean(v), median(v), max(v))
@@ -145,8 +143,6 @@ compose.stats <- function(v) {
 #' @param components character vector, identifiers suggesting what to include in output
 #'
 #' @return character vector
-#'
-#' @importFrom stats setNames
 compound.message <- function(x, components=c("call", "lambda", "X", "pi0", "hits")) {
   comps = components
   output = setNames(vector("list", length=length(comps)), comps)

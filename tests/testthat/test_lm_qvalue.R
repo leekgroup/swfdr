@@ -71,7 +71,7 @@ test_that("pvalues must be numeric", {
 
 test_that("lm_qvalue gives an object of class lm_qvalue", {
   result <- lm_qvalue(p.uniform, X=X.flat, lambda=lambda.5)
-  expect_equal(class(result), "lm_qvalue")
+  expect_is(result, "lm_qvalue")
 })
 
 

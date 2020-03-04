@@ -14,7 +14,7 @@ check_p <- function(p) {
   if (missing(p)) {
     stop("p is a required argument\n", call. = FALSE)
   }
-  if (class(p) != "numeric") {
+  if (!is(p, "numeric")) {
     stop("p must be a numeric vector\n", call. = FALSE)
   }
   prange <- range(p, na.rm=TRUE)
@@ -37,7 +37,7 @@ check_p <- function(p) {
 #'
 #' @return numeric vector of sorted unique x, or stop if x does not satisfy criteria
 check_lambda <- function(x, pmax) {
-  if (class(x)!="numeric") {
+  if (!is(x, "numeric")) {
     stop("lambda must be a numeric vector \n", call. = FALSE)
   }
   if (!all(is.finite(x))) {
@@ -66,7 +66,7 @@ check_lambda <- function(x, pmax) {
 #'
 #' @return integer derived from x
 check_df <- function(x, max.value) {
-  if (class(x) != "numeric" & class(x) != "integer") {
+  if (!is(x, "numeric") & !is(x, "integer")) {
     stop("df must be a number")
   }
   if (length(x) != 1 | any(!is.finite(x))) {
@@ -104,19 +104,22 @@ check_X <- function(X, p) {
     X <- cbind(X=X)
   }
   # ensure that X and pvalues are compatible
-  if (!"matrix" %in% class(X)) {
-    if ("data.frame" %in% class(X)) {
+  if (!is(X, "matrix")) {
+    if (is(X, "data.frame")) {
       X <- as.matrix(X)
     }
   }
-  if (length(p)!=nrow(X)) {
+  if (length(p) != nrow(X)) {
     stop("incompatible X and p - different lengths\n", call. = FALSE)
   }
   if (!is.null(names(p)) & !identical(rownames(X), names(p))) {
     stop("X and p have different names", call. = FALSE)
   }
   # ensure that all columns in X are numeric
-  if (!all(apply(X, 2, class) %in% c("numeric", "integer", "factor"))) {
+  is.number.class = function(z) {
+    is(z, "numeric") | is(z, "integer") | is(z, "factor")
+  }
+  if (!all(apply(X, 2, is.number.class))) {
     stop("X must be a numeric vector or numeric matrix\n", call. = FALSE)
   }
   # ensure that all values are set
@@ -134,10 +137,10 @@ check_X <- function(X, p) {
 #' @noRd
 #' @param x object
 #' @param classname character
-#'
+#' 
 #' @return nothing, emit error if check not satisfied
 check_class <- function(x, classname) {
-  if (!classname %in% class(x)) {
+  if (!is(x, classname)) {
     stop(paste0("object is not of class '", classname, "'\n"), call. = FALSE)
   }
 }
