@@ -5,38 +5,47 @@
 #' Estimation of pi0, proportion of p-values consistent with a null hypothesis
 #'
 #' @param p numeric vector, p-values
-#' @param lambda numeric vector, thresholds used to bin pvalues, must be in [0,1).
+#' @param lambda numeric vector, thresholds used to bin pvalues,
+#' must be in [0,1).
 #' @param X numeric matrix, covariates that might be related to p values
 #' (one test per row, one variable per column). 
 #' @param type character, type of regression used to fit features to pvalues
-#' @param smooth.df Number of degrees of freedom when estimating pi0(x) with a smoother.
-#' @param threshold logical, if TRUE, all estimates are thresholded into unit interval;
-#' if FALSE, all estimates are left as they are computed
+#' @param smooth.df integer, degrees of freedom when estimating pi0(x) with
+#' a smoother.
+#' @param threshold logical, if TRUE, all estimates are thresholded into unit
+#' interval; if FALSE, all estimates are left as they are computed
 #' @param smoothing character, type of smoothing used to fit pi0
 #'
 #' @return pi0 numerical vector of smoothed estimate of pi0(x).
 #' The length is the number of rows in X.
-#' @return pi0.lambda numeric matrix of estimated pi0(x) for each value of lambda.
-#' The number of columns is the number of tests, the number of rows is the length of lambda.
-#' @return lambda numeric vector of the thresholds used in calculating pi0.lambda
-#' @return pi0.smooth (only output with smoothing="smooth.spline") Matrix of fitted values
-#' from the smoother fit to the pi0(x) estimates at each value of lambda (same number of
-#' rows and columns as pi0.lambda)
+#' @return pi0.lambda numeric matrix of estimated pi0(x) for each value of
+#' lambda. The number of columns is the number of tests, the number of rows is
+#' the length of lambda.
+#' @return lambda numeric vector of thresholds used in calculating pi0.lambda
+#' @return pi0.smooth (only output with smoothing="smooth.spline") Matrix of
+#' fitted values from the smoother fit to the pi0(x) estimates at each value
+#' of lambda (same number of rows and columns as pi0.lambda)
 #'
 #' @importFrom stats binomial glm
 #'
 #' @examples
-#' X <- seq(-1,2,length=1000) ##covariate
-#' pi0 <- 1/4*X + 1/2 ##probability of being null
-#' nullI <- rbinom(1000,prob=pi0,size=1)> 0 ##generate null/alternative p-values
-#' pValues <- rep(NA,1000) ##vector of p-values
-#' pValues[nullI] <- runif(sum(nullI)) ##null from U(0,1)
-#' pValues[!nullI] <- rbeta(sum(!nullI),1,2) ##alternative from Beta
+#' # define a covariate
+#' X <- seq(-1,2,length=1000)
+#' # set probability of being null
+#' pi0 <- 1/4*X + 1/2
+#' # generate null/alternative p-values
+#' nullI <- rbinom(1000,prob=pi0,size=1)> 0
+#' # vector of p-values
+#' pValues <- rep(NA,1000) 
+#' pValues[nullI] <- runif(sum(nullI)) # from U(0,1)
+#' pValues[!nullI] <- rbeta(sum(!nullI),1,2) # from Beta
 #' pi0x <- lm_pi0(pValues, X=X)
 #'
 #' @export
 lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
-                   type=c("logistic", "linear"), smooth.df=3, threshold=TRUE,
+                   type=c("logistic", "linear"),
+                   smooth.df=3,
+                   threshold=TRUE,
                    smoothing=c("unit.spline", "smooth.spline")) {
   
   # check validity of inputs

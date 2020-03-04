@@ -140,10 +140,12 @@ compose.stats <- function(v) {
 #' @keywords internal
 #' @noRd
 #' @param x list object of type lm_qvalue or lm_pi0 (not checked)
-#' @param components character vector, identifiers suggesting what to include in output
+#' @param components character vector, identifiers suggesting what to include
+#' in output
 #'
 #' @return character vector
-compound.message <- function(x, components=c("call", "lambda", "X", "pi0", "hits")) {
+compound.message <- function(x, components=c("call", "lambda",
+                                             "X", "pi0", "hits")) {
   comps = components
   output = setNames(vector("list", length=length(comps)), comps)
   if ("call" %in% comps) {
@@ -162,8 +164,15 @@ compound.message <- function(x, components=c("call", "lambda", "X", "pi0", "hits
     hits.header <- c(" ", "<1e-4", "<1e-3", "<0.01", "<0.05", "<0.1", "<1")
     hits.widths = c(9, rep(7, 6))
     thresholds = c(1e-4, 1e-3, 1e-2, 0.05, 0.1, 1)
-    hits.p <- c("p-value", sapply(thresholds, function(t) { sum(x$pvalues<t) } ))
-    hits.q <- c("q-value", sapply(thresholds, function(t) { sum(x$qvalues<t) } ))
+    hits.p <- c("p-value",
+                vapply(thresholds,
+                       function(t) { sum(x$pvalues<t) },
+                       integer(1)))
+    hits.q <- c("q-value",
+                vapply(thresholds,
+                       function(t) { sum(x$qvalues<t) },
+                       integer(1)
+                       ))
     output$hits <- c("Cumulative number of significant calls:",
                      v2s(hits.header, hits.widths),
                      v2s(hits.p, hits.widths),

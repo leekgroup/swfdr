@@ -35,13 +35,15 @@ check_p <- function(p) {
 #' @param x vector of lambda values
 #' @param pmax numeric, maximal pvalue
 #'
-#' @return numeric vector of sorted unique x, or stop if x does not satisfy criteria
+#' @return numeric vector of sorted unique x,
+#' or stop if x does not satisfy criteria
 check_lambda <- function(x, pmax) {
   if (!is(x, "numeric")) {
     stop("lambda must be a numeric vector \n", call. = FALSE)
   }
   if (!all(is.finite(x))) {
-    stop("lambda must not contain NAs, NULL, or non-finite elements\n", call. = FALSE)
+    stop("lambda must not contain NAs, NULL, or non-finite elements\n",
+         call. = FALSE)
   }
   x <- sort(unique(x))
   if (length(x)<4) {
@@ -80,7 +82,9 @@ check_df <- function(x, max.value) {
 }
 
 
-#' validate matrix of covariates. It must be compatible with a vector of pvalues
+#' validate matrix of covariates.
+#'
+#' The matrix must be compatible with a vector of pvalues
 #'
 #' @keywords internal
 #' @noRd
@@ -94,7 +98,7 @@ check_X <- function(X, p) {
     X <- NULL
   }
   if (is.null(X)) {
-    warning("X is missing or NULL - without covariates, modeling will have no effect",
+    warning("X is missing or NULL - modeling will have no effect",
             call.=FALSE)
     X <- cbind(rep(1, length(p)))
     rownames(X) <- names(p)

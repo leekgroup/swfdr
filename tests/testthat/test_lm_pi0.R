@@ -50,14 +50,18 @@ test_that("lambda must be numeric, without NAs, and within (0,1)", {
 test_that("lambda must be at least a vector of length 4", {
   # length 0
   expect_error(lm_pi0(p.uniform, X=X.flat, lambda=NULL))
-  # length 1, 2, 3
+  # length 1, 2, 3 - too short
   expect_error(lm_pi0(p.uniform, X=X.flat, lambda=0.5), "4")
-  expect_error(lm_pi0(p.uniform, X=X.flat, lambda=seq(0.05, 0.95, length=2)), "4")
-  expect_error(lm_pi0(p.uniform, X=X.flat, lambda=seq(0.05, 0.95, length=3)), "4")
+  expect_error(lm_pi0(p.uniform, X=X.flat, lambda=seq(0.05, 0.95, length=2)),
+               "4")
+  expect_error(lm_pi0(p.uniform, X=X.flat, lambda=seq(0.05, 0.95, length=3)),
+               "4")
   # repeated values are not ok
-  expect_error(lm_pi0(p.uniform, X=X.flat, lambda=rep(0.5, 10)), "4")
+  expect_error(lm_pi0(p.uniform, X=X.flat, lambda=rep(0.5, 10)),
+               "4")
   # length 4 is ok
-  expect_silent(lm_pi0(p.uniform, X=X.flat, lambda=seq(0.05, 0.95, length=4)))  
+  expect_silent(lm_pi0(p.uniform, X=X.flat,
+                       lambda=seq(0.05, 0.95, length=4)))  
 })
 
 
@@ -82,7 +86,9 @@ test_that("df must be a single finite number", {
   expect_error(lm_pi0(p.uniform, X=X.flat, smooth.df="3"), "number")
   expect_error(lm_pi0(p.uniform, X=X.flat, smooth.df=NA), "number")
   expect_error(lm_pi0(p.uniform, X=X.flat, smooth.df=NULL), "number")
-  expect_error(lm_pi0(p.uniform, X=X.flat, smooth.df=rep(4, length(p.uniform))), "number")
+  expect_error(
+    lm_pi0(p.uniform, X=X.flat, smooth.df=rep(4, length(p.uniform))),
+    "number")
 })
 
 
@@ -106,7 +112,7 @@ test_that("pvalues and covariates must match", {
 
 
 test_that("warnings if covariates are NULL or missing", {
-  expect_warning(lm_pi0(p.uniform, lambda=lambda.5), "covariate")
+  expect_warning(lm_pi0(p.uniform, lambda=lambda.5), "X is missing")
 })
 
 
@@ -124,12 +130,16 @@ test_that("covariates must be a numeric vector or matrix", {
   temp.p <- seq(0, 1, length=100)
   expect_error(lm_pi0(temp.p, X=rep(letters[1:10], 10)), "numeric")
   temp.mat <- cbind(A=1:10, B=1)
-  temp.df <- data.frame(A=rep(1:10, 10), B=1:5, C=letters[1:10], stringsAsFactors=F)
+  temp.df <- data.frame(A=rep(1:10, 10),
+                        B=1:5,
+                        C=letters[1:10],
+                        stringsAsFactors=F)
   ## data frame with numeric columns is OK
   expect_silent(lm_pi0(temp.p, X=temp.df[, c("A", "B")], lambda=lambda.5))
   ## data frame with non-numeric columns is not ok
-  expect_error(suppressWarnings(lm_pi0(temp.p, X=temp.df[, c("A", "C")], lambda=lambda.5)),
-               "numeric matrix")
+  expect_error(suppressWarnings(
+    lm_pi0(temp.p, X=temp.df[, c("A", "C")], lambda=lambda.5)),
+    "numeric matrix")
 })
 
 
@@ -214,7 +224,7 @@ test_that("ordering of lambda does not matter", {
 })
 
 
-test_that("uniform pvals with uninformative covariate matrix yield 1 (dim 2)", {
+test_that("uniform pvals with uninformative covariates yield 1 (dim 2)", {
   # a two-variable covariate matrix
   temp.X <- cbind(A=rep(0, length(p.uniform)),
                   B=rep(2, length(p.uniform)))
@@ -223,7 +233,7 @@ test_that("uniform pvals with uninformative covariate matrix yield 1 (dim 2)", {
 })
 
 
-test_that("uniform pvals with uninformative covariate matrix yield 1 (dim 1)", {
+test_that("uniform pvals with uninformative covariates yield 1 (dim 1)", {
   # a two-variable covariate matrix
   temp.X <- cbind(A=X.flat, B=X.flat+2)        
   result <- lm_pi0(p.uniform, X=temp.X, lambda=lambda.5)
@@ -253,7 +263,7 @@ test_that("adding uninformative covariate does not impact on pi0", {
 })
 
 
-test_that("uniform pvals, informative covariate, all pi0 values are in range (0, 1)", {
+test_that("uniform pvals, informative covariate, all pi0 are in (0, 1)", {
   result <- lm_pi0(p.uniform, X=X.informative, lambda=lambda.5)
   expect_lte(max(result$pi0), 1)
   expect_lte(max(result$pi0.lambda), 1)
@@ -268,16 +278,20 @@ test_that("uniform pvals, informative covariate, all pi0 values are in range (0,
 # use logistic or linear modeling
 
 
-test_that("non-informative covariate lead to eqiv pi0 under logistic/linear models", {
-  result.logistic <- suppressWarnings(lm_pi0(p.uniform, X=X.flat, type="logistic"))
-  result.linear <- suppressWarnings(lm_pi0(p.uniform, X=X.flat, type="linear"))
+test_that("poor covariate lead to equiv pi0 (logistic/linear models)", {
+  result.logistic <- suppressWarnings(
+    lm_pi0(p.uniform, X=X.flat, type="logistic"))
+  result.linear <- suppressWarnings(
+    lm_pi0(p.uniform, X=X.flat, type="linear"))
   expect_equal(result.logistic$pi0, result.linear$pi0)
 })
 
 
-test_that("informative covariate lead to non-eqiv pi0 w. logistic/linear models", {
-  result.logistic <- suppressWarnings(lm_pi0(p.uniform, X=p.uniform, type="logistic"))
-  result.linear <- suppressWarnings(lm_pi0(p.uniform, X=p.uniform, type="linear"))
+test_that("good covariate lead to non-eqiv pi0 (logistic/linear models)", {
+  result.logistic <- suppressWarnings(
+    lm_pi0(p.uniform, X=p.uniform, type="logistic"))
+  result.linear <- suppressWarnings(
+    lm_pi0(p.uniform, X=p.uniform, type="linear"))
   expect_gt(sum(abs(result.logistic$pi0-result.linear$pi0)), 0)
 })
 

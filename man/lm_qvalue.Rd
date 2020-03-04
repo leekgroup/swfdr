@@ -23,8 +23,8 @@ sample size}
 
 \item{pi0}{list with pi0 estimates from lm_pi0}
 
-\item{smoothing}{character, type of smoothing used to fit pi0. Note the default
-in this function is different than in lm_pi0.}
+\item{smoothing}{character, type of smoothing used to fit pi0. Note the
+default in this function is different than in lm_pi0.}
 
 \item{...}{other parameters (passed on to lm_pi0 if pi0 is not provided)}
 }

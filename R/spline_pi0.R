@@ -97,25 +97,29 @@ unit.spline <- function(x, y, df=3) {
 }
 
 
-#' recursive internal function to find an optimal value of lambda
+#' recursive internal function to find an optimal value of lambda/multiplier
 #' so that trace(X+lambda*omega) = target
 #'
-#' This implementation relies on the knowledge that a larger lagrange multiplier
-#' leads to lower trace(X+lambda*omega).
+#' This implementation relies on the knowledge that a larger lagrange
+#' multiplier leads to lower trace(X+lambda*omega).
 #'
-#' The implementation starts in an interval (0, 1, 2) and the expands the interval
-#' or zooms in to find an
+#' The implementation starts in an interval (0, 1, 2), which are lower,
+#' middle, and upper bounds, and then expands the interval or zooms in to
+#' find a reasonable multiplier
 #'
 #' @keywords internal
 #' @noRd
 #' @param X matrix
 #' @param omega matrix
 #' @param target numeric, target for trace(X+lambda*omega)
-#' @param interval numeric vector of length 2, current range for lambda (internal use)
-#' @param values numeric vector of length 2, current target estimates (internal use)
+#' @param interval numeric vector of length 2, current range for lambda
+#' (internal use)
+#' @param values numeric vector of length 2, current target estimates
+#' (internal use)
 #' @param tol numeric, numerical tolerance, does not need to be very small
 #'
-#' @return value of lagrange multiplier that bring criterion close to its target
+#' @return numeric, lagrange multiplier that brings criterion close to its
+#' target
 optimize.multiplier <- function(X, omega, target=5,
                             interval=c(1e-6, 1, 2), values=c(NA, NA, NA),
                             tol=1e-4) {
