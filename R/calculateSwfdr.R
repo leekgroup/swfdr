@@ -18,7 +18,7 @@
 #' @return n0 Expected number of rounded null p-values - estimated from EM - between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.05)
 #' @return n Number of rounded p-values between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.05)
 #' 
-#' @import stats4
+#' @importFrom stats4 mle coef
 #' @importFrom stats dbeta lsfit pbeta smooth.spline
 #' 
 #' @examples
@@ -75,9 +75,9 @@ calculateSwfdr = function(pValues,truncated,rounded,pi0 = 0.5,alpha=1,beta=50,nu
     ## M-step
     
     pi0 = (sum(n0) + sum(z, na.rm=TRUE))/(sum(n) + sum(rr == 0))
-    tmp = mle(ll,start=list(a=0.05,b=100),lower=c(0.001,1),upper=c(1,500),method="L-BFGS-B")
-    alpha = coef(tmp)[1]
-    beta = coef(tmp)[2]
+    tmp = stats4::mle(ll,start=list(a=0.05,b=100),lower=c(0.001,1),upper=c(1,500),method="L-BFGS-B")
+    alpha = stats4::coef(tmp)[1]
+    beta = stats4::coef(tmp)[2]
   }
   return(list(pi0 = pi0, alpha=alpha, beta = beta, z=z,n0=n0,n=n))
 }

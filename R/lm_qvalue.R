@@ -16,7 +16,7 @@
 #' @param ... other parameters (passed on to lm_pi0 if pi0 is not provided)
 #' 
 #' @return list
-#'
+#' 
 #' @export
 lm_qvalue <- function(p, X, pfdr=FALSE, pi0=NULL, 
                       smoothing=c("unit.spline", "smooth.spline"), ...) {
