@@ -6,6 +6,7 @@
 #' validate pvalues. They must be finite, in range [0,1]
 #'
 #' @keywords internal
+#' @noRd
 #' @param p numeric vector of p-values
 #'
 #' @return numeric vector of length 2 with (min(p), max(p))
@@ -13,7 +14,7 @@ check_p <- function(p) {
   if (missing(p)) {
     stop("p is a required argument\n", call. = FALSE)
   }
-  if (class(p) != "numeric") {
+  if (!is(p, "numeric")) {
     stop("p must be a numeric vector\n", call. = FALSE)
   }
   prange <- range(p, na.rm=TRUE)
@@ -30,16 +31,19 @@ check_p <- function(p) {
 #' validate lambda. They must be numeric, finite, sorted with unique value
 #' 
 #' @keywords internal
+#' @noRd
 #' @param x vector of lambda values
 #' @param pmax numeric, maximal pvalue
 #'
-#' @return numeric vector of sorted unique x, or stop if x does not satisfy criteria
+#' @return numeric vector of sorted unique x,
+#' or stop if x does not satisfy criteria
 check_lambda <- function(x, pmax) {
-  if (class(x)!="numeric") {
+  if (!is(x, "numeric")) {
     stop("lambda must be a numeric vector \n", call. = FALSE)
   }
   if (!all(is.finite(x))) {
-    stop("lambda must not contain NAs, NULL, or non-finite elements\n", call. = FALSE)
+    stop("lambda must not contain NAs, NULL, or non-finite elements\n",
+         call. = FALSE)
   }
   x <- sort(unique(x))
   if (length(x)<4) {
@@ -58,12 +62,13 @@ check_lambda <- function(x, pmax) {
 #' validate degrees of freedom. 
 #'
 #' @keywords internal
+#' @noRd
 #' @param x expect a single number
 #' @param max.value numeric, maximal value allowed for x
 #'
 #' @return integer derived from x
 check_df <- function(x, max.value) {
-  if (class(x) != "numeric" & class(x) != "integer") {
+  if (!is(x, "numeric") & !is(x, "integer")) {
     stop("df must be a number")
   }
   if (length(x) != 1 | any(!is.finite(x))) {
@@ -77,9 +82,12 @@ check_df <- function(x, max.value) {
 }
 
 
-#' validate matrix of covariates. It must be compatible with a vector of pvalues
+#' validate matrix of covariates.
+#'
+#' The matrix must be compatible with a vector of pvalues
 #'
 #' @keywords internal
+#' @noRd
 #' @param X vector or matrix of covariates
 #' @param p vector of p-values
 #'
@@ -90,7 +98,7 @@ check_X <- function(X, p) {
     X <- NULL
   }
   if (is.null(X)) {
-    warning("X is missing or NULL - without covariates, modeling will have no effect",
+    warning("X is missing or NULL - modeling will have no effect",
             call.=FALSE)
     X <- cbind(rep(1, length(p)))
     rownames(X) <- names(p)
@@ -100,19 +108,22 @@ check_X <- function(X, p) {
     X <- cbind(X=X)
   }
   # ensure that X and pvalues are compatible
-  if (!"matrix" %in% class(X)) {
-    if ("data.frame" %in% class(X)) {
+  if (!is(X, "matrix")) {
+    if (is(X, "data.frame")) {
       X <- as.matrix(X)
     }
   }
-  if (length(p)!=nrow(X)) {
+  if (length(p) != nrow(X)) {
     stop("incompatible X and p - different lengths\n", call. = FALSE)
   }
   if (!is.null(names(p)) & !identical(rownames(X), names(p))) {
     stop("X and p have different names", call. = FALSE)
   }
   # ensure that all columns in X are numeric
-  if (!all(apply(X, 2, class) %in% c("numeric", "integer", "factor"))) {
+  is.number.class = function(z) {
+    is(z, "numeric") | is(z, "integer") | is(z, "factor")
+  }
+  if (!all(apply(X, 2, is.number.class))) {
     stop("X must be a numeric vector or numeric matrix\n", call. = FALSE)
   }
   # ensure that all values are set
@@ -127,12 +138,13 @@ check_X <- function(X, p) {
 #' check if an object is of a certain class
 #'
 #' @keywords internal
+#' @noRd
 #' @param x object
 #' @param classname character
-#'
+#' 
 #' @return nothing, emit error if check not satisfied
 check_class <- function(x, classname) {
-  if (!classname %in% class(x)) {
+  if (!is(x, classname)) {
     stop(paste0("object is not of class '", classname, "'\n"), call. = FALSE)
   }
 }

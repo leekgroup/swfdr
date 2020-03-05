@@ -71,7 +71,7 @@ test_that("pvalues must be numeric", {
 
 test_that("lm_qvalue gives an object of class lm_qvalue", {
   result <- lm_qvalue(p.uniform, X=X.flat, lambda=lambda.5)
-  expect_equal(class(result), "lm_qvalue")
+  expect_is(result, "lm_qvalue")
 })
 
 
@@ -117,8 +117,10 @@ test_that("uniform pvalues with stratifying or random covariate", {
   p.uniform.medium <- seq(2/len.long, 1, length=len.long/2)
   X.strat <- rep(c(1,2), len.long/4)
   X.rand <- runif(len.long/2)
-  result.strat <- lm_qvalue(p.uniform.medium, X=X.strat, lambda=lambda.10)$qvalues
-  result.rand <- lm_qvalue(p.uniform.medium, X=X.rand, lambda=lambda.10)$qvalues
+  result.strat <- lm_qvalue(p.uniform.medium, X=X.strat,
+                            lambda=lambda.10)$qvalues
+  result.rand <- lm_qvalue(p.uniform.medium, X=X.rand,
+                           lambda=lambda.10)$qvalues
   # since p values were uniform, expect most qvalues to be about the same
   expect_lt(sd(result.strat), 0.1)
   expect_lt(sd(result.rand), 0.2)
@@ -133,15 +135,17 @@ test_that("uniform pvalues with stratifying or random covariate", {
 # non-unifrom p values without covariates
 
 
-test_that("non-uniform pvalues with uninformative covariate give reasonable q", {
+test_that("non-uniform pvals with uninformative covariate give reasonable q", {
   p.hits <- c(1e-12, 1e-11, p.uniform)
-  result <- lm_qvalue(p.hits, X=rep(0, length(p.hits)), lambda=lambda.5, pfdr=FALSE)
-  result2 <- lm_qvalue(p.hits, X=rep(0, length(p.hits)), lambda=lambda.5, pfdr=TRUE)
+  result <- lm_qvalue(p.hits, X=rep(0, length(p.hits)),
+                      lambda=lambda.5, pfdr=FALSE)
+  result2 <- lm_qvalue(p.hits, X=rep(0, length(p.hits)),
+                       lambda=lambda.5, pfdr=TRUE)
   expect_lt(min(result$qvalues), 0.05)
 })
 
 
-test_that("non-uniform pvalues with uninformative covariate give reasonable q", {
+test_that("non-uniform pvals with uninformative covariate give reasonable q", {
   # a large fraction of hit with low p valuess
   p.hits <- c(p.uniform/1e2, p.uniform)
   result <- suppressWarnings(lm_qvalue(p.hits, lambda=lambda.5))
@@ -191,7 +195,7 @@ test_that("non-uniform pvalues with very easy covariate", {
 })
 
 
-test_that("pvalues from overlapping distributions with informative covariate", {
+test_that("overlapping distributions with informative covariate", {
   set.seed(base.seed + 30001)
   p <- rep(NA, length=len.long)
   # let odd indexes be noise and even indexes be hits
@@ -220,7 +224,7 @@ test_that("pvalues from overlapping distributions with informative covariate", {
 })
 
 
-test_that("pvalues from overlapping distributions with noisy informative covariate", {
+test_that("overlapping distributions with noisy informative covariate", {
   set.seed(base.seed + 96732)
   p <- rep(NA, length=len.long)
   # let odd indexes be noise and even indexes be hits

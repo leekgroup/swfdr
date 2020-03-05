@@ -11,12 +11,20 @@
 #' @param pfdr logical, making estimates robust for small p-values and a small
 #' sample size
 #' @param pi0 list with pi0 estimates from lm_pi0
-#' @param smoothing character, type of smoothing used to fit pi0. Note the default
-#' in this function is different than in lm_pi0.
+#' @param smoothing character, type of smoothing used to fit pi0. Note the
+#' default in this function is different than in lm_pi0.
 #' @param ... other parameters (passed on to lm_pi0 if pi0 is not provided)
 #' 
 #' @return list
 #'
+#' @examples
+#' # define a covariate
+#' X <- rep(c(0, 1), each=1000)
+#' # generate p-values, randomly for group 0 and with low values for group 1
+#' pVal <- c(runif(1000), rbeta(1000, 0.2, 1))
+#' # compute qvalues, using the covariate
+#' qVal <- lm_qvalue(pVal, X=X)
+#' 
 #' @export
 lm_qvalue <- function(p, X, pfdr=FALSE, pi0=NULL, 
                       smoothing=c("unit.spline", "smooth.spline"), ...) {
@@ -32,7 +40,8 @@ lm_qvalue <- function(p, X, pfdr=FALSE, pi0=NULL,
   
   # block to compute qvalues (adapted from package qvalue)
   # This is almost the same as pi0s*p.adjust(p, method="BH")
-  # However, this implementation allows setting pfdr=TRUE similarly as in qvalue()
+  # However, this implementation allows setting pfdr=TRUE similarly
+  # as in qvalue::qvalue()
   n <- length(p)
   i <- n:1
   o <- order(p, decreasing=TRUE)
@@ -46,12 +55,11 @@ lm_qvalue <- function(p, X, pfdr=FALSE, pi0=NULL,
   
   # create output
   if ("call" %in% names(pi0)) {
-    pi0 = pi0[-which(names(pi0)=="call")]
+    pi0 <- pi0[-which(names(pi0)=="call")]
   }
   result <- c(list(call=match.call()), pi0,
               list(pvalues = p, qvalues = q))
-  class(result) <- c("lm_qvalue")
+  class(result) <- "lm_qvalue"
   result
 }
-
 

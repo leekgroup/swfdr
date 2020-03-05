@@ -4,8 +4,15 @@
 \alias{calculateSwfdr}
 \title{Calculate the science-wise FDR (swfdr)}
 \usage{
-calculateSwfdr(pValues, truncated, rounded, pi0 = 0.5, alpha = 1,
-  beta = 50, numEmIterations = 100)
+calculateSwfdr(
+  pValues,
+  truncated,
+  rounded,
+  pi0 = 0.5,
+  alpha = 1,
+  beta = 50,
+  numEmIterations = 100
+)
 }
 \arguments{
 \item{pValues}{Numerical vector of p-values}

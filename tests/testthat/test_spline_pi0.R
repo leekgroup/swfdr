@@ -75,9 +75,11 @@ test_that("can estimate last point on unit.spline", {
 test_that("can estimate last point on unit.spline", {
   result <- unit.spline.pi0(xx, yymat)
   smooth.last = yy.smooth[xx.len]
-  ## first two items in result are based on a noisy curve ->  tolerant comparison
+  # first two items in result are based on a noisy curve
+  # -> so use a tolerant comparison
   expect_equal(result$pi0[1:2], smooth.last * c(1, -1), tol=1e-1)
-  # last three items in result are based on non-noisy curve -> stricter
+  # last three items in result are based on non-noisy curve
+  # -> so use a stricter comparison
   expect_equal(result$pi0[3:5], c(0, 1, xx.len), tol=1e-2)
 })
 

@@ -4,8 +4,14 @@
 \alias{lm_qvalue}
 \title{Compute qvalues taking into account a matrix of covariates}
 \usage{
-lm_qvalue(p, X, pfdr = FALSE, pi0 = NULL,
-  smoothing = c("unit.spline", "smooth.spline"), ...)
+lm_qvalue(
+  p,
+  X,
+  pfdr = FALSE,
+  pi0 = NULL,
+  smoothing = c("unit.spline", "smooth.spline"),
+  ...
+)
 }
 \arguments{
 \item{p}{numeric vector of p-values}
@@ -17,8 +23,8 @@ sample size}
 
 \item{pi0}{list with pi0 estimates from lm_pi0}
 
-\item{smoothing}{character, type of smoothing used to fit pi0. Note the default
-in this function is different than in lm_pi0.}
+\item{smoothing}{character, type of smoothing used to fit pi0. Note the
+default in this function is different than in lm_pi0.}
 
 \item{...}{other parameters (passed on to lm_pi0 if pi0 is not provided)}
 }
@@ -28,4 +34,13 @@ list
 \description{
 The recipe for turning pvalues into qvalues is adapted from package
 'qvalue' and articles by Storey, Tibshirani, Taylor, Siegmund.
+}
+\examples{
+# define a covariate
+X <- rep(c(0, 1), each=1000)
+# generate p-values, randomly for group 0 and with low values for group 1
+pVal <- c(runif(1000), rbeta(1000, 0.2, 1))
+# compute qvalues, using the covariate
+qVal <- lm_qvalue(pVal, X=X)
+
 }
