@@ -20,21 +20,26 @@ get_number_decimals <- function(x)
     stop("All elements of x should be in [0,1)")
   }
   
+  ##get the maximum number of digits
+  max_digits <- 6
+  
   ##get all numbers spaced 10^-k apart from 0 to 1
-  list_grid <- lapply(1:6, function(k){(1:10^k)/(10^k)})
+  list_grid <- lapply(1:max_digits, function(k){(1:10^k)/(10^k)})
   
   ##function for a single number
   n_dec_single <- function(x_single){
     ##round to get rid of funny numerical issues
     x_single <- round(x_single, 12)
     
-    if(x_single < 10^-6)
+    if(x_single < 10^-max_digits)
     {
-      n_dec <- 7
-      warning("7 is a place-holder. Number of decimals seems to be > 6. This case is not implemented. Beware floating point arithmetic!")
+      n_dec <- max_digits + 1
+      warning(paste(max_digits + 1, " is a place-holder. Number of decimals seems to be >", 
+                    max_digits, ". This case is not implemented. Beware floating point arithmetic!",
+                    sep=""))
     } else {
       ##get which vector the query number is in, which corresponds to the "number of digits"
-      grid_x_is_in <- sapply(list_grid, function(l,a){a %in% l}, x_single)
+      grid_x_is_in <- sapply(list_grid, function(l,a){min(abs(l-a)) < 10^-12}, x_single)
       
       if(x_single==0)
       {
@@ -42,10 +47,12 @@ get_number_decimals <- function(x)
       } else {
         if(sum(grid_x_is_in) >= 1)
         {
-          n_dec <- min((1:6)[grid_x_is_in])
+          n_dec <- min((1:max_digits)[grid_x_is_in])
         } else {
-          n_dec <- 7
-          warning("7 is a place-holder. Number of decimals seems to be > 6. This case is not implemented. Beware floating point arithmetic!")
+          n_dec <- max_digits + 1
+          warning(paste(max_digits + 1, " is a place-holder. Number of decimals seems to be >", 
+                        max_digits, ". This case is not implemented. Beware floating point arithmetic!",
+                        sep=""))        
         }
       }
     }

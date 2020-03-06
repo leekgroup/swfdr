@@ -10,7 +10,7 @@ Description: This package allows users to estimate the science-wise
         suggest most published medical research is true," 2013,
         Biostatistics, using an EM approach due to the presence of
         rounding and censoring. It also allows users to estimate the
-        proportion of true null hypotheses in the presence of
+        false discovery rate conditional on
         covariates, using a regression framework, as per Boca and Leek,
         "A direct approach to estimating false discovery rates conditional on 
 	covariates," 2018, PeerJ.

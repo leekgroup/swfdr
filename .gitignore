@@ -11,3 +11,5 @@ inst/doc
 vignettes/*cache*
 vignettes/*files*
 vignettes/*log
+
+R/get_number_decimals.R
