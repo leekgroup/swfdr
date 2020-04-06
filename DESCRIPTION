@@ -17,6 +17,7 @@ Description: This package allows users to estimate the science-wise
 Depends: R (>= 3.4)
 Imports:
 	methods,
+	Rcssplot (>= 1.0.0),
 	splines,
 	stats4,
 	stats

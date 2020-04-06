@@ -89,20 +89,20 @@ test_that("all components of lm_qvalue must have unique names", {
 
 test_that("uniform pvalues with uninformative covariate give large q", {
   result <- lm_qvalue(p.uniform, X=X.flat)
-  expect_gt(min(result$qvalue), 0.1)
+  expect_gt(min(result$qvalues), 0.1)
 })
 
 
-test_that("uniform pvalues and no covariatesgive large q", {
+test_that("uniform pvalues and no covariates give large q", {
   result.none <- suppressWarnings(lm_qvalue(p.uniform))
   result.flat <- lm_qvalue(p.uniform, X=X.flat)
-  expect_equal(result.none$qvalue, result.flat$qvalue)
+  expect_equal(result.none$qvalues, result.flat$qvalues)
 })
 
 
 test_that("uniform pvalues give large q (fpdr)", {
   result <- lm_qvalue(p.uniform, X=X.flat, pfdr=TRUE)
-  expect_gt(min(result$qvalue), 0.1)
+  expect_gt(min(result$qvalues), 0.1)
 })
 
 
@@ -166,8 +166,8 @@ test_that("non-uniform pvalues with easy covariate", {
   p <- c(runif(len.long, 0, 1), p.hits)
   X <- c(runif(len.long, 0, 1), runif(n.hits, 2, 3))
   i.hits <- len.long + 1:n.hits
-  result.0 <- suppressWarnings(lm_qvalue(p, lambda=lambda.10)$qvalue)
-  result.X <- lm_qvalue(p, X=X, lambda=lambda.10)$qvalue
+  result.0 <- suppressWarnings(lm_qvalue(p, lambda=lambda.10)$qvalues)
+  result.X <- lm_qvalue(p, X=X, lambda=lambda.10)$qvalues
   # qvalues using covariates should be lower for the hits
   q.hits.ratio <- result.X[i.hits]/result.0[i.hits]
   expect_lt(max(q.hits.ratio), 1)  

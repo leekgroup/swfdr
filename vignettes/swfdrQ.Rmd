@@ -287,6 +287,11 @@ print(D2_lm_pi0, components="pi0")
 In contrast to the $\pi_0$ estimate from function `qvalue`, we now have one estimate per instance in the dataset, ranging from `r round(min(D2_lm_pi0$pi0), 3)` to `r round(max(D2_lm_pi0$pi0), 3)`. Internally, the function used logistic regression to estimate how the distribution of input p-values depends on the covariate, see @BocaEtAl2015 for details.
 
 
+```{r, eval=TRUE, fig.width=2.5, fig.height=2.5}
+hist(D2_lm_pi0, cssclass="ps8")
+```
+
+
 
 
 ## Conditioned q-values
@@ -321,6 +326,20 @@ D2conf <- confusion_matrix(D2$truth, D2_lm_q, "q", 0.05)
 
 This reveals a strong presence of true positives with `r D2conf[1,2]` false positives and `r D2conf[2,1]` false negatives. The analysis of the combined dataset with covariate thus reproduces the performance we obtained when we analyzed `D0` and `D1` separately.
 
+```{r D2_lm_q_plot_code, echo=TRUE, eval=FALSE}
+plot(D2_lm_q, var.x="p")
+plot(D2_lm_q, var.x="q")
+```
+
+```{r D2_lm_q_plot, echo=FALSE, eval=TRUE, fig.width=5.0, fig.height=2.5}
+oldpar = par()
+par(mfrow=c(1,2))
+plot(D2_lm_q, var.x="p", cssclass="ps8")
+plot(D2_lm_q, var.x="q", cssclass="ps8")
+par(mfrow=oldpar$mfrow)
+```
+
+
 Of course, the above calculation is idealized in that the covariate perfectly stratifies the instances. To finish this section, we can repeat the calculation in a more difficult setting where the covariate carries imperfect signal. To this end, let's define an object similar to `D2`.
 
 ```{r D2_noisy, cache=TRUE}
@@ -350,7 +369,22 @@ confusion_matrix(D2$truth, D2_noisy_lm_q, threshold=0.1)
 
 In each case, the confusion matrix reveals a moderate or large number of true positives with a limited number of false positives. Thus, even in this noisy setting, we have a high hit rate while restraining false discovery.
 
-Although the last example introduced some noise, all calculations in this section are still based on synthetic data and are thus quite artificial. We have also considered analyses based on just one covariate. Nonetheless, the examples are instructive because the analytical workflow and syntax also apply in more complex scenarios, as demonstrated in the next section. 
+Although the last example introduced some noise, all calculations in this section are still based on synthetic data and are thus quite artificial. We have also considered analyses based on just one covariate. Nonetheless, the examples are instructive because the analytical workflow and syntax also apply in more complex scenarios, as demonstrated in the next section.
+
+
+```{r D2_noisy_plot_code, echo=TRUE, eval=FALSE}
+plot(D2_noisy_lm_q, var.x="p")
+plot(D2_noisy_lm_q, var.x="q")
+```
+
+```{r D2_noisy_plot, echo=FALSE, eval=TRUE, fig.width=7.5, fig.height=2.5}
+oldpar = par()
+par(mfrow=c(1,3))
+hist(D2_noisy_lm_q, cssclass="ps8")
+plot(D2_noisy_lm_q, var.x="p", cssclass="ps8")
+plot(D2_noisy_lm_q, var.x="q", cssclass="ps8")
+par(mfrow=oldpar$mfrow)
+```
 
 
 
