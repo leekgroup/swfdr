@@ -13,7 +13,7 @@ par.swfdr.ps18 {  ps: 18; }
 /** general styles **/
 axis.swfdr {
   las: 1;
-  tck: -0.01;
+  tck: -0.02;
   lwd: 1;
 }
 axis.swfdr.thin {
@@ -27,7 +27,12 @@ axis.swfdr.thick {
 
 /** histograms of pi0 **/
 par.swfdr.hist {
-  mgp: 2 0.5 0;
+  mar: 3 3 1 1;
+  mgp: 1 0.5 0;
+}
+par.swfdr.hist.pdf {
+  mar: 2 2.5 1 0.5;
+  mgp: 0.5 0.2 0;
 }
 hist.swfdr {
   col: #3e92ce;  
@@ -43,13 +48,22 @@ axis.swfdr.hist {
   lwd: 1;
 }
 axis.swfdr.hist.large {
-  tck: -0.006;
+  tck: -0.01;
 }
 axis.swfdr.hist.thin {
   lwd: 0.5;
 }
-axis.swfdr.hist.x {
-  line: -0.05;
+axis.swfdr.hist.pdf.x {
+  line: -0.3;
+}
+axis.swfdr.hist.pdf.y {
+  line: 0;
+}
+mtext.swfdr.hist.pdf.xlab {
+  line: 0.6;
+}
+mtext.swfdr.hist.pdf.ylab {
+  line: 1.7;
 }
 lines.swfdr.hist.center {
   lwd: 1.5;
@@ -62,7 +76,12 @@ lines.swfdr.hist.center {
 
 /** scatter-plot of p-values and q-values **/
 par.swfdr.scatter {
-  mgp: 2 0.5 0;
+  mar: 2 3 1 1;
+  mgp: 1 0.5 0;
+}
+par.swfdr.scatter.pdf {
+  mar: 2 2.5 1 0.5;
+  mgp: 0.5 0.2 0;
 }
 plot.swfdr.scatter {
   axes: FALSE;
@@ -72,8 +91,17 @@ plot.swfdr.scatter {
   main: ;
   type: n;
 }
-axis.swfdr.scatter.x {
-  line: -0.05;
+axis.swfdr.scatter.pdf.x {
+  line: -0.3;
+}
+axis.swfdr.scatter.pdf.y {
+    line: 0;
+}
+mtext.swfdr.scatter.xlab {
+  line: 0.6;
+}
+mtext.swfdr.scatter.ylab {
+  line: 1.7;
 }
 points.swfdr.scatter {
   col: #3e92ce;
@@ -85,7 +113,7 @@ points.swfdr.scatter.many {
 }
 abline.swfdr.scatter.threshold {
   lwd: 1;
-  col: #cccccc;
+  col: #aaaaaa;
   lty: 2;
 }
 

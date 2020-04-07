@@ -12,6 +12,15 @@ vignette: >
 
 # Introduction
 
+```{r, echo=FALSE, eval=TRUE}
+# this is an object used during development.
+# To use the css object defined within the package, leaves mycss="swfdr"
+# To use a custom plot style, replace mycss with that Rcss object
+if (!exists("mycss")) {
+  mycss="swfdr"
+}
+```
+
 Multiple hypothesis testing is a common concern in modern data science workflows: after performing several - in some cases, thousands - statistical tests on a dataset, many of the resultant p-values are expected to be small purely by chance. So it is imperative to interpret the results in a manner that limits spurious associations. At the same time, a parallel requirement is to identify significant hits despite having performed many tests. 
 
 In addition to the classic multiple hypothesis testing problem described above, analyses of complex datasets are also complicated by covariates. Given p-values calculated using a particular statistical test, background knowledge may suggest that the test may be more appropriate for some data instances than for others, or that some results may be more or less expected a-priori. A tempting analysis strategy in such situations might be to partition the dataset and to study each part separately. However, direct stratification is not trouble-free. It relies on splitting data into discrete groups, which can introduce challenges of its own, including in the choice of appropriate thresholds. It also leads to further statistical testing, which is redundant and magnifies the burden of multiple hypothesis testing. Thus, an alternative, more systematic, approach is needed to utilize background knowledge in statistical analyses. 
@@ -284,12 +293,18 @@ In this case, there is only one covariate. The last section summarizes $\pi_0$ e
 print(D2_lm_pi0, components="pi0")
 ```
 
-In contrast to the $\pi_0$ estimate from function `qvalue`, we now have one estimate per instance in the dataset, ranging from `r round(min(D2_lm_pi0$pi0), 3)` to `r round(max(D2_lm_pi0$pi0), 3)`. Internally, the function used logistic regression to estimate how the distribution of input p-values depends on the covariate, see @BocaEtAl2015 for details.
+In contrast to the single $\pi_0$ estimate from function `qvalue`, we now have one estimate per instance in the dataset. That is because function `lm_pi0` uses logistic regression to estimate how the distribution of input p-values depends on the covariate, see @BocaEtAl2015 for details. The conditioned $\pi_0$ values range in value from `r round(min(D2_lm_pi0$pi0), 3)` to `r round(max(D2_lm_pi0$pi0), 3)`.
 
+It is also possible to see a graphical summary of the conditioned $\pi_0$ estimates using a histogram.
 
-```{r, eval=TRUE, fig.width=2.5, fig.height=2.5}
-hist(D2_lm_pi0, cssclass="ps8")
+```{r, echo=TRUE, eval=FALSE}
+hist(D2_lm_pi0)
 ```
+```{r D2_lm_pi0_hist, echo=FALSE, eval=TRUE, fig.width=2.5, fig.height=1.8}
+hist(D2_lm_pi0, css=mycss, cssclass=c("ps8", "pdf"))
+```
+
+The histogram further reveals that the distribution of $\pi_0$ estimates is bimodal with two very sharp peaks of equal size. (The red line indicates an $\pi_0$ estimate without conditioning on the covariate). The biomodal distribution matches the way the dataset was constructed, with one set of experiments consistent with the null hypothesis and another set with a strong signal. 
 
 
 
@@ -326,19 +341,23 @@ D2conf <- confusion_matrix(D2$truth, D2_lm_q, "q", 0.05)
 
 This reveals a strong presence of true positives with `r D2conf[1,2]` false positives and `r D2conf[2,1]` false negatives. The analysis of the combined dataset with covariate thus reproduces the performance we obtained when we analyzed `D0` and `D1` separately.
 
+We can also display a graphical summary of the results using the `plot` function.
+
 ```{r D2_lm_q_plot_code, echo=TRUE, eval=FALSE}
 plot(D2_lm_q, var.x="p")
 plot(D2_lm_q, var.x="q")
 ```
-
-```{r D2_lm_q_plot, echo=FALSE, eval=TRUE, fig.width=5.0, fig.height=2.5}
+```{r D2_lm_q_plot, echo=FALSE, eval=TRUE, fig.width=5.0, fig.height=1.8}
 oldpar = par()
 par(mfrow=c(1,2))
-plot(D2_lm_q, var.x="p", cssclass="ps8")
-plot(D2_lm_q, var.x="q", cssclass="ps8")
+plot(D2_lm_q, var.x="p", css=mycss, cssclass=c("pdf", "ps8"))
+plot(D2_lm_q, var.x="q", css=mycss, cssclass=c("pdf", "ps8"))
 par(mfrow=oldpar$mfrow)
 ```
 
+The two views here display the conditioned q-values against the input p-values (left) and against another set of q-values computed without conditioning on the covariate. Both views reveal two sets of points, a consequence of the biomodal distribution of $\pi_0$ estimates we observed earlier.
+
+\vspace*{0.5cm}
 
 Of course, the above calculation is idealized in that the covariate perfectly stratifies the instances. To finish this section, we can repeat the calculation in a more difficult setting where the covariate carries imperfect signal. To this end, let's define an object similar to `D2`.
 
@@ -367,25 +386,43 @@ confusion_matrix(D2$truth, D2_noisy_lm_q)
 confusion_matrix(D2$truth, D2_noisy_lm_q, threshold=0.1)
 ```
 
-In each case, the confusion matrix reveals a moderate or large number of true positives with a limited number of false positives. Thus, even in this noisy setting, we have a high hit rate while restraining false discovery.
+In each case, the confusion matrix reveals a moderate or large number of true positives with a limited number of false positives. Thus, even in this noisy setting, the hit rate remains high while false discovery is still low.
 
-Although the last example introduced some noise, all calculations in this section are still based on synthetic data and are thus quite artificial. We have also considered analyses based on just one covariate. Nonetheless, the examples are instructive because the analytical workflow and syntax also apply in more complex scenarios, as demonstrated in the next section.
+We can also examine the result graphically, first through a histogram of the conditioned $\pi_0$.
 
+```{r, echo=TRUE, eval=FALSE}
+hist(D2_noisy_lm_q, css=mycss, cssclass=c("pdf", "ps8"))
+```
+```{r D2_noisy_hist, echo=FALSE, eval=TRUE, fig.width=2.5, fig.height=1.8}
+oldpar = graphics::par()
+par(mfrow=c(1,1))
+hist(D2_noisy_lm_q, css=mycss, cssclass=c("pdf", "ps8"))
+par(mfrow=oldpar$mfrow)
+```
+
+The distribution is broader than before due to the noise. Nonetheless, it is very different from the single point estimate that can be obtained without covariates.
+
+Next, we can also compare the reported q-values with the original p-values and un-conditioned q-values.
 
 ```{r D2_noisy_plot_code, echo=TRUE, eval=FALSE}
 plot(D2_noisy_lm_q, var.x="p")
 plot(D2_noisy_lm_q, var.x="q")
 ```
-
-```{r D2_noisy_plot, echo=FALSE, eval=TRUE, fig.width=7.5, fig.height=2.5}
-oldpar = par()
-par(mfrow=c(1,3))
-hist(D2_noisy_lm_q, cssclass="ps8")
-plot(D2_noisy_lm_q, var.x="p", cssclass="ps8")
-plot(D2_noisy_lm_q, var.x="q", cssclass="ps8")
+```{r D2_noisy_plot, echo=FALSE, eval=TRUE, fig.width=5.0, fig.height=1.8}
+oldpar = graphics::par()
+par(mfrow=c(1,2))
+plot(D2_noisy_lm_q, var.x="p", css=mycss, cssclass=c("pdf", "ps8"))
+plot(D2_noisy_lm_q, var.x="q", css=mycss, cssclass=c("pdf", "ps8"))
 par(mfrow=oldpar$mfrow)
 ```
 
+Both visualizations here resemble clouds of points. The guide lines, set to 0.05 by default, provide visual guides to estimate the number of points below the threshold.
+
+
+
+\vspace*{0.5cm}
+
+Although this last example introduced some noise, all calculations in this section are still based on synthetic data and are thus quite artificial. We have also considered analyses based on just one covariate. Nonetheless, the examples are instructive because the analytical workflow and syntax also apply in more complex scenarios, as demonstrated in the next section.
 
 
 

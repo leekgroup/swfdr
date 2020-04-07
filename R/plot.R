@@ -22,7 +22,7 @@ cssSwfdr = Rcss(system.file("css", "swfdr.css", package="swfdr"))
 #' @param lines integer, bob
 #' @param ... other arguments
 #'
-#' @importFrom Rcssplot par plot lines axis hist
+#' @importFrom Rcssplot par plot lines axis mtext hist
 #' @importFrom Rcssplot RcssGetCompulsoryClass RcssValue
 #' 
 #' @examples
@@ -56,11 +56,15 @@ hist.lm_pi0 <- function(x, breaks=31,
   # draw the distribution of pi0 estimates
   par()
   result <- hist(pi0, breaks=breaks, xlim=c(0, 1),
-                 xlab=xlab, ylab=ylab, main=main)
+                 xlab="", ylab="", main="")
   axis(1, at=c(0, 1), label=rep("", 2), line=0, Rcssclass="x")
   axis(1, label=NA, line=0, Rcssclass="x")
   axis(1, lwd=0, Rcssclass="x")
-  axis(2)
+  axis(2, label=NA, line=0, Rcssclass="y")
+  axis(2, lwd=0, Rcssclass="y")
+  mtext(xlab, side=1, Rcssclass="xlab")
+  mtext(ylab, side=2, Rcssclass="ylab")
+  mtext(main, side=3, Rcssclass="main")
   
   # show the average pi0, i.e. the no-covariates pi0
   lines(rep(pi0.raw, 2), c(0, 1.05*max(result$counts)), Rcssclass="center")
@@ -83,7 +87,7 @@ hist.lm_pi0 <- function(x, breaks=31,
 #' @param cssclass character, style class
 #' @param ... other arguments, passed to points()
 #'
-#' @importFrom Rcssplot par plot lines axis points abline
+#' @importFrom Rcssplot par plot lines axis mtext points abline
 #' @importFrom Rcssplot RcssGetCompulsoryClass RcssValue
 #'
 #' @examples
@@ -133,11 +137,17 @@ plot.lm_qvalue <- function(x, var.x=c("pvalues", "qvalues.raw"),
   par()
   plot(.data[,1], .data[,2], log=log, type="n",
        xlim=xylim, ylim=xylim, 
-       xlab=xlab, ylab=ylab, main=main)
-  axis(1, at=xlim, label=c("", ""), tck=0, Rcssclass="x") 
-  axis(1, Rcssclass="x")
-  axis(2, at=ylim, label=c("", ""), tck=0, Rcssclass="y")
-  axis(2, Rcssclass="y")
+       xlab="", ylab="", main="")
+  axis(1, at=xlim, label=c("", ""), tck=0, line=0, Rcssclass="x") 
+  axis(1, label=NA, line=0, Rcssclass="x")
+  axis(1, lwd=0, Rcssclass="x")
+  axis(2, at=ylim, label=c("", ""), tck=0, line=0, Rcssclass="y")
+  axis(2, label=NA, line=0, Rcssclass="y")
+  axis(2, lwd=0, Rcssclass="y")
+  mtext(xlab, side=1, Rcssclass="xlab")
+  mtext(ylab, side=2, Rcssclass="ylab")
+  mtext(main, side=3, Rcssclass="main")
+  
   count.class <- NULL
   if (length(x$pvalues)>1000) {
     count.class <- "many"
