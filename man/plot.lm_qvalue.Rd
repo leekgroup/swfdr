@@ -12,6 +12,8 @@
   xlab = NULL,
   ylab = NULL,
   main = "",
+  xlim = NULL,
+  ylim = NULL,
   css = "swfdr",
   cssclass = NULL,
   ...
@@ -32,6 +34,10 @@ lines, set to NULL to avoid showing the threshold lines}
 \item{ylab}{character, label for y-axis}
 
 \item{main}{character, label for plot title}
+
+\item{xlim}{numeric of length 2, limits for x-axis}
+
+\item{ylim}{numeric of length 2, limits for y-axis}
 
 \item{css}{object of class Rcss}
 

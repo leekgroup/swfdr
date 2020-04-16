@@ -17,10 +17,9 @@ cssSwfdr = Rcss(system.file("css", "swfdr.css", package="swfdr"))
 #' @param xlab character, label for x-axis
 #' @param ylab character, label for y-axis
 #' @param main character, label for title
-#' @param Rcss style object of class Rcss
-#' @param Rcssclass character, style class
-#' @param lines integer, bob
-#' @param ... other arguments
+#' @param css style object of class Rcss
+#' @param cssclass character, style class
+#' @param ... other arguments, passed to hist
 #'
 #' @importFrom Rcssplot par plot lines axis mtext hist
 #' @importFrom Rcssplot RcssGetCompulsoryClass RcssValue
@@ -37,7 +36,7 @@ cssSwfdr = Rcss(system.file("css", "swfdr.css", package="swfdr"))
 #' @export
 hist.lm_pi0 <- function(x, breaks=31,
                         xlab="pi0 estimate", ylab="Counts", main="",
-                        css="swfdr", cssclass=NULL, lines=10, ...) {
+                        css="swfdr", cssclass=NULL, ...) {
   
   if (identical(css, "swfdr")) {
     RcssDefaultStyle <- cssSwfdr
@@ -56,7 +55,7 @@ hist.lm_pi0 <- function(x, breaks=31,
   # draw the distribution of pi0 estimates
   par()
   result <- hist(pi0, breaks=breaks, xlim=c(0, 1),
-                 xlab="", ylab="", main="")
+                 xlab="", ylab="", main="", ...)
   axis(1, at=c(0, 1), label=rep("", 2), line=0, Rcssclass="x")
   axis(1, label=NA, line=0, Rcssclass="x")
   axis(1, lwd=0, Rcssclass="x")
@@ -83,6 +82,8 @@ hist.lm_pi0 <- function(x, breaks=31,
 #' @param xlab character, label for x-axis
 #' @param ylab character, label for y-axis
 #' @param main character, label for plot title
+#' @param xlim numeric of length 2, limits for x-axis
+#' @param ylim numeric of length 2, limits for y-axis
 #' @param css object of class Rcss
 #' @param cssclass character, style class
 #' @param ... other arguments, passed to points()
@@ -104,27 +105,32 @@ hist.lm_pi0 <- function(x, breaks=31,
 plot.lm_qvalue <- function(x, var.x=c("pvalues", "qvalues.raw"),
                            log="xy", threshold=0.05,
                            xlab=NULL, ylab=NULL, main="",
+                           xlim=NULL, ylim=NULL, 
                            css="swfdr", cssclass=NULL, ...) {
   
   # adjust settings to show qvalue vs pvalue, or qvalue with vs without covariates
   var.x = match.arg(var.x)
   if (is.null(ylab)) {
-    ylab <- "lm q-value"
+    ylab <- "conditioned q-value"
   }
   if (var.x=="pvalues") {
     .data <- cbind(x$pvalues, x$qvalues)
-    .min.nonzero <- min(.data[.data>0])
     if (is.null(xlab)) {
       xlab <- "p-value"
     }
   } else if (var.x=="qvalues.raw") {
     .data <- cbind(x$qvalues.raw, x$qvalues)
-    .min.nonzero <- min(.data[.data>0])
     if (is.null(xlab)) {
       xlab <- "q-value"
     }
-  } 
-  xlim <- ylim <- xylim <- c(.min.nonzero, 1)  
+  }
+  .min.nonzero <- min(.data[.data>0])
+  if (is.null(xlim)) {
+    xlim = c(.min.nonzero, 1)
+  }
+  if (is.null(ylim)) {
+    ylim = xlim
+  }
 
   if (identical(css, "swfdr")) {
     RcssDefaultStyle <- cssSwfdr
@@ -136,7 +142,7 @@ plot.lm_qvalue <- function(x, var.x=c("pvalues", "qvalues.raw"),
   # creat the plot area and add points
   par()
   plot(.data[,1], .data[,2], log=log, type="n",
-       xlim=xylim, ylim=xylim, 
+       xlim=xlim, ylim=ylim, 
        xlab="", ylab="", main="")
   axis(1, at=xlim, label=c("", ""), tck=0, line=0, Rcssclass="x") 
   axis(1, label=NA, line=0, Rcssclass="x")
@@ -152,7 +158,7 @@ plot.lm_qvalue <- function(x, var.x=c("pvalues", "qvalues.raw"),
   if (length(x$pvalues)>1000) {
     count.class <- "many"
   }
-  points(x$pvalues, x$qvalues, Rcssclass=count.class, ...)
+  points(.data[,1], .data[,2], Rcssclass=count.class, ...)
   
   if (is.finite(threshold)) {
     abline(h=threshold, v=threshold, Rcssclass="threshold")

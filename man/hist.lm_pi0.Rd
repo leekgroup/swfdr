@@ -12,7 +12,6 @@
   main = "",
   css = "swfdr",
   cssclass = NULL,
-  lines = 10,
   ...
 )
 }
@@ -27,13 +26,11 @@
 
 \item{main}{character, label for title}
 
-\item{lines}{integer, bob}
+\item{css}{style object of class Rcss}
 
-\item{...}{other arguments}
+\item{cssclass}{character, style class}
 
-\item{Rcss}{style object of class Rcss}
-
-\item{Rcssclass}{character, style class}
+\item{...}{other arguments, passed to hist}
 }
 \description{
 Display a histogram of pi0 estimates
