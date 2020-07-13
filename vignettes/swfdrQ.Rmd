@@ -415,7 +415,7 @@ plot(D2_noisy_lm_q, var.x="q", css=mycss, cssclass=c("pdf", "ps8"))
 par(mfrow=oldpar$mfrow)
 ```
 
-Both visualizations resemble clouds. The dashed lines, set at 0.05 by default, provide visual guides to separate points below the threshold. The plot on the right, in particular, reveals that modeling detects significant hits when none were called with unconditioned q-values.
+The dashed lines, set at 0.05 by default, provide visual guides to separate points below the threshold. The plot on the right, in particular, reveals that modeling detects significant hits when none were called with unconditioned q-values.
 
 
 
@@ -515,7 +515,7 @@ In this calculation, `lm_qvalue` displays a warning that raises attention to the
 print(GWAS_lm_qvalue_0, components=c("pi0", "hits"))
 ```
 
-This reveals that although the function computes 50,000 estimates for pi0, all the estimates are equal. The hit table is slightly different than before. 
+Although there are 50,000 estimates for pi0, all the estimates are equal. The hit table is slightly different than before. 
 
 When there are no covariates, the calculations performed by `lm_qvalue` are conceptually equivalent to those in function `qvalue` from the `qvalue` package. We can check this explicitly.
 
@@ -536,7 +536,7 @@ The same warning appears, but we can again skip it and inspect the output.
 table(GWAS_lm_qvalue_smooth$pi0)
 ```			     
 
-This reveals all the $\pi_0$ estimates are equal to the output from `qvalue` - we have exact parity with the `value` package. This is a useful technical control and it builds confidence in the correctness of the results. However, running this code in the console, there will be a noticeable difference in execution time. Thus, for large datasets, it is more convenient to use the default settings.
+All the $\pi_0$ estimates are equal to the output from the `qvalue` package. This is a useful technical control and it builds confidence in the correctness of the results. However, running this code in the console, there will be a noticeable difference in execution time. Thus, for large datasets, it is more convenient to use the default settings.
 
 
 
