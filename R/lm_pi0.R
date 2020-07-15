@@ -57,16 +57,19 @@ lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
   smooth.df <- check_df(smooth.df, n.lambda)
   X <- check_X(X=X, p=p)
   
-  # pick a modeling function, fit odels for each lambda
+  # pick a modeling function, fit models for each lambda
   available.regressions <- list(logistic=fit_logistic, linear=fit_linear)
   fit.function <- available.regressions[[type]]
   pi0.lambda <- matrix(NA, nrow=nrow(X), ncol=n.lambda)
+  pi0.lambda.raw <- matrix(NA, nrow=1, ncol=n.lambda)
   for (i in 1:n.lambda) {
     y <- (p >= lambda[i])
-    pi0.lambda[, i] <- fit.function(y, X)/(1-lambda[i])
+    pi0.lambda[, i] <- fit.function(y, X) / (1 - lambda[i])
+    pi0.lambda.raw[, i] <- mean(y) / (1 - lambda[i])
   }
   if (threshold) {
     pi0.lambda <- regularize.interval(pi0.lambda)
+    pi0.lambda.raw <- regularize.interval(pi0.lambda.raw)
   }
   
   # smooth over values of lambda (for each p-value/ row in X)
@@ -75,12 +78,14 @@ lm_pi0 <- function(p, lambda = seq(0.05, 0.95, 0.05), X,
                                unit.spline=unit.spline.pi0)
   smoothing.function <- available.smoothings[[smoothing]]
   pi0 <- smoothing.function(lambda, pi0.lambda, smooth.df)
+  pi0.raw <- smoothing.function(lambda, pi0.lambda.raw, smooth.df)
   if (threshold) {
     pi0 <- regularize.interval(pi0)
+    pi0.raw <- regularize.interval(pi0.raw)
   }
   
   result <- c(list(call=match.call(), lambda=lambda, X.names = colnames(X),
-                 pi0.lambda=pi0.lambda), pi0)
+                   pi0.lambda=pi0.lambda), pi0, pi0.raw=pi0.raw)
   
   class(result) <- "lm_pi0"
   result

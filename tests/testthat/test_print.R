@@ -43,8 +43,8 @@ test_that("print.lm_pi0 emits error on input that is not lm_pi0", {
   # do not accept primitive types
   expect_error(print.lm_pi0(NULL), "lm_pi0")
   expect_error(print.lm_pi0(c(1,2)), "lm_pi0")
-  # do not accept other package objects
-  expect_error(print.lm_pi0(q.flat), "lm_pi0")
+  # does accept other package objects
+  expect_message(print.lm_pi0(q.flat))
 })
 
 
@@ -63,7 +63,7 @@ test_that("print.lm_qvalue emits error on input that is not lm_pi0", {
 
 
 test_that("summary.lm_pi0 produces output", {
-  expect_error(summary.lm_pi0(q.flat), "lm_pi0")
+  expect_message(summary.lm_pi0(q.flat), "pi0")
   expect_message(summary.lm_pi0(pi0.flat), "pi0")
 })
 

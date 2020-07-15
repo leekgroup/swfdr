@@ -14,6 +14,7 @@
 #' @noRd
 #' @param x numeric vector, position of knots
 #' @param ymat numeric matrix, ncol(ymat) should match length(x)
+#' @param df integer, degrees of freedom for the spline
 #'
 #' @return list with components pi0.smooth and pi0
 smooth.spline.pi0 <- function(x, ymat, df=3) {
@@ -38,7 +39,8 @@ smooth.spline.pi0 <- function(x, ymat, df=3) {
 #' @noRd
 #' @param x numeric vector, position of knots
 #' @param ymat numeric matrix, ncol(ymat) should match length(x)
-#'
+#' @param df integer, degrees of freedom for the spline
+#' 
 #' @return list with component pi0 (numeric vector)
 unit.spline.pi0 <- function(x, ymat, df=3) {
   transform.matrix <- unit.spline.matrix(x, df=df)
@@ -57,7 +59,8 @@ unit.spline.pi0 <- function(x, ymat, df=3) {
 #' @keywords internal
 #' @noRd
 #' @param x numeric vector, position of internal knots within [0,1]
-#'
+#' @param df integer, degrees of freedom for the spline
+#' 
 #' @importFrom splines bs
 #'
 #' @return matrix of dimension c(length(x), length(x))

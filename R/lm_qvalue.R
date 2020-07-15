@@ -51,15 +51,16 @@ lm_qvalue <- function(p, X, pfdr=FALSE, pi0=NULL,
   } else {
     q <- pmin(1, cummin( p[o]*n/ i ))
   }
-  q <- (q* pi0$pi0[o])[ro]
+  q.raw <- (q * pi0$pi0.raw)[ro]
+  q <- (q * pi0$pi0[o])[ro]
   
   # create output
   if ("call" %in% names(pi0)) {
     pi0 <- pi0[-which(names(pi0)=="call")]
   }
   result <- c(list(call=match.call()), pi0,
-              list(pvalues = p, qvalues = q))
-  class(result) <- "lm_qvalue"
+              list(pvalues = p, qvalues = q, qvalues.raw = q.raw))
+  class(result) <- c("lm_qvalue", "lm_pi0")
   result
 }
 
