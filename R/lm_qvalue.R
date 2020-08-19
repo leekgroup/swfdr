@@ -1,7 +1,7 @@
 # Esimation of qvalues from pvalues and matrix of covariates
 
 
-#' Compute qvalues taking into account a matrix of covariates
+#' Estimation of qvalues conditioned on covariates
 #'
 #' The recipe for turning pvalues into qvalues is adapted from package
 #' 'qvalue' and articles by Storey, Tibshirani, Taylor, Siegmund.
@@ -10,13 +10,18 @@
 #' @param X matrix of covariates (can be missing if pi0 is specified instead)
 #' @param pfdr logical, making estimates robust for small p-values and a small
 #' sample size
-#' @param pi0 list with pi0 estimates from lm_pi0
+#' @param pi0 list with pi0 estimates from lm_pi0. If this is not provided,
+#' pi0 is estimated using function lm_pi0.
 #' @param smoothing character, type of smoothing used to fit pi0. Note the
 #' default in this function is different than in lm_pi0.
 #' @param ... other parameters (passed on to lm_pi0 if pi0 is not provided)
 #' 
-#' @return list
-#'
+#' @return object of class `lm_qvalue', which is a list with several components
+#' \item{call}{matched function call}
+#' \item{pvalues}{numeric vector of original p-values}
+#' \item{qvalues}{numeric vector of q-values}
+#' \item{}{other list elements transferred from pi0}
+#' 
 #' @examples
 #' # define a covariate
 #' X <- rep(c(0, 1), each=1000)

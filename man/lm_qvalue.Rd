@@ -2,7 +2,7 @@
 % Please edit documentation in R/lm_qvalue.R
 \name{lm_qvalue}
 \alias{lm_qvalue}
-\title{Compute qvalues taking into account a matrix of covariates}
+\title{Estimation of qvalues conditioned on covariates}
 \usage{
 lm_qvalue(
   p,
@@ -21,7 +21,8 @@ lm_qvalue(
 \item{pfdr}{logical, making estimates robust for small p-values and a small
 sample size}
 
-\item{pi0}{list with pi0 estimates from lm_pi0}
+\item{pi0}{list with pi0 estimates from lm_pi0. If this is not provided,
+pi0 is estimated using function lm_pi0.}
 
 \item{smoothing}{character, type of smoothing used to fit pi0. Note the
 default in this function is different than in lm_pi0.}
@@ -29,7 +30,11 @@ default in this function is different than in lm_pi0.}
 \item{...}{other parameters (passed on to lm_pi0 if pi0 is not provided)}
 }
 \value{
-list
+object of class `lm_qvalue', which is a list with several components
+\item{call}{matched function call}
+\item{pvalues}{numeric vector of original p-values}
+\item{qvalues}{numeric vector of q-values}
+\item{}{other list elements transferred from pi0}
 }
 \description{
 The recipe for turning pvalues into qvalues is adapted from package

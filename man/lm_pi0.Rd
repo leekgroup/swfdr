@@ -34,18 +34,18 @@ interval; if FALSE, all estimates are left as they are computed}
 \item{smoothing}{character, type of smoothing used to fit pi0}
 }
 \value{
-pi0 numerical vector of smoothed estimate of pi0(x).
-The length is the number of rows in X.
-
-pi0.lambda numeric matrix of estimated pi0(x) for each value of
+object of class `lm_pi0', which is a list with several components
+\item{call}{matched function call}
+\item{lambda}{numeric vector of thresholds used in calculating pi0.lambda}
+\item{X.names}{character vector of covariates used in modeling}
+\item{pi0.lambda}{numeric matrix of estimated pi0(x) for each value of
 lambda. The number of columns is the number of tests, the number of rows is
-the length of lambda.
-
-lambda numeric vector of thresholds used in calculating pi0.lambda
-
-pi0.smooth (only output with smoothing="smooth.spline") Matrix of
+the length of lambda.}
+\item{pi0}{numerical vector of smoothed estimate of pi0(x).
+The length is the number of rows in X.}
+\item{pi0.smooth}{(only output with smoothing="smooth.spline") Matrix of
 fitted values from the smoother fit to the pi0(x) estimates at each value
-of lambda (same number of rows and columns as pi0.lambda)
+of lambda (same number of rows and columns as pi0.lambda)}
 }
 \description{
 Estimation of pi0, proportion of p-values consistent with a null hypothesis
