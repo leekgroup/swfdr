@@ -4,7 +4,8 @@
 \name{BMI_GIANT_GWAS_sample}
 \alias{BMI_GIANT_GWAS_sample}
 \title{Subset of SNPs from meta-analysis of BMI GWAS study.}
-\format{A data frame with 50,000 rows and 9 variables:
+\format{
+A data frame with 50,000 rows and 9 variables:
 \describe{
   \item{SNP}{ID for SNP (single nucleotide polymorphism)}
   \item{A1}{Allele 1 for SNP}
@@ -15,7 +16,8 @@
   \item{p}{P-value for association between SNP and BMI}
   \item{N}{Total sample size considered for association of SNP and BMI}
   \item{Freq_MAF_Int_Hapmap}{Three approximately equal intervals for the Hapmap MAFs}
-}}
+}
+}
 \source{
 \url{https://www.broadinstitute.org/collaboration/giant/index.php/GIANT_consortium_data_files#GWAS_Anthropometric_2015_BMI}
 }

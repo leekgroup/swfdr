@@ -4,19 +4,31 @@
 #' Calculate the science-wise FDR (swfdr)
 #' 
 #' @param pValues Numerical vector of p-values
-#' @param truncated Vector of 0s and 1s with indices corresponding to those in pValues; 1 indicates that the p-values is truncated, 0 that it is not truncated
-#' @param rounded Vector of 0s and 1s with indices corresponding to those in pValues; 1 indicates that the p-values is rounded, 0 that it is not rounded
+#' @param truncated Vector of 0s and 1s with indices corresponding to those in
+#' pValues; 1 indicates that the p-values is truncated, 0 that it is not truncated
+#' @param rounded Vector of 0s and 1s with indices corresponding to those in pValues;
+#' 1 indicates that the p-values is rounded, 0 that it is not rounded
 #' @param pi0 Initial prior probability that a hypothesis is null (default is 0.5)
-#' @param alpha Initial value of parameter alpha from Beta(alpha, beta) true positive distribution (default is 1)
-#' @param beta Initial value of parameter beta from Beta(alpha, beta) true positive distribution (default is 50)
+#' @param alpha Initial value of parameter alpha from Beta(alpha, beta) true positive
+#' distribution (default is 1)
+#' @param beta Initial value of parameter beta from Beta(alpha, beta) true positive
+#' distribution (default is 50)
 #' @param numEmIterations The number of EM iterations (default is 100)
 #' 
-#' @return pi0 Final value of prior probability - estimated from EM - that a hypothesis is null, i.e. estimated swfdr
-#' @return alpha Final value of parameter alpha - estimated from EM - from Beta(alpha, beta) true positive distribution
-#' @return beta Final value of parameter beta - estimated from EM - from Beta(alpha, beta) true positive distribution
-#' @return z Vector of expected values of the indicator of whether the p-value is null or not - estimated from EM - for the non-rounded p-values (values of NA represent the rounded p-values)
-#' @return n0 Expected number of rounded null p-values - estimated from EM - between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.05)
-#' @return n Number of rounded p-values between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.05)
+#' @return
+#' \item{pi0}{Final value of prior probability - estimated from EM -
+#' that a hypothesis is null, i.e. estimated swfdr}
+#' \item{alpha}{Final value of parameter alpha - estimated from EM -
+#' from Beta(alpha, beta) true positive distribution}
+#' \item{beta}{Final value of parameter beta - estimated from EM -
+#' from Beta(alpha, beta) true positive distribution}
+#' \item{z}{Vector of expected values of the indicator of whether the p-value is
+#' null or not - estimated from EM - for the non-rounded p-values (values of NA
+#' represent the rounded p-values)}
+#' \item{n0}{Expected number of rounded null p-values - estimated from EM -
+#' between certain cutpoints (0.005, 0.015, 0.025, 0.035, 0.045, 0.05)}
+#' \item{n}{Number of rounded p-values between certain cutpoints
+#' (0.005, 0.015, 0.025, 0.035, 0.045, 0.05)}
 #' 
 #' @importFrom stats4 mle coef
 #' @importFrom stats dbeta lsfit pbeta smooth.spline
